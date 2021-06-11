@@ -8,7 +8,7 @@ from os import path
 from settings import HEIGHT, WIDTH
 from sprites import *
 import pygame_menu
-
+from menus import homeMenu, optionsMenu
 
 class Game:
     def __init__(self):
@@ -19,26 +19,10 @@ class Game:
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
         self.load_data()
         theme = pygame_menu.themes.THEME_ORANGE.copy()
-        self.home = pygame_menu.Menu(  # Instantiate Menu
-            height=HEIGHT,
-            width=WIDTH,
-            onclose=pygame_menu.events.CLOSE,
-            title='The Sickulator',
-            theme=theme,
-            enabled=True
-        )
-        self.home.add.button('Play', lambda : self._update_from_selection(2))  # Add buttons to menu
-        self.home.add.button('Quit', pygame_menu.events.EXIT)
+        self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
 
-        self.options = pygame_menu.Menu(  # Instantiate Menu
-            height=HEIGHT,
-            width=WIDTH,
-            onclose=pygame_menu.events.CLOSE,
-            title='Options',
-            theme=theme,
-            enabled=False
-        )
+        self.options = optionsMenu(lambda : self._update_from_selection(3))
         self.options.add.range_slider("Infection Rate", default=.05, increment=.01, range_values=(0,1))
         self.options.add.button('Play', lambda : self._update_from_selection(3))  # Add buttons to menu
 
