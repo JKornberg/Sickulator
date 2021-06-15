@@ -10,8 +10,8 @@ from sprites import *
 import pygame_menu
 from menus import homeMenu, optionsMenu
 import os
-os.environ["SDL_VIDEODRIVER"] = "dummy"
-
+os.environ["SDL_VIDEODRIVER"]="x11"
+os.environ['SDL_AUDIODRIVER'] = 'dsp'
 class Game:
     def __init__(self):
         pg.init()
