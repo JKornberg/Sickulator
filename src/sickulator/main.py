@@ -11,7 +11,7 @@ import pygame_menu
 from menus import homeMenu, optionsMenu
 import os
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
-
+os.environ['DISPLAY'] = ': 0.0'
 class Game:
     def __init__(self):
         pg.init()
