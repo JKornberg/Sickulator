@@ -9,7 +9,9 @@ from settings import HEIGHT, WIDTH
 from sprites import *
 import pygame_menu
 from menus import homeMenu, optionsMenu
-
+import os
+os.environ["SDL_VIDEODRIVER"]="x11"
+os.environ['SDL_AUDIODRIVER'] = 'dsp'
 class Game:
     def __init__(self):
         pg.init()
@@ -23,8 +25,8 @@ class Game:
         self.current = 0
 
         self.options = optionsMenu(lambda : self._update_from_selection(3))
-        self.options.add.range_slider("Infection Rate", default=.05, increment=.01, range_values=(0,1))
-        self.options.add.button('Play', lambda : self._update_from_selection(3))  # Add buttons to menu
+        # self.options.add.range_slider("Infection Rate", default=.05, increment=.01, range_values=(0,1))
+        # self.options.add.button('Play', lambda : self._update_from_selection(3))  # Add buttons to menu
 
 
     def load_data(self):
