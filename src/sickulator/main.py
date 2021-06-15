@@ -9,6 +9,8 @@ from settings import HEIGHT, WIDTH
 from sprites import *
 import pygame_menu
 from menus import homeMenu, optionsMenu
+import os
+os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
 class Game:
     def __init__(self):
