@@ -12,6 +12,8 @@ from menus import homeMenu, optionsMenu
 import os
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
 os.environ['DISPLAY'] = ': 0.0'
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+
 class Game:
     def __init__(self):
         pg.init()
