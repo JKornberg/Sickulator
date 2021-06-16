@@ -1,7 +1,12 @@
 import pygame_menu
-from settings import HEIGHT, WIDTH
+from settings import HEIGHT, WIDTH, UISCALE
 
-theme = pygame_menu.themes.THEME_ORANGE.copy()
+menuTheme = pygame_menu.themes.THEME_DARK.copy()
+menuTheme.font = pygame_menu.font.FONT_NEVIS
+
+uiTheme = menuTheme.copy()
+uiTheme.title = False
+uiTheme.background_color = (40,0,0)
 
 
 def homeMenu(onPlay):
@@ -10,7 +15,7 @@ def homeMenu(onPlay):
         width=WIDTH,
         onclose=pygame_menu.events.CLOSE,
         title='The Sickulator',
-        theme=theme,
+        theme=menuTheme,
         enabled=True
     )
     home.add.button('Play', onPlay)  # Add buttons to menu
@@ -23,7 +28,7 @@ def optionsMenu(onPlay):
             width=WIDTH,
             onclose=pygame_menu.events.CLOSE,
             title='Options',
-            theme=theme,
+            theme=menuTheme,
             enabled=False
         )
 
@@ -36,4 +41,10 @@ def optionsMenu(onPlay):
     options.add.range_slider("Family Size", default=4, increment=1, range_text_value_tick_number=2, range_values=(2,10), value_format=(lambda x : str(int(x)))) # ideally range 2 to 10
     options.add.button('Play', onPlay)  # Add buttons to menu
     return options
+
+
+def uiMenu():
+    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,0))
+    ui.add.range_slider("Speed", default=2, range_text_value_tick_number=4, range_values=[.25,.5,1,2,4], value_format=lambda x: str(x).strip('0')+"x")
+    return ui
 

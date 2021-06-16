@@ -5,10 +5,10 @@
 import pygame as pg
 import sys
 from os import path
-from settings import HEIGHT, WIDTH
+from settings import HEIGHT, WIDTH, UISCALE
 from sprites import *
 import pygame_menu
-from menus import homeMenu, optionsMenu
+from menus import *
 import os
 os.environ["SDL_VIDEODRIVER"]="x11"
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
@@ -20,13 +20,11 @@ class Game:
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
         self.load_data()
-        theme = pygame_menu.themes.THEME_ORANGE.copy()
         self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
-
         self.options = optionsMenu(lambda : self._update_from_selection(3))
-        # self.options.add.range_slider("Infection Rate", default=.05, increment=.01, range_values=(0,1))
-        # self.options.add.button('Play', lambda : self._update_from_selection(3))  # Add buttons to menu
+        self.uiSurf = pg.Surface((WIDTH,HEIGHT * UISCALE))
+        self.ui = uiMenu()
 
 
     def load_data(self):
@@ -53,9 +51,15 @@ class Game:
         self.playing = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
-            self.events()
+            events = self.events()
             self.update()
             self.draw()
+            self.ui.update(events)
+            self.ui.draw(self.uiSurf, clear_surface=True)
+            self.screen.blit(self.uiSurf,(0,0))
+            pg.display.flip()
+            pg.display.update()
+
 
     def quit(self):
         pg.quit()
@@ -76,11 +80,11 @@ class Game:
         self.draw_grid()
         self.all_sprites.draw(self.screen)
         self.mens = pg.Surface((WIDTH,HEIGHT))
-        pg.display.flip()
        
     def events(self):
         # catch all events here
-        for event in pg.event.get():
+        events = pg.event.get()
+        for event in events:
             if event.type == pg.QUIT:
                 self.quit()
             if event.type == pg.KEYDOWN:
@@ -94,6 +98,7 @@ class Game:
                     self.player.move(dy=-1)
                 if event.key == pg.K_DOWN:
                     self.player.move(dy=1)
+        return events
 
     def show_start_screen(self):
         self.home.mainloop(self.screen)
@@ -112,12 +117,15 @@ class Game:
         if index == 2:
             self.options.enable()
             self.options.mainloop(self.screen)
-            self.home.disable
+            self.home.disable()
 
         elif index == 3:
             self.home.disable()
+            self.options.disable()
+            self.ui.enable()
             g.new()
             g.run()
+
 
 # create the game object
 g = Game()
