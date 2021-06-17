@@ -5,13 +5,13 @@
 import pygame as pg
 import sys
 from os import path
-from settings import HEIGHT, WIDTH, UISCALE
-from sprites import *
-import pygame_menu
-from menus import *
-import os
-os.environ["SDL_VIDEODRIVER"]="x11"
-os.environ['SDL_AUDIODRIVER'] = 'dsp'
+
+from .settings import *
+from .sprites import *
+from .menus import homeMenu, optionsMenu, uiMenu
+from pytmx.util_pygame import load_pygame
+
+
 class Game:
     def __init__(self):
         pg.init()
@@ -19,21 +19,14 @@ class Game:
         pg.display.set_caption("test")
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
-        self.load_data()
+        self.map_data = load_pygame('sickulator/map/map.tmx')
         self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
         self.options = optionsMenu(lambda : self._update_from_selection(3))
         self.uiSurf = pg.Surface((WIDTH,HEIGHT * UISCALE))
         self.ui = uiMenu()
+        
 
-
-    def load_data(self):
-        '''Load all assets'''
-        game_folder = path.dirname(__file__)
-        self.map_data = []
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
-            for line in f:
-                self.map_data.append(line)
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -69,17 +62,11 @@ class Game:
         # update portion of the game loop
         self.all_sprites.update()
 
-    def draw_grid(self):
-        for x in range(0, WIDTH, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILESIZE):
-            pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw(self):
-        self.screen.fill(BGCOLOR)
-        self.draw_grid()
-        self.all_sprites.draw(self.screen)
-        self.mens = pg.Surface((WIDTH,HEIGHT))
+        for layer in self.map_data.layers:
+            for x, y, image in layer.tiles():
+                print(x, y, image) # What to do here?
        
     def events(self):
         # catch all events here
@@ -106,6 +93,7 @@ class Game:
 
     def show_go_screen(self):
         pass
+
     def _update_from_selection(self, index: int) -> None:
         """
         Change widgets depending on index.
@@ -128,5 +116,7 @@ class Game:
 
 
 # create the game object
-g = Game()
-g.show_start_screen()
+
+if __name__ == "__main__":
+    g = Game()
+    g.show_start_screen()

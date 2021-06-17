@@ -3,9 +3,9 @@
  <editorsettings>
   <export target="Sickulator_Map.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" source="../CitySet.tsx"/>
- <tileset firstgid="181" source="../Terrain.tsx"/>
- <tileset firstgid="187" source="../Roads.tsx"/>
+ <tileset firstgid="1" source="Buildings.tsx"/>
+ <tileset firstgid="181" source="Terrain.tsx"/>
+ <tileset firstgid="187" source="Roads.tsx"/>
  <layer id="1" name="Tile Layer 1" width="50" height="50">
   <data encoding="csv">
 181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,182,182,236,182,182,182,236,195,296,297,195,236,182,182,182,236,182,182,182,182,

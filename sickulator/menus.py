@@ -1,5 +1,5 @@
 import pygame_menu
-from settings import HEIGHT, WIDTH, UISCALE
+from .settings import HEIGHT, WIDTH, UISCALE
 
 menuTheme = pygame_menu.themes.THEME_DARK.copy()
 menuTheme.font = pygame_menu.font.FONT_NEVIS
