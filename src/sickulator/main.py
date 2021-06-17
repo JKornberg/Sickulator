@@ -7,11 +7,12 @@ import sys
 from os import path
 from settings import HEIGHT, WIDTH, UISCALE
 from sprites import *
+from tiles import *
 import pygame_menu
 from menus import *
 import os
-os.environ["SDL_VIDEODRIVER"]="x11"
-os.environ['SDL_AUDIODRIVER'] = 'dsp'
+#os.environ["SDL_VIDEODRIVER"]="x11"
+#os.environ['SDL_AUDIODRIVER'] = 'dsp'
 class Game:
     def __init__(self):
         pg.init()
@@ -30,21 +31,23 @@ class Game:
     def load_data(self):
         '''Load all assets'''
         game_folder = path.dirname(__file__)
-        self.map_data = []
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
-            for line in f:
-                self.map_data.append(line)
+        map_folder = path.join(game_folder, 'map')
+        self.map = TiledMap(path.join(map_folder, 'samp.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        for row, tiles in enumerate(self.map_data):
-            for col, tile in enumerate(tiles):
-                if tile == '1':
-                    Wall(self, col, row)
-                if tile == 'P':
-                    self.player = Player(self, col, row)
+        #for row, tiles in enumerate(self.map_data):
+         #   for col, tile in enumerate(tiles):
+          #      if tile == '1':
+           #         Wall(self, col, row)
+            #    if tile == 'P':
+             #       self.player = Player(self, col, row)
+        self.player = Player(self, 5,5)
+        self.camera = Camera(self.map.width, self.map.height)
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -56,7 +59,7 @@ class Game:
             self.draw()
             self.ui.update(events)
             self.ui.draw(self.uiSurf, clear_surface=True)
-            self.screen.blit(self.uiSurf,(0,0))
+         #   self.screen.blit(self.uiSurf,(0,0))
             pg.display.flip()
             pg.display.update()
 
@@ -76,8 +79,9 @@ class Game:
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw(self):
-        self.screen.fill(BGCOLOR)
-        self.draw_grid()
+        #self.screen.fill(BGCOLOR)
+        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        #self.draw_grid()
         self.all_sprites.draw(self.screen)
         self.mens = pg.Surface((WIDTH,HEIGHT))
        
@@ -125,7 +129,6 @@ class Game:
             self.ui.enable()
             g.new()
             g.run()
-
 
 # create the game object
 g = Game()
