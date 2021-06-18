@@ -1,4 +1,5 @@
 import pygame_menu
+import pygame as pg
 from settings import HEIGHT, WIDTH, UISCALE
 
 menuTheme = pygame_menu.themes.THEME_DARK.copy()
@@ -6,7 +7,7 @@ menuTheme.font = pygame_menu.font.FONT_NEVIS
 
 uiTheme = menuTheme.copy()
 uiTheme.title = False
-uiTheme.background_color = (40,0,0)
+uiTheme.background_color = (55,96,113)
 
 
 def homeMenu(onPlay):
@@ -42,9 +43,15 @@ def optionsMenu(onPlay):
     options.add.button('Play', onPlay)  # Add buttons to menu
     return options
 
-
 def uiMenu():
-    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,0))
+    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,0),columns=2,rows=[1,1])
     ui.add.range_slider("Speed", default=2, range_text_value_tick_number=4, range_values=[.25,.5,1,2,4], value_format=lambda x: str(x).strip('0')+"x")
+    info = ui.add.button("info")
+    info.set_border(1,(255,255,255))
     return ui
 
+
+def popup():
+    surf = pg.Surface((100,100))
+    surf.fill((255,255,255))
+    return surf
