@@ -84,23 +84,17 @@ class Simulation:
         self.show = True
         
     def load_data(self):
-            '''Load all assets'''
-            game_folder = path.dirname(__file__)
-            map_folder = path.join(game_folder, 'map')
-            self.map = TiledMap(path.join(map_folder, 'galletcitymap.tmx'))
-            self.map_img = self.map.make_map()
-            self.map_rect = self.map_img.get_rect()
+        '''Load all assets'''
+        game_folder = path.dirname(__file__)
+        map_folder = path.join(game_folder, 'map')
+        self.map = TiledMap(path.join(map_folder, 'agentcity.tmx'))
+        self.map_img = self.map.make_map()
+        self.map_rect = self.map_img.get_rect()
 
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        #for row, tiles in enumerate(self.map_data):
-        #   for col, tile in enumerate(tiles):
-        #      if tile == '1':
-        #         Wall(self, col, row)
-            #    if tile == 'P':
-            #       self.player = Player(self, col, row)
         self.player = Player(self, 5,5)
         self.camera = Camera(self.map.width, self.map.height)
         self.gui = pygame_gui.UIManager((WIDTH, HEIGHT),theme_path='theme.json')
@@ -146,6 +140,8 @@ class Simulation:
         # update portion of the game loop
         self.timer.set_text("Day: " + str(floor(self.time/10)))
         self.all_sprites.update()
+        self.camera.update(self.player)
+
 
     def events(self):
         # catch all events here
@@ -188,6 +184,8 @@ class Simulation:
         #self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         #self.draw_grid()
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
         self.all_sprites.draw(self.screen)
 
     def quit(self):
