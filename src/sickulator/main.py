@@ -32,7 +32,7 @@ class Game:
         '''Load all assets'''
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, 'map')
-        self.map = TiledMap(path.join(map_folder, 'samp.tmx'))
+        self.map = TiledMap(path.join(map_folder, 'galletcitymap.tmx'))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
