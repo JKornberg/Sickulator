@@ -1,5 +1,6 @@
 # The Sickulator
 Link to Issue tracker: https://trello.com/b/rdkSQQiJ/sickulator
+
 Link to repository: https://github.com/JKornberg/Sickulator
 
 # Installation
