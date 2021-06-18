@@ -32,7 +32,7 @@ class Game:
         '''Load all assets'''
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, 'map')
-        self.map = TiledMap(path.join(map_folder, 'galletcitymap.tmx'))
+        self.map = TiledMap(path.join(map_folder, 'agentcity.tmx'))
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
@@ -71,6 +71,8 @@ class Game:
     def update(self):
         # update portion of the game loop
         self.all_sprites.update()
+        self.camera.update(self.player)
+
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):
@@ -82,8 +84,10 @@ class Game:
         #self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
         #self.draw_grid()
-        self.all_sprites.draw(self.screen)
-        self.mens = pg.Surface((WIDTH,HEIGHT))
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+
+        pg.display.flip()
        
     def events(self):
         # catch all events here
@@ -110,6 +114,8 @@ class Game:
 
     def show_go_screen(self):
         pass
+
+
     def _update_from_selection(self, index: int) -> None:
         """
         Change widgets depending on index.
