@@ -11,6 +11,8 @@ from tiles import *
 import pygame_menu
 from menus import *
 import os
+import pygame_gui
+
 #os.environ["SDL_VIDEODRIVER"]="x11"
 #os.environ['SDL_AUDIODRIVER'] = 'dsp'
 class Game:
@@ -62,11 +64,15 @@ class Simulation:
         self.game = game
         self.screen = game.screen
         self.load_data()
+        self.show = False
         self.clock = pg.time.Clock()
-        self.ui = uiMenu()
-        self.uiSurf = pg.Surface((WIDTH,HEIGHT * UISCALE))
         self.new()
 
+
+    def enable_popup(self):
+        print("PRESSED")
+        self.show = True
+        
     def load_data(self):
             '''Load all assets'''
             game_folder = path.dirname(__file__)
@@ -87,18 +93,36 @@ class Simulation:
             #       self.player = Player(self, col, row)
         self.player = Player(self, 5,5)
         self.camera = Camera(self.map.width, self.map.height)
+        self.gui = pygame_gui.UIManager((WIDTH, HEIGHT),theme_path='theme.json')
+        self.make_gui()
+
+    def make_gui(self):
+        bottom_bar = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, HEIGHT-80), (WIDTH, 80)),starting_layer_height=0,
+                                             manager=self.gui)
+        self.info_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((0, 0), (50, 50)),text="Info",
+                                             manager=self.gui,container=bottom_bar)
+
+        self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (300, HEIGHT)),starting_layer_height=0,
+                                             manager=self.gui, visible=False)
+        self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((300-30,0), (30, 30)),text="X",
+                                             manager=self.gui,container=self.info, visible=False)                                    
+
+
+    def toggle_info(self, val):
+        self.info.visible = val
+        self.close_button.visible = val
 
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
         while self.playing:
+            #print(self.show)
             self.dt = self.clock.tick(FPS) / 1000
-            events = self.events()
+            self.events()
             self.update()
             self.draw()
-            self.ui.update(events)
-            self.ui.draw(self.uiSurf, clear_surface=True)
-            self.screen.blit(self.uiSurf,(0,1+HEIGHT-HEIGHT*.15))
+            self.gui.update(self.dt)
+            self.gui.draw_ui(self.screen)
             pg.display.flip()
             pg.display.update()
 
@@ -111,6 +135,14 @@ class Simulation:
         # catch all events here
         events = pg.event.get()
         for event in events:
+            self.gui.process_events(event)
+            
+            if event.type == pg.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == self.info_button:
+                        self.toggle_info(True)
+                    elif event.ui_element == self.close_button:
+                        self.toggle_info(False)
             if event.type == pg.QUIT:
                 self.quit()
             if event.type == pg.KEYDOWN:

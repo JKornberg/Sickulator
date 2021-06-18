@@ -43,11 +43,11 @@ def optionsMenu(onPlay):
     options.add.button('Play', onPlay)  # Add buttons to menu
     return options
 
-def uiMenu():
-    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,0),columns=2,rows=[1,1])
+def uiMenu(function):
+    function()
+    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,85),columns=2,rows=[1,1])
     ui.add.range_slider("Speed", default=2, range_text_value_tick_number=4, range_values=[.25,.5,1,2,4], value_format=lambda x: str(x).strip('0')+"x")
-    info = ui.add.button("info")
-    info.set_border(1,(255,255,255))
+
     return ui
 
 
