@@ -1,5 +1,9 @@
 # The Sickulator
 Link to Issue tracker: https://trello.com/b/rdkSQQiJ/sickulator
+Link to repository: https://github.com/JKornberg/Sickulator
+
+# Installation
+`pip install sickulator`
 
 Created by: Jack Driscoll, Thomas Hancock, Julia Harbord, Jonah Kornberg, and Dahlia La Pommeray
 
