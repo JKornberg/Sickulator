@@ -2,9 +2,13 @@
 # Tile-based game - Part 2
 # Collisions and Tilemaps
 # Video link: https://youtu.be/ajR4BZBKTr4
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import contextlib
 import pygame as pg
 import sys
 from os import path
+from pygame_gui.elements import text
 from settings import HEIGHT, WIDTH, UISCALE
 from sprites import *
 from tiles import *
@@ -12,19 +16,24 @@ import pygame_menu
 from menus import *
 import os
 import pygame_gui
-
-#os.environ["SDL_VIDEODRIVER"]="x11"
-#os.environ['SDL_AUDIODRIVER'] = 'dsp'
+from math import floor
+os.environ["SDL_VIDEODRIVER"]="x11"
+os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
 class Game:
     def __init__(self):
+        _stdout = sys.stdout
+        _stderr = sys.stderr
+        sys.stdout = sys.stderr = None
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))  # Creates physical game window
-        pg.display.set_caption("test")
+        pg.display.set_caption("The Sickulator")
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
         self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
         self.options = optionsMenu(lambda : self._update_from_selection(3))
+        sys.stdout = _stdout
+        sys.stderr = _stderr
 
     def run(self):
         self.simulation = Simulation(self)
@@ -94,12 +103,15 @@ class Simulation:
     def make_gui(self):
         bottom_bar = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, HEIGHT-80), (WIDTH, 80)),starting_layer_height=0,
                                              manager=self.gui)
+
+
         self.info_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((0, 0), (50, 50)),text="Info",
                                              manager=self.gui,container=bottom_bar)
 
-        self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (300, HEIGHT)),starting_layer_height=0,
-                                             manager=self.gui, visible=False)
-        self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((300-30,0), (30, 30)),text="X",
+        self.timer = pygame_gui.elements.UILabel(relative_rect=pg.Rect((100, 0), (100,50)), text="Day: 0",container=bottom_bar, manager=self.gui)
+        self.speed = pygame_gui.elements.UISelectionList(relative_rect=pg.Rect((200, 0), (100,50)), item_list=[".25x",".5x","1x","2x","4x"],container=bottom_bar, manager=self.gui)
+        self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (350, HEIGHT-80)),starting_layer_height=0, manager=self.gui, visible=False)
+        self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
                                              manager=self.gui,container=self.info, visible=False)                                    
 
 
@@ -110,9 +122,11 @@ class Simulation:
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
+        self.time = 0
         while self.playing:
             #print(self.show)
             self.dt = self.clock.tick(FPS) / 1000
+            self.time += self.dt
             self.events()
             self.update()
             self.draw()
@@ -124,6 +138,7 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+        self.timer.set_text("Day: " + str(floor(self.time/10)))
         self.all_sprites.update()
         self.camera.update(self.player)
 
@@ -141,10 +156,14 @@ class Simulation:
                     elif event.ui_element == self.close_button:
                         self.toggle_info(False)
             if event.type == pg.QUIT:
+                self.playing = False
                 self.quit()
+                break
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    self.quit()
+                    self.playing = False
+                    pg.quit()
+                    sys.exit()
                 if event.key == pg.K_LEFT:
                     self.player.move(dx=-1)
                 if event.key == pg.K_RIGHT:
@@ -169,6 +188,8 @@ class Simulation:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         self.all_sprites.draw(self.screen)
 
+    def quit(self):
+        pg.quit()
 
 if __name__ == "__main__":
     # create the game object

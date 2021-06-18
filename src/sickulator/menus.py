@@ -40,6 +40,7 @@ def optionsMenu(onPlay):
     options.add.range_slider("Illness Period (in days)", default=4, increment=1, range_text_value_tick_number=2, range_values=(1,20), value_format=(lambda x : str(int(x)))) # ideally range 0 to 60
     options.add.range_slider("Reproduction Rate", default=4, increment=1, range_text_value_tick_number=2, range_values=(1,20), value_format=(lambda x : str(int(x)))) # default ??, increment ??, range ?? to ?? (intentions unclear here)
     options.add.range_slider("Family Size", default=4, increment=1, range_text_value_tick_number=2, range_values=(2,10), value_format=(lambda x : str(int(x)))) # ideally range 2 to 10
+    options.add.range_slider("Simulation Duration (virtual days)", default=50, increment=1, range_text_value_tick_number=2, range_values=(1,100), value_format=(lambda x : str(int(x)))) # ideally range 2 to 10
     options.add.button('Play', onPlay)  # Add buttons to menu
     return options
 
