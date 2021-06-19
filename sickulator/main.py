@@ -77,6 +77,7 @@ class Simulation:
         self.show = False
         self.clock = pg.time.Clock()
         self.new()
+        self.multiplier = 1
 
 
     def enable_popup(self):
@@ -109,7 +110,12 @@ class Simulation:
                                              manager=self.gui,container=bottom_bar)
 
         self.timer = pygame_gui.elements.UILabel(relative_rect=pg.Rect((100, 0), (100,50)), text="Day: 0",container=bottom_bar, manager=self.gui)
-        self.speed = pygame_gui.elements.UISelectionList(relative_rect=pg.Rect((200, 0), (100,50)), item_list=[".25x",".5x","1x","2x","4x"],container=bottom_bar, manager=self.gui)
+        self.half_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((200, 0), (50, 50)),text="0.5x",
+                                             manager=self.gui,container=bottom_bar)
+        self.normal_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((250, 0), (50, 50)),text="*1x*",
+                                             manager=self.gui,container=bottom_bar)
+        self.double_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((300, 0), (50, 50)),text="2x",
+                                             manager=self.gui,container=bottom_bar)
         self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (350, HEIGHT-80)),starting_layer_height=0, manager=self.gui, visible=False)
         self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
                                              manager=self.gui,container=self.info, visible=False)                                    
@@ -125,7 +131,7 @@ class Simulation:
         self.time = 0
         while self.playing:
             #print(self.show)
-            self.dt = self.clock.tick(FPS) / 1000
+            self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
             self.time += self.dt
             self.events()
             self.update()
@@ -155,6 +161,21 @@ class Simulation:
                         self.toggle_info(True)
                     elif event.ui_element == self.close_button:
                         self.toggle_info(False)
+                    elif event.ui_element == self.half_speed_button:
+                        self.half_speed_button.set_text("*0.5x*")
+                        self.normal_speed_button.set_text("1x")
+                        self.double_speed_button.set_text("2x")
+                        self.multiplier = 0.5  
+                    elif event.ui_element == self.normal_speed_button:
+                        self.half_speed_button.set_text("0.5x")
+                        self.normal_speed_button.set_text("*1x*")
+                        self.double_speed_button.set_text("2x")
+                        self.multiplier = 1                        
+                    elif event.ui_element == self.double_speed_button:
+                        self.half_speed_button.set_text("0.5x")
+                        self.normal_speed_button.set_text("1x")
+                        self.double_speed_button.set_text("*2x*")
+                        self.multiplier = 2     
             if event.type == pg.QUIT:
                 self.playing = False
                 self.quit()
