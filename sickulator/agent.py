@@ -1,5 +1,8 @@
+import math
 import pygame as pg
 from enum import Enum
+import numpy as np
+
 vec = pg.math.Vector2
 
 class HealthState(Enum):
@@ -54,4 +57,21 @@ class Family():
     def add_agent(self, agent : Agent):
         """Add agent to a family's agents list"""
         self.agents.append(agent)
+
+def generate_days(count = 1):
+    """Return a list of numpy arrays containing which buildings an agent will visit."""
+    buildings = 9
+    rng = np.random.default_rng()
+    number_of_visits = rng.lognormal(1,.444,(count)) #has mean of 2
+    number_of_visits[number_of_visits < 1] = 1 #minimum visits is 1
+    number_of_visits = np.round(number_of_visits).astype('int16')
+    buildings = rng.integers(low=0,high=buildings-1,size=np.sum(number_of_visits)) #get list of buildings for visits
+    agent_visits = []
+    j = 0
+    #loop can be optimized, assigns buildings to visits
+    for i in number_of_visits:
+        agent_visits.append(buildings[j:j+i])
+        j += i
+    return agent_visits
+
 
