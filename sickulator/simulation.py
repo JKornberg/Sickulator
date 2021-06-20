@@ -1,9 +1,11 @@
 from os import path
+from typing import Container
 from tiles import *
 from sprites import  *
 import pygame_gui
 from pygame_gui.elements import text
 from math import floor
+import sys
 
 class Simulation:
     def __init__(self,game):
@@ -14,7 +16,6 @@ class Simulation:
         self.clock = pg.time.Clock()
         self.new()
         self.multiplier = 1
-        print(game.simulation_settings.infection_rate)
 
     def enable_popup(self):
         print("PRESSED")
@@ -56,10 +57,21 @@ class Simulation:
         self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
                                              manager=self.gui,container=self.info, visible=False)                                    
 
+        self.description = pygame_gui.elements.UITextBox(html_text=
+        """<body bgcolor='0xFFFFFF'><font><b>THE SICKULATOR</b>
+<br>
+The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city.
+Agents begin every day at home with their family where they select a schedule for the day. They then
+venture out to the city and visit all the buildings their schedule includes. A small subset of agents
+begin the simulation infected, and we can watch the disease spread over time. The health status of an
+agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.
+</body>"""
+        ,relative_rect=pg.Rect((0,0),(300,500)),container=self.info,manager=self.gui, layer_starting_height=2)
 
     def toggle_info(self, val):
         self.info.visible = val
         self.close_button.visible = val
+        self.description.visible = val
 
     def run(self):
         # game loop - set self.playing = False to end the game
