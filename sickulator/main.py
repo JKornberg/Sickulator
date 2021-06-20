@@ -30,13 +30,14 @@ class Game:
         sys.stdout = sys.stderr = None
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))  # Creates physical game window
+        sys.stdout = _stdout
+        sys.stderr = _stderr
         pg.display.set_caption("The Sickulator")
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
         self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
-        self.options = optionsMenu(self, lambda : self._update_from_selection(3))
-        sys.stdout = _stdout
-        sys.stderr = _stderr
+        self.options = optionsMenu(self)
+
 
     def run(self):
         self.simulation = Simulation(self)
