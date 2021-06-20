@@ -37,9 +37,13 @@ class Agent(pg.sprite.Sprite):
         self.groups = game.all_sprites
         self.family = family
         pg.sprite.Sprite.__init__(self, self.groups)
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect()
         self._birth_tick = game.clock.get_ticks()
         self._health_state = health_state
         Agent.health_counts[health_state.value] += 1
+        self._inside = False
 
     @property
     def health_state(self):
@@ -58,6 +62,18 @@ class Agent(pg.sprite.Sprite):
     @pos.setter
     def pos(self, x, y):
         self._pos = vec(x,y)
+
+    @property
+    def inside(self):
+        return self._inside
+
+    @inside.setter
+    def inside(self,val):
+        self._inside = val
+        if (val):
+            self.image.set_alpha(0)
+        else:
+            self.image.set_alpha(255)
 
 
 class Family():
