@@ -9,7 +9,7 @@ import pygame as pg
 import sys
 from os import path
 from pygame_gui.elements import text
-from settings import HEIGHT, WIDTH, UISCALE
+from settings import HEIGHT, WIDTH, UISCALE, SimulationSettings
 from sprites import *
 from tiles import *
 import pygame_menu
@@ -20,8 +20,11 @@ from math import floor
 os.environ["SDL_VIDEODRIVER"]="x11"
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
+
+
 class Game:
     def __init__(self):
+        self.simulation_settings : SimulationSettings = SimulationSettings()
         _stdout = sys.stdout
         _stderr = sys.stderr
         sys.stdout = sys.stderr = None
@@ -31,7 +34,7 @@ class Game:
         pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
         self.home = homeMenu(lambda : self._update_from_selection(2))
         self.current = 0
-        self.options = optionsMenu(lambda : self._update_from_selection(3))
+        self.options = optionsMenu(self, lambda : self._update_from_selection(3))
         sys.stdout = _stdout
         sys.stderr = _stderr
 
@@ -68,9 +71,16 @@ class Game:
             self.home.disable()
             self.options.disable()
             g.run()
+            
+    def set_settings(self, simulation_settings: SimulationSettings):
+        self.simulation_settings = simulation_settings
+
+    def play_simulation(self, simulation_settings):
+        self.set_settings(simulation_settings)
+        self._update_from_selection(3)
 
 class Simulation:
-    def __init__(self,game):
+    def __init__(self,game : Game):
         self.game = game
         self.screen = game.screen
         self.load_data()
@@ -78,7 +88,7 @@ class Simulation:
         self.clock = pg.time.Clock()
         self.new()
         self.multiplier = 1
-
+        print(game.simulation_settings.infection_rate)
 
     def enable_popup(self):
         print("PRESSED")

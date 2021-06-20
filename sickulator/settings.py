@@ -18,3 +18,14 @@ TILESIZE = 8
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = .15
+
+
+class SimulationSettings:
+    def __init__(self,infection_rate=10, lifespan=10, illness_period=3, reproduction_rate=4, family_size=4, simulation_duration=50):
+        self.infection_rate = infection_rate
+        self.lifespan = lifespan
+        self.illness_period = illness_period
+        self.reproduction_rate = reproduction_rate
+        self.family_size = family_size
+        self.simulation_duration = simulation_duration
+    
