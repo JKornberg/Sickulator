@@ -47,3 +47,6 @@ class Camera:
         x = max(-(self.width - WIDTH), x)  # right
         y = max(-(self.height - HEIGHT), y)  # bottom
         self.camera = pg.Rect(x, y, self.width, self.height)
+
+def collide_hit_rect(one, two):
+    return one.hit_rect.colliderect(two.rect)

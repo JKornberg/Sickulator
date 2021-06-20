@@ -1,10 +1,5 @@
-# KidsCanCode - Game Development with Pygame video series
-# Tile-based game - Part 2
-# Collisions and Tilemaps
-# Video link: https://youtu.be/ajR4BZBKTr4
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-import contextlib
 import pygame as pg
 import sys
 from os import path
@@ -14,11 +9,11 @@ from sprites import *
 from tiles import *
 import pygame_menu
 from menus import *
-import os
 import pygame_gui
 from math import floor
 os.environ["SDL_VIDEODRIVER"]="x11"
 os.environ['SDL_AUDIODRIVER'] = 'dsp'
+
 
 class Game:
     def __init__(self):
@@ -39,14 +34,12 @@ class Game:
         self.simulation = Simulation(self)
         self.simulation.run()
 
-
     def quit(self):
         pg.quit()
         sys.exit()
 
     def show_start_screen(self):
         self.home.mainloop(self.screen)
-
 
     def show_go_screen(self):
         pass
@@ -78,7 +71,6 @@ class Simulation:
         self.clock = pg.time.Clock()
         self.new()
 
-
     def enable_popup(self):
         print("PRESSED")
         self.show = True
@@ -95,15 +87,21 @@ class Simulation:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 5,5)
+        self.player = Player(self, 5, 5)
+
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == 'wall':
+                Obstacle(self, tile_object.x, tile_object.y,
+                         tile_object.width, tile_object.height)
+
         self.camera = Camera(self.map.width, self.map.height)
+        self.draw_debug = False
         self.gui = pygame_gui.UIManager((WIDTH, HEIGHT),theme_path='theme.json')
         self.make_gui()
 
     def make_gui(self):
         bottom_bar = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, HEIGHT-80), (WIDTH, 80)),starting_layer_height=0,
                                              manager=self.gui)
-
 
         self.info_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((0, 0), (50, 50)),text="Info",
                                              manager=self.gui,container=bottom_bar)
@@ -112,8 +110,7 @@ class Simulation:
         self.speed = pygame_gui.elements.UISelectionList(relative_rect=pg.Rect((200, 0), (100,50)), item_list=[".25x",".5x","1x","2x","4x"],container=bottom_bar, manager=self.gui)
         self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (350, HEIGHT-80)),starting_layer_height=0, manager=self.gui, visible=False)
         self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
-                                             manager=self.gui,container=self.info, visible=False)                                    
-
+                                             manager=self.gui,container=self.info, visible=False)
 
     def toggle_info(self, val):
         self.info.visible = val
@@ -164,14 +161,7 @@ class Simulation:
                     self.playing = False
                     pg.quit()
                     sys.exit()
-                if event.key == pg.K_LEFT:
-                    self.player.move(dx=-1)
-                if event.key == pg.K_RIGHT:
-                    self.player.move(dx=1)
-                if event.key == pg.K_UP:
-                    self.player.move(dy=-1)
-                if event.key == pg.K_DOWN:
-                    self.player.move(dy=1)
+
         return events
 
     def draw_grid(self):
@@ -190,6 +180,7 @@ class Simulation:
 
     def quit(self):
         pg.quit()
+        sys.exit()
 
 if __name__ == "__main__":
     # create the game object
