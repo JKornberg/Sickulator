@@ -1,4 +1,3 @@
-from main import Game
 from settings import SimulationSettings
 import pygame_menu
 import pygame as pg
