@@ -49,6 +49,21 @@ class Player(pg.sprite.Sprite):
                 self.vy = 0
                 self.rect.y = self.y
 
+    def inside_building(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
+            if hits:
+                self.image.convert_alpha()
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = 0
+                self.rect.y = self.y
+
     def update(self):
         self.get_keys()
         self.x += self.vx * self.game.dt
@@ -79,6 +94,18 @@ class Obstacle(pg.sprite.Sprite):
         self.game = game
         self.rect = pg.Rect(x, y, w, h)
         self.hit_rect = self.rect
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+
+
+class Building(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.buildings
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = pg.Rect(x, y, w, h)
         self.x = x
         self.y = y
         self.rect.x = x

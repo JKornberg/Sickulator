@@ -11,8 +11,8 @@ import pygame_menu
 from menus import *
 import pygame_gui
 from math import floor
-os.environ["SDL_VIDEODRIVER"]="x11"
-os.environ['SDL_AUDIODRIVER'] = 'dsp'
+#os.environ["SDL_VIDEODRIVER"]="x11"
+#os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
 
 class Game:

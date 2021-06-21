@@ -32,7 +32,8 @@ class Agent(pg.sprite.Sprite):
     health_counts = []
 
     def __init__(self, game, family, x, y, health_state=HealthState.HEALTHY):
-        self._pos = vec(x,y)
+        self._x = x
+        self._y = y
         self.game = game
         self.groups = game.all_sprites
         self.family = family

@@ -10,16 +10,17 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
 # game settings
-WIDTH = 1024   # 16 * 64 or 32 * 32 or 64 * 16 originally 1024
-HEIGHT = 768 # 16 * 48 or 32 * 24 or 64 * 12         768
+WIDTH = 1024   # originally 1024
+HEIGHT = 768 # og 768
 FPS = 60
-TITLE = "Tilemap Demo"
+TITLE = "Agent City"
 BGCOLOR = DARKGREY
 
+# size of agents/camera
 TILESIZE = 8
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = .15
 
-PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
+# Camera Settings
 PLAYER_SPEED = 100
