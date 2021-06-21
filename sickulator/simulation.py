@@ -1,11 +1,12 @@
 from os import path
-from agent import Agent
+from agent import *
 from typing import Container
 from tiles import *
 from sprites import  *
 import pygame_gui
 from pygame_gui.elements import text
-from math import floor
+from math import floor, ceil
+import random
 import sys
 
 class Simulation:
@@ -16,9 +17,9 @@ class Simulation:
         self.show = False
         self.clock = pg.time.Clock()
         self.day = 0
+        self.simulation_settings = game.simulation_settings
         self.new()
         self.multiplier = 1
-        self.simulation_settings = game.simulation_settings
         self.show_popup = False
 
     def enable_popup(self):
@@ -38,7 +39,28 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
-        self.agent = Agent(self, 1, 8, 11)
+
+        num_agents = 20  # hard-coding this for now
+        self.families = []
+
+        home_coords = [
+            (8, 11), (22, 11), (36, 11), (50, 11),
+            (8, 23), (22, 23), (36, 23), (50, 23),
+            (8, 47), (22, 47), (36, 47), (50, 47),
+            (8, 59), (22, 59), (36, 59), (50, 59),
+            (8, 83), (22, 83), (36, 83), (50, 83),
+        ]
+
+        for x in range (0, math.ceil(num_agents/self.simulation_settings.family_size)):
+            new_home = home_coords[random.randint(0, len(home_coords)) - 1]
+            self.families.append(Family(self, new_home))
+            home_coords.remove(new_home) # removes the possibility of duplicate homes -- NOT SUITABLE FOR num_agents > 20*family size
+
+        index = 0
+        for agent in range (0, num_agents):
+            family_to_fill = self.families[int(index/self.simulation_settings.family_size)]
+            family_to_fill.add_agent(Agent(self, family_to_fill, family_to_fill.home[0], family_to_fill.home[1]))
+            index += 1
 
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == 'wall':

@@ -100,7 +100,7 @@ class Family():
         self.simulation = simulation
         self.agents = []
         self.work = 0
-        self.home
+        self.home = home
         Family.count += 1
     
     def add_agent(self, agent : Agent):
