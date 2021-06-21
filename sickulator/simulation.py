@@ -1,4 +1,5 @@
 from os import path
+from agent import Agent
 from typing import Container
 from tiles import *
 from sprites import  *
@@ -16,6 +17,9 @@ class Simulation:
         self.clock = pg.time.Clock()
         self.new()
         self.multiplier = 1
+        self.day = 0
+        self.simulation_settings = game.simulation_settings
+        self.show_popup = False
 
     def enable_popup(self):
         print("PRESSED")
@@ -58,7 +62,7 @@ class Simulation:
                                              manager=self.gui,container=self.info, visible=False)                                    
 
         self.description = pygame_gui.elements.UITextBox(html_text=
-        """<body bgcolor='0xFFFFFF'><font><b>THE SICKULATOR</b>
+        """<body bgcolor='0xFFFFFF'>THE SICKULATOR
 <br>
 The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city.
 Agents begin every day at home with their family where they select a schedule for the day. They then
@@ -66,12 +70,28 @@ venture out to the city and visit all the buildings their schedule includes. A s
 begin the simulation infected, and we can watch the disease spread over time. The health status of an
 agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.
 </body>"""
-        ,relative_rect=pg.Rect((0,0),(300,500)),container=self.info,manager=self.gui, layer_starting_height=2)
+        ,relative_rect=pg.Rect((0,0),(300,400)),container=self.info,manager=self.gui, layer_starting_height=2)
+
+        self.status = pygame_gui.elements.UITextBox(relative_rect=pg.Rect((0,550),(300,200)),
+            html_text=f"""<body bgcolor=0xDEA9AB>Healthy: {Agent.health_counts[0]}
+                                                Infected: {Agent.health_counts[1]}
+                                                Immune:   {Agent.health_counts[2]}
+                                                Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
+            layer_starting_height=2)
 
     def toggle_info(self, val):
+        self.show_popup = val
         self.info.visible = val
         self.close_button.visible = val
         self.description.visible = val
+        self.status.visible = val
+
+    def update_status(self):
+        self.status.html_text = f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}
+                                                Infected: {Agent.health_counts[1]}
+                                                Immune:   {Agent.health_counts[2]}
+                                                Dead:     {Agent.health_counts[3]}</body>"""
+        self.status.rebuild() #  This might not be proper
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -92,9 +112,13 @@ agent is represented by their color. Green is healthy, red is infected, blue is 
 
     def update(self):
         # update portion of the game loop
-        self.timer.set_text("Day: " + str(floor(self.time/10)))
+        self.day = str(floor(self.time/10))
+        self.timer.set_text("Day: " + self.day)
         self.all_sprites.update()
         self.camera.update(self.player)
+        if (self.show_popup):
+            self.update_status()
+
 
 
     def events(self):
