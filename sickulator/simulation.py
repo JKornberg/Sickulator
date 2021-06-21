@@ -38,6 +38,12 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
+
+        for tile_object in self.map.tmxdata.objects:
+            if tile_object.name == 'wall':
+                Obstacle(self, tile_object.x, tile_object.y,
+                         tile_object.width, tile_object.height)
+
         self.camera = Camera(self.map.width, self.map.height)
         self.gui = pygame_gui.UIManager((WIDTH, HEIGHT),theme_path='theme.json')
         self.make_gui()
@@ -144,14 +150,6 @@ class Simulation:
                     self.playing = False
                     pg.quit()
                     sys.exit()
-                if event.key == pg.K_LEFT:
-                    self.player.move(dx=-1)
-                if event.key == pg.K_RIGHT:
-                    self.player.move(dx=1)
-                if event.key == pg.K_UP:
-                    self.player.move(dy=-1)
-                if event.key == pg.K_DOWN:
-                    self.player.move(dy=1)
         return events
 
     def draw_grid(self):
