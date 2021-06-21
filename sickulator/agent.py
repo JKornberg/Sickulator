@@ -1,4 +1,5 @@
 import math
+from settings import BLACK, BLUE, GREEN, RED
 import pygame as pg
 from enum import Enum
 import numpy as np
@@ -11,13 +12,15 @@ class HealthState(Enum):
     IMMUNE = 2
     DEAD = 3
 
+health_colors = [GREEN, RED, BLUE, BLACK]
+
 class Agent(pg.sprite.Sprite):
     """
     An individual agent from the simulation
 
     Arguments:
 
-    game -- Simulation object the agent exists in
+    simulation -- Simulation object the agent exists in
     family -- integer id of family this agent belongs to
     x, y -- initial position of agent
     health_state -- HealthState value
@@ -29,19 +32,19 @@ class Agent(pg.sprite.Sprite):
 
     """
 
-    health_counts = []
+    health_counts = [0,0,0,0]
 
-    def __init__(self, game, family, x, y, health_state=HealthState.HEALTHY):
-        self._x = x
-        self._y = y
-        self.game = game
-        self.groups = game.all_sprites
+    def __init__(self, simulation, family, x, y, health_state=HealthState.HEALTHY):
+        self.x = x
+        self.y = y
+        self.simulation = simulation
+        self.groups = simulation.all_sprites
         self.family = family
         pg.sprite.Sprite.__init__(self, self.groups)
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(YELLOW)
+        self.image.fill(health_colors[health_state.value])
         self.rect = self.image.get_rect()
-        self._birth_tick = game.clock.get_ticks()
+        self._birthday = simulation.day
         self._health_state = health_state
         Agent.health_counts[health_state.value] += 1
         self._inside = False
@@ -55,14 +58,7 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
-
-    @property
-    def pos(self):
-        return self._pos
-    
-    @pos.setter
-    def pos(self, x, y):
-        self._pos = vec(x,y)
+        self.image.fill(health_colors[hs.value])
 
     @property
     def inside(self):
@@ -75,6 +71,13 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(0)
         else:
             self.image.set_alpha(255)
+    
+    def update(self):
+        self.rect.x = self.x * TILESIZE
+        self.rect.y = self.y * TILESIZE
+        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
+            self.health_state = HealthState.DEAD
+
 
 
 class Family():
@@ -83,7 +86,7 @@ class Family():
     
     Arguments:
     
-    game -- Game object which contains all world info (clock etc)
+    simulation -- simulation object which contains all world info (clock etc)
     home -- integer id of building family is assigned to
 
     Class Variables:
@@ -92,9 +95,9 @@ class Family():
     """
     count = 0
 
-    def __init__(self, game, home):
+    def __init__(self, simulation, home):
         self.id = Family.count
-        self.game = game
+        self.simulation = simulation
         self.agents = []
         self.work = 0
         self.home

@@ -1,3 +1,4 @@
+from settings import SimulationSettings
 import pygame_menu
 import pygame as pg
 from settings import HEIGHT, WIDTH, UISCALE
@@ -23,7 +24,7 @@ def homeMenu(onPlay):
     home.add.button('Quit', pygame_menu.events.EXIT)
     return home
 
-def optionsMenu(onPlay):
+def optionsMenu(game):
     options = pygame_menu.Menu(  # Instantiate Menu
             height=HEIGHT,
             width=WIDTH,
@@ -34,14 +35,32 @@ def optionsMenu(onPlay):
         )
 
     # all sliders stuck with range starting at 0 right now; crashes otherwise. Problem with our code or problem with library?
-
-    options.add.range_slider("Infection Rate (%)", default=33, increment=1, range_text_value_tick_number=2, range_values=(1,100), value_format=(lambda x : str(int(x)))) #  ideally range 1 to 100
-    options.add.range_slider("Lifespan (in weeks)", default=5, increment=1, range_text_value_tick_number=2, range_values=(1,10), value_format=(lambda x : str(int(x)))) #  ideally range 8 to 156
-    options.add.range_slider("Illness Period (in days)", default=4, increment=1, range_text_value_tick_number=2, range_values=(1,20), value_format=(lambda x : str(int(x)))) # ideally range 0 to 60
-    options.add.range_slider("Reproduction Rate", default=4, increment=1, range_text_value_tick_number=2, range_values=(1,20), value_format=(lambda x : str(int(x)))) # default ??, increment ??, range ?? to ?? (intentions unclear here)
-    options.add.range_slider("Family Size", default=4, increment=1, range_text_value_tick_number=2, range_values=(2,10), value_format=(lambda x : str(int(x)))) # ideally range 2 to 10
-    options.add.range_slider("Simulation Duration (virtual days)", default=50, increment=1, range_text_value_tick_number=2, range_values=(1,100), value_format=(lambda x : str(int(x)))) # ideally range 2 to 10
-    options.add.button('Play', onPlay)  # Add buttons to menu
+    infection_rate = game.simulation_settings.infection_rate
+    lifespan =  game.simulation_settings.lifespan
+    illness_period =  game.simulation_settings.illness_period
+    reproduction_rate =  game.simulation_settings.reproduction_rate
+    family_size =  game.simulation_settings.family_size
+    simulation_duration =  game.simulation_settings.simulation_duration
+    ir_slider = options.add.range_slider("Infection Rate (%)", default=infection_rate, \
+                increment=1, range_text_value_tick_number=2, range_values=(1,100), \
+                value_format=(lambda x : str(int(x))))
+    l_slider = options.add.range_slider("Lifespan (in weeks)", default=lifespan, \
+                increment=1, range_text_value_tick_number=2, range_values=(1,10), \
+                value_format=(lambda x : str(int(x))))
+    ip_slider = options.add.range_slider("Illness Period (in days)", default=illness_period, \
+                increment=1, range_text_value_tick_number=2, range_values=(1,20), \
+                value_format=(lambda x : str(int(x)))) 
+    rr_slider = options.add.range_slider("Reproduction Rate", default=reproduction_rate,\
+                increment=1, range_text_value_tick_number=2, range_values=(1,20),\
+                value_format=(lambda x : str(int(x))))
+    fs_slider = options.add.range_slider("Family Size", default=family_size, increment=1,\
+                range_text_value_tick_number=2, range_values=(2,10), value_format=(lambda x : str(int(x))))
+    sd_slider = options.add.range_slider("Simulation Duration (virtual days)",\
+                default=simulation_duration, increment=1, range_text_value_tick_number=2,\
+                range_values=(1,100), value_format=(lambda x : str(int(x))))
+    options.add.button('Play', lambda : game.play_simulation(SimulationSettings(\
+        int(ir_slider.get_value()),int(l_slider.get_value()),int(ip_slider.get_value()),\
+        int(rr_slider.get_value()),int(fs_slider.get_value()),int(sd_slider.get_value()))))  # Add buttons to menu
     return options
 
 def uiMenu(function):
