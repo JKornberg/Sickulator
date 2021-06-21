@@ -62,21 +62,11 @@ class Simulation:
                                              manager=self.gui,container=self.info, visible=False)                                    
 
         self.description = pygame_gui.elements.UITextBox(html_text=
-        """<body bgcolor='0xFFFFFF'>THE SICKULATOR
-<br>
-The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city.
-Agents begin every day at home with their family where they select a schedule for the day. They then
-venture out to the city and visit all the buildings their schedule includes. A small subset of agents
-begin the simulation infected, and we can watch the disease spread over time. The health status of an
-agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.
-</body>"""
+        """<body bgcolor='0xFFFFFF'>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. Agents begin every day at home with their family where they select a schedule for the day. They then venture out to the city and visit all the buildings their schedule includes. A small subset of agents begin the simulation infected, and we can watch the disease spread over time. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>"""
         ,relative_rect=pg.Rect((0,0),(300,400)),container=self.info,manager=self.gui, layer_starting_height=2)
 
         self.status = pygame_gui.elements.UITextBox(relative_rect=pg.Rect((0,550),(300,200)),
-            html_text=f"""<body bgcolor=0xDEA9AB>Healthy: {Agent.health_counts[0]}
-                                                Infected: {Agent.health_counts[1]}
-                                                Immune:   {Agent.health_counts[2]}
-                                                Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
+            html_text=f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
             layer_starting_height=2)
 
     def toggle_info(self, val):
@@ -87,10 +77,7 @@ agent is represented by their color. Green is healthy, red is infected, blue is 
         self.status.visible = val
 
     def update_status(self):
-        self.status.html_text = f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}
-                                                Infected: {Agent.health_counts[1]}
-                                                Immune:   {Agent.health_counts[2]}
-                                                Dead:     {Agent.health_counts[3]}</body>"""
+        self.status.html_text =f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
         self.status.rebuild() #  This might not be proper
 
     def run(self):
