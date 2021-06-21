@@ -15,9 +15,9 @@ class Simulation:
         self.load_data()
         self.show = False
         self.clock = pg.time.Clock()
+        self.day = 0
         self.new()
         self.multiplier = 1
-        self.day = 0
         self.simulation_settings = game.simulation_settings
         self.show_popup = False
 
@@ -38,6 +38,7 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
+        self.agent = Agent(self, 1, 8, 11)
 
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == 'wall':

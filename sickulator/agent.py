@@ -1,5 +1,5 @@
 import math
-from settings import BLACK, BLUE, GREEN, RED
+from settings import BLACK, BLUE, GREEN, RED, TILESIZE
 import pygame as pg
 from enum import Enum
 import numpy as np
@@ -75,8 +75,8 @@ class Agent(pg.sprite.Sprite):
     def update(self):
         self.rect.x = self.x * TILESIZE
         self.rect.y = self.y * TILESIZE
-        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
-            self.health_state = HealthState.DEAD
+        #if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
+            #self.health_state = HealthState.DEAD
 
 
 
