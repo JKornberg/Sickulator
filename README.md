@@ -1,7 +1,6 @@
 # Sickulator
 
-```
-=======
+
 # The Sickulator
 Link to Issue tracker: https://trello.com/b/rdkSQQiJ/sickulator
 
@@ -30,4 +29,4 @@ pip install --upgrade pip
 pip install -r requirements.txt
 cd sickulator
 python main.py
-
+```
