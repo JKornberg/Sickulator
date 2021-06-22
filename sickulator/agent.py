@@ -87,7 +87,7 @@ class Family():
     Arguments:
     
     simulation -- simulation object which contains all world info (clock etc)
-    home -- integer id of building family is assigned to
+    home -- integer id of building family is assigned to (currently a vector of home coordinates)
 
     Class Variables:
 
