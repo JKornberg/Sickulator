@@ -49,7 +49,7 @@ class Simulation:
         self.make_gui()
 
     def make_gui(self):
-        bottom_bar = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, HEIGHT-80), (WIDTH, 80)),starting_layer_height=0,
+        bottom_bar = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, HEIGHT-60), (WIDTH, 60)),starting_layer_height=0,
                                              manager=self.gui)
 
 
@@ -57,22 +57,23 @@ class Simulation:
                                              manager=self.gui,container=bottom_bar)
 
         self.timer = pygame_gui.elements.UILabel(relative_rect=pg.Rect((100, 0), (100,50)), text="Day: 0",container=bottom_bar, manager=self.gui)
-        self.half_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((200, 0), (50, 50)),text="0.5x",
+        self.speed_label = pygame_gui.elements.UILabel(relative_rect=pg.Rect((200,0),(150,50)),text="Speed Controls:",container=bottom_bar,manager=self.gui)
+        self.half_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350, 0), (50, 50)),text="0.5x",
                                              manager=self.gui,container=bottom_bar)
-        self.normal_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((250, 0), (50, 50)),text="*1x*",
+        self.normal_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((400, 0), (50, 50)),text="*1x*",
                                              manager=self.gui,container=bottom_bar)
-        self.double_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((300, 0), (50, 50)),text="2x",
+        self.double_speed_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((450, 0), (50, 50)),text="2x",
                                              manager=self.gui,container=bottom_bar)
         self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (350, HEIGHT-80)),starting_layer_height=0, manager=self.gui, visible=False)
         self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
                                              manager=self.gui,container=self.info, visible=False)                                    
 
         self.description = pygame_gui.elements.UITextBox(html_text=
-        """<body bgcolor='0xFFFFFF'>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. Agents begin every day at home with their family where they select a schedule for the day. They then venture out to the city and visit all the buildings their schedule includes. A small subset of agents begin the simulation infected, and we can watch the disease spread over time. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>"""
+        """<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. Agents begin every day at home with their family where they select a schedule for the day. They then venture out to the city and visit all the buildings their schedule includes. A small subset of agents begin the simulation infected, and we can watch the disease spread over time. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>"""
         ,relative_rect=pg.Rect((0,0),(300,400)),container=self.info,manager=self.gui, layer_starting_height=2)
 
         self.status = pygame_gui.elements.UITextBox(relative_rect=pg.Rect((0,550),(300,200)),
-            html_text=f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
+            html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
             layer_starting_height=2)
 
     def toggle_info(self, val):
@@ -83,7 +84,7 @@ class Simulation:
         self.status.visible = val
 
     def update_status(self):
-        self.status.html_text =f"""<body bgcolor=0xDEA9AB>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
+        self.status.html_text =f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
         self.status.rebuild() #  This might not be proper
 
     def run(self):

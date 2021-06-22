@@ -1,5 +1,5 @@
 import math
-from settings import BLACK, BLUE, GREEN, RED
+from settings import BLACK, BLUE, GREEN, RED, TILESIZE
 import pygame as pg
 from enum import Enum
 import numpy as np
