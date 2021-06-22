@@ -1,10 +1,11 @@
 import math
-from settings import BLACK, BLUE, GREEN, RED, TILESIZE
+from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, TILESIZE
 import pygame as pg
 from enum import Enum
 import numpy as np
-
+import math as m
 vec = pg.math.Vector2
+
 
 class HealthState(Enum):
     HEALTHY = 0
@@ -12,7 +13,9 @@ class HealthState(Enum):
     IMMUNE = 2
     DEAD = 3
 
+
 health_colors = [GREEN, RED, BLUE, BLACK]
+
 
 class Agent(pg.sprite.Sprite):
     """
@@ -32,7 +35,7 @@ class Agent(pg.sprite.Sprite):
 
     """
 
-    health_counts = [0,0,0,0]
+    health_counts = [0, 0, 0, 0]
 
     def __init__(self, simulation, family, x, y, health_state=HealthState.HEALTHY):
         self.x = x
@@ -48,13 +51,16 @@ class Agent(pg.sprite.Sprite):
         self._health_state = health_state
         Agent.health_counts[health_state.value] += 1
         self._inside = False
+        self.paths = self.find_paths()
+        self.current_path = []
+        self.current_path_step = 0
 
     @property
     def health_state(self):
         return self._health_state
-    
+
     @health_state.setter
-    def health_state(self, hs : HealthState):
+    def health_state(self, hs: HealthState):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
@@ -65,27 +71,56 @@ class Agent(pg.sprite.Sprite):
         return self._inside
 
     @inside.setter
-    def inside(self,val):
+    def inside(self, val):
         self._inside = val
         if (val):
             self.image.set_alpha(0)
         else:
             self.image.set_alpha(255)
-    
+
     def update(self):
         self.rect.x = self.x * TILESIZE
         self.rect.y = self.y * TILESIZE
-        #if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
-            #self.health_state = HealthState.DEAD
+        # if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
+        #self.health_state = HealthState.DEAD
+        path_x, path_y = self.current_path[self.current_path_step]
 
+        if path_x != self.x or path_y != self.y:  # made it to the next tile
+            self.current_step += 1
+
+        try:
+            vx, vy = self.get_direction(path_x, path_y)
+        except IndexError:
+            print("Reached end of path, reversing")
+            self.current_path.reverse()
+            self.current_step = 0
+
+        self.x += vx * self.game.dt
+        self.y += vy * self.game.dt
+
+    def get_direction(self, path_x, path_y):
+        vx, vy = 0, 0
+
+        if path_x - self.x != 0:
+            vx = m.copysign(PLAYER_SPEED, path_x - self.x)
+
+        elif path_y - self.y != 0:
+            vy = m.copysign(PLAYER_SPEED, path_y - self.y)
+
+        return vx, vy
+
+    def find_paths(self):
+        self.paths['WORK_TO_HOME'] = [
+            []
+        ]
 
 
 class Family():
     """
     Represents a family unit of agents.
-    
+
     Arguments:
-    
+
     simulation -- simulation object which contains all world info (clock etc)
     home -- integer id of building family is assigned to
 
@@ -102,38 +137,40 @@ class Family():
         self.work = 0
         self.home = home
         Family.count += 1
-    
-    def add_agent(self, agent : Agent):
+
+    def add_agent(self, agent: Agent):
         """Add agent to a family's agents list"""
         self.agents.append(agent)
 
-def generate_days(count = 1):
+
+def generate_days(count=1):
     """
     Return a list of tuples containing which buildings an agent will visit and how long they will spend.
-    
+
     First entry of each tuple contains numbers of buildings the agent will visit
-    
+
     Second entry contains the proportion of their day for each building, with the first
     and last entry containing the amount of time spent at home in the morning and evening
     respectively
     """
     buildings = 9
     rng = np.random.default_rng()
-    number_of_visits = rng.lognormal(1,.444,(count)) #has mean of 2
-    number_of_visits[number_of_visits < 1] = 1 #minimum visits is 1
+    number_of_visits = rng.lognormal(1, .444, (count))  # has mean of 2
+    number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
     number_of_visits = np.round(number_of_visits).astype('int16')
-    buildings = rng.integers(low=0,high=buildings-1,size=np.sum(number_of_visits)) #get list of buildings for visits
+    # get list of buildings for visits
+    buildings = rng.integers(low=0, high=buildings-1,
+                             size=np.sum(number_of_visits))
     agent_visits = []
     j = 0
-    #loop can be optimized, assigns buildings to visits
+    # loop can be optimized, assigns buildings to visits
     for i in number_of_visits:
         #  first and last entry are how long they spend in home at start and end of each day
         #  times[1:-2] are the proportion of the day devoted to each building
         #  Sometimes travel time will exceed the proportion they should spend
         #  in this case, agent redirects path mid-travel to next target
-        times = (y:=rng.random(i+2))/np.sum(y) #  this line just generates proportions from a uniform distribution
+        # this line just generates proportions from a uniform distribution
+        times = (y := rng.random(i+2))/np.sum(y)
         agent_visits.append((buildings[j:j+i], times))
         j += i
     return agent_visits
-
-
