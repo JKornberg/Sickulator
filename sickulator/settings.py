@@ -1,3 +1,4 @@
+
 import pygame as pg
 
 # define some colors (R, G, B)
@@ -8,6 +9,7 @@ LIGHTGREY = (100, 100, 100)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+
 BLUE = (0,0,255)
 # game settings
 WIDTH = 1024   # originally 1024
@@ -33,4 +35,3 @@ class SimulationSettings:
         self.reproduction_rate = reproduction_rate
         self.family_size = family_size
         self.simulation_duration = simulation_duration
-    

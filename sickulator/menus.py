@@ -1,3 +1,4 @@
+
 from settings import SimulationSettings
 import pygame_menu
 import pygame as pg
@@ -9,6 +10,7 @@ menuTheme.font = pygame_menu.font.FONT_NEVIS
 uiTheme = menuTheme.copy()
 uiTheme.title = False
 uiTheme.background_color = (55,96,113)
+
 
 
 def homeMenu(onPlay):
@@ -24,6 +26,7 @@ def homeMenu(onPlay):
     home.add.button('Quit', pygame_menu.events.EXIT)
     return home
 
+
 def optionsMenu(game):
     options = pygame_menu.Menu(  # Instantiate Menu
             height=HEIGHT,
@@ -34,7 +37,6 @@ def optionsMenu(game):
             enabled=False
         )
 
-    # all sliders stuck with range starting at 0 right now; crashes otherwise. Problem with our code or problem with library?
     infection_rate = game.simulation_settings.infection_rate
     lifespan =  game.simulation_settings.lifespan
     illness_period =  game.simulation_settings.illness_period
