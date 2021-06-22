@@ -1,6 +1,3 @@
-# Sickulator
-
-
 # The Sickulator
 Link to Issue tracker: https://trello.com/b/rdkSQQiJ/sickulator
 
