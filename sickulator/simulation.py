@@ -1,3 +1,4 @@
+import math
 from os import path
 from agent import Agent
 from typing import Container
@@ -8,7 +9,6 @@ from pygame_gui.elements import text
 from math import floor
 import sys
 import pytmx
-
 class Simulation:
     def __init__(self,game):
         self.game = game
@@ -187,13 +187,15 @@ class Simulation:
 
     # Should create a 2D array out of path_Map.tmx #
     def generate_path_grid(self):
-        self.grid = [[x for x in range(self.path_map.width)] for y in range(self.path_map.height)]
+        self.grid = [[0 for x in range(int(self.path_map.width / 16))] for y in range(int(self.path_map.height / 16))]
 
+        print(self.path_map.tmxdata)
         for layer in self.path_map.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
-                for x, y, gid, in layer:
-                    self.grid[x][y] = gid
+                for x, y, gid in layer:
+                    props = self.path_map.tmxdata.get_tile_properties_by_gid(gid)
+                    print(props)
+                    self.grid[y][x] = gid
 
         return self.grid
-
 
