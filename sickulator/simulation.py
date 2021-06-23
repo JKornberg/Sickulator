@@ -76,6 +76,8 @@ class Simulation:
             html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>""", container=self.info, manager=self.gui,
             layer_starting_height=2)
 
+        self.end_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((WIDTH-150,0),(120,50)),container=bottom_bar,manager=self.gui,text="End Simulation")
+
     def toggle_info(self, val):
         self.show_popup = val
         self.info.visible = val
@@ -106,8 +108,11 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
-        self.day = str(floor(self.time/10))
-        self.timer.set_text("Day: " + self.day)
+        if (self.day != (y:=(floor(self.time/10)))):
+            self.day = y
+            self.timer.set_text("Day: " + str(self.day))
+            if (self.day > self.simulation_settings.simulation_duration):
+                self.end_game()
         self.all_sprites.update()
         self.camera.update(self.player)
         if (self.show_popup):
@@ -142,6 +147,8 @@ class Simulation:
                         self.normal_speed_button.set_text("1x")
                         self.double_speed_button.set_text("*2x*")
                         self.multiplier = 2     
+                    elif event.ui_element == self.end_button:
+                        self.end_game()
             if event.type == pg.QUIT:
                 self.playing = False
                 self.quit()
@@ -166,6 +173,10 @@ class Simulation:
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         self.all_sprites.draw(self.screen)
+
+    def end_game(self):
+        self.playing = False
+        self.game.end_simulation()
 
     def quit(self):
         pg.quit()
