@@ -31,7 +31,9 @@ class Simulation:
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, 'map')
         self.map = TiledMap(path.join(map_folder, 'agentcity.tmx'))
+        # following 2 lines added for generate_path_grid() function
         self.path_map = TiledMap(path.join(map_folder,'path_Map.tmx'))
+        self.generate_path_grid()
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
@@ -172,6 +174,7 @@ class Simulation:
     def quit(self):
         pg.quit()
 
+    # Should create a 2D array out of path_Map.tmx #
     def generate_path_grid(self):
         self.grid = [[x for x in range(self.path_map.width)] for y in range(self.path_map.height)]
 
@@ -179,4 +182,7 @@ class Simulation:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid, in layer:
                     self.grid[x][y] = gid
+
+        return self.grid
+
 

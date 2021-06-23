@@ -4,6 +4,7 @@ import pygame as pg
 from enum import Enum
 import numpy as np
 
+
 vec = pg.math.Vector2
 
 class HealthState(Enum):
@@ -135,5 +136,9 @@ def generate_days(count = 1):
         agent_visits.append((buildings[j:j+i], times))
         j += i
     return agent_visits
+
+#def find_path(starting_position, destination):
+
+
 
 
