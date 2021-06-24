@@ -101,7 +101,7 @@ class Agent(pg.sprite.Sprite):
         try:
             next_tile = self.path[self.current_step + 1]
         except IndexError:
-            print("reached end of path")
+            #print("reached end of path")
             return
 
         vx = (next_tile[0] - current_tile[0]) * PLAYER_SPEED
@@ -131,7 +131,7 @@ class Family():
     Arguments:
     
     simulation -- simulation object which contains all world info (clock etc)
-    home -- integer id of building family is assigned to
+    home -- integer id of building family is assigned to (currently a vector of home coordinates)
 
     Class Variables:
 
@@ -144,7 +144,7 @@ class Family():
         self.simulation = simulation
         self.agents = []
         self.work = 0
-        self.home
+        self.home = home
         Family.count += 1
     
     def add_agent(self, agent : Agent):
