@@ -56,7 +56,6 @@ class Simulation:
 
         self.homes = [] # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
-            print(home_addresses[x][0], ",", home_addresses[x][1])
             new_building = Building(int(home_addresses[x][0]), int(home_addresses[x][1]), "home")
             self.homes.append(new_building)
 

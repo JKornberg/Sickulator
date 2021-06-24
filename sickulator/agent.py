@@ -61,7 +61,7 @@ class Agent(pg.sprite.Sprite):
 
     def _init_path(self):
         path_finder = PathFinder(self.simulation.grid)
-        print(self.x, self.y)
+        #print(self.x, self.y)
         start = (self.x, self.y)
         end = (46, 47)
         path = path_finder.find_path(start, end)
