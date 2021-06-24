@@ -54,13 +54,13 @@ class Simulation:
         self.families = []
         self.agents = []
 
-        self.homes = []
+        self.homes = [] # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             print(home_addresses[x][0], ",", home_addresses[x][1])
             new_building = Building(int(home_addresses[x][0]), int(home_addresses[x][1]), "home")
             self.homes.append(new_building)
 
-        self.buildings = []
+        self.buildings = []  # create_buildings from buildings; better suited here
         for x in range(0, len(building_addresses)):
             if x < 6:  # index of park addresses start on 6
                 self.buildings.append(
@@ -69,8 +69,7 @@ class Simulation:
                 self.buildings.append(
                     Building(int(building_addresses[x][0]), int(building_addresses[x][1]), "outside"))
 
-        for x in range(0, math.ceil(
-            num_agents / self.simulation_settings.family_size)):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
+        for x in range(0, math.ceil(num_agents / self.simulation_settings.family_size)):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
             new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
 
