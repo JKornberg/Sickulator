@@ -1,8 +1,11 @@
 import math
-from settings import BLACK, BLUE, GREEN, RED
+from os import curdir
+from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, TILESIZE
 import pygame as pg
 from enum import Enum
 import numpy as np
+from path_finder import PathFinder
+
 
 vec = pg.math.Vector2
 
@@ -48,6 +51,17 @@ class Agent(pg.sprite.Sprite):
         self._health_state = health_state
         Agent.health_counts[health_state.value] += 1
         self._inside = False
+        self.path = self._init_path()
+        self.current_step = 0
+
+    def _init_path(self):
+        path_finder = PathFinder(self.simulation.grid)
+        print(self.x, self.y)
+        start = (self.x, self.y)
+        end = (46, 47)
+        path = path_finder.find_path(start, end)
+        return path
+
 
     @property
     def health_state(self):
@@ -73,10 +87,40 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(255)
     
     def update(self):
+        """
+        Per path in schedule:
+            1. Get current step of path
+            2. Move by pixels according to speed, time passed and direction towards next step
+            3. If on new tile, reset position to exact tile, update current step. 
+            4. repeat until path is over
+        """
         self.rect.x = self.x * TILESIZE
         self.rect.y = self.y * TILESIZE
-        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
-            self.health_state = HealthState.DEAD
+
+        current_tile = self.path[self.current_step]
+        try:
+            next_tile = self.path[self.current_step + 1]
+        except IndexError:
+            print("reached end of path")
+            return
+
+        vx = (next_tile[0] - current_tile[0]) * PLAYER_SPEED
+        vy = (next_tile[1] - current_tile[1]) * PLAYER_SPEED
+
+        self.x = self.x + vx * self.simulation.dt
+        self.y = self.y + vy * self.simulation.dt
+
+        self.rect.x = self.x * TILESIZE
+        self.rect.y = self.y * TILESIZE
+
+        current_tile_x = int(self.x)
+        current_tile_y = int(self.y)
+
+        if current_tile_x == next_tile[0] and current_tile_y == next_tile[1]:
+            self.current_step += 1
+
+        # if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)):
+            # self.health_state = HealthState.DEAD
 
 
 
@@ -135,5 +179,9 @@ def generate_days(count = 1):
         agent_visits.append((buildings[j:j+i], times))
         j += i
     return agent_visits
+
+#def find_path(starting_position, destination):
+
+
 
 
