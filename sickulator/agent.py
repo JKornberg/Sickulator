@@ -145,44 +145,38 @@ class Family():
         self.simulation = simulation
         self.agents = []
         self.work = 0
-        self.home
+        self.home = home
         Family.count += 1
     
     def add_agent(self, agent : Agent):
         """Add agent to a family's agents list"""
         self.agents.append(agent)
 
-def generate_days(count = 1):
+def generate_days(agents):
     """
-    Return a list of tuples containing which buildings an agent will visit and how long they will spend.
-    
-    First entry of each tuple contains numbers of buildings the agent will visit
-    
-    Second entry contains the proportion of their day for each building, with the first
-    and last entry containing the amount of time spent at home in the morning and evening
-    respectively
+    Return a list of zip objects 
     """
-    buildings = 9
+    count = len(agents)
+    building_ids = 9
     rng = np.random.default_rng()
     number_of_visits = rng.lognormal(1,.444,(count)) #has mean of 2
     number_of_visits[number_of_visits < 1] = 1 #minimum visits is 1
     number_of_visits = np.round(number_of_visits).astype('int16')
-    buildings = rng.integers(low=0,high=buildings-1,size=np.sum(number_of_visits)) #get list of buildings for visits
+    buildings = rng.integers(low=0,high=building_ids-1,size=np.sum(number_of_visits)) #get list of buildings for visits
     agent_visits = []
     j = 0
     #loop can be optimized, assigns buildings to visits
-    for i in number_of_visits:
+    for agent, i in zip(agents, number_of_visits):
         #  first and last entry are how long they spend in home at start and end of each day
         #  times[1:-2] are the proportion of the day devoted to each building
         #  Sometimes travel time will exceed the proportion they should spend
         #  in this case, agent redirects path mid-travel to next target
         times = (y:=rng.random(i+2))/np.sum(y) #  this line just generates proportions from a uniform distribution
-        agent_visits.append((buildings[j:j+i], times))
+        visits = np.append([agent.home],buildings[j:j+i],[agent.home])
+        print(i,len(visits),len(times))
+        agent_visits.append(tuple(zip(visits,times)))
         j += i
     return agent_visits
 
 #def find_path(starting_position, destination):
-
-
-
 
