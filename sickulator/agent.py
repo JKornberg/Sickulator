@@ -4,6 +4,8 @@ import pygame as pg
 from enum import Enum
 import numpy as np
 
+from path_finder import PathFinder
+
 
 vec = pg.math.Vector2
 
@@ -49,6 +51,16 @@ class Agent(pg.sprite.Sprite):
         self._health_state = health_state
         Agent.health_counts[health_state.value] += 1
         self._inside = False
+        self.path = self._init_path()
+
+    def _init_path(self):
+        path_finder = PathFinder(self.simulation.grid)
+        start = (self.x, self.y)
+        end = (46, 47)
+        path = path_finder.find_path(start, end)
+        print(path)
+
+
 
     @property
     def health_state(self):
