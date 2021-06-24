@@ -154,7 +154,15 @@ class Family():
 
 def generate_days(agents):
     """
-    Return a list of zip objects 
+    Set Agent.schedule for all agents in agents list
+
+    Args:
+    agents - list of all agents to generate schedules for
+
+    Sets schedule to a list of tuples where the first entry is a building number
+    and the second entry is a proportion of the agent's day.
+
+    Adding the proportions for an agent's day will always sum to 1
     """
     count = len(agents)
     building_ids = 9
@@ -172,11 +180,9 @@ def generate_days(agents):
         #  Sometimes travel time will exceed the proportion they should spend
         #  in this case, agent redirects path mid-travel to next target
         times = (y:=rng.random(i+2))/np.sum(y) #  this line just generates proportions from a uniform distribution
-        visits = np.append([agent.home],buildings[j:j+i],[agent.home])
-        print(i,len(visits),len(times))
-        agent_visits.append(tuple(zip(visits,times)))
-        j += i
-    return agent_visits
+        visits = np.concatenate((agent.home,buildings[j:j+i],agent.home),axis=None)
+        agent.schedule = list(zip(visits,times))
+    return
 
 #def find_path(starting_position, destination):
 
