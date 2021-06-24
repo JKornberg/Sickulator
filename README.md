@@ -14,3 +14,16 @@ The Sickulator is an agent-based simulator made to visually represent the spread
 # References
 Kids Can Code - https://www.youtube.com/watch?v=3UxnelT9aCo&list=PLsk-HSGFjnaGQq7ybM8Lgkh5EMxUWPm2i
 
+# Development set up
+
+### Mac OS / Linux
+
+```
+python3 -m virtualenv venv
+source venv/bin/activate
+# If you're using VSCode, make sure your python interpreter is set to 'venv' #
+pip install --upgrade pip
+pip install -r requirements.txt
+cd sickulator
+python main.py
+```
