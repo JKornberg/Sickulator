@@ -42,7 +42,7 @@ class Simulation:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 5,5)
+        self.player = Player(self, 4, 4)
         self.agent = Agent(self, 0, 4, 4)
 
         for tile_object in self.map.tmxdata.objects:
