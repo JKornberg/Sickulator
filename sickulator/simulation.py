@@ -1,3 +1,4 @@
+import math
 from os import path
 from agent import Agent
 from typing import Container
@@ -7,7 +8,7 @@ import pygame_gui
 from pygame_gui.elements import text
 from math import floor
 import sys
-
+import pytmx
 class Simulation:
     def __init__(self,game):
         self.game = game
@@ -15,11 +16,12 @@ class Simulation:
         self.load_data()
         self.show = False
         self.clock = pg.time.Clock()
-        self.new()
         self.multiplier = 1
         self.day = 0
         self.simulation_settings = game.simulation_settings
         self.show_popup = False
+        self.new()
+
 
     def enable_popup(self):
         print("PRESSED")
@@ -30,6 +32,9 @@ class Simulation:
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, 'map')
         self.map = TiledMap(path.join(map_folder, 'agentcity.tmx'))
+        # following 2 lines added for generate_path_grid() function
+        self.path_map = TiledMap(path.join(map_folder,'path_Map.tmx'))
+        self.grid = self.generate_path_grid()
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
 
@@ -38,6 +43,7 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
+        self.agent = Agent(self, 0, 4, 4)
 
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == 'wall':
@@ -180,3 +186,14 @@ class Simulation:
 
     def quit(self):
         pg.quit()
+
+    # Should create a 2D array out of path_Map.tmx #
+    def generate_path_grid(self):
+        grid = [[0 for x in range(int(self.path_map.width / 16))] for y in range(int(self.path_map.height / 16))]
+        for layer in self.path_map.tmxdata.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, gid in layer:
+                    grid[y][x] = gid
+
+        return grid
+
