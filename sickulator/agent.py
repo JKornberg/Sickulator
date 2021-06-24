@@ -117,7 +117,7 @@ def generate_days(count = 1):
     and last entry containing the amount of time spent at home in the morning and evening
     respectively
     """
-    buildings = 9
+    buildings = 10
     rng = np.random.default_rng()
     number_of_visits = rng.lognormal(1,.444,(count)) #has mean of 2
     number_of_visits[number_of_visits < 1] = 1 #minimum visits is 1
