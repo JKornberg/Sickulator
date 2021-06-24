@@ -51,21 +51,6 @@ class Player(pg.sprite.Sprite):
                 self.vy = 0
                 self.rect.y = self.y
 
-    def inside_building(self, dir):
-        if dir == 'x':
-            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
-            if hits:
-                self.image.convert_alpha()
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
-            if hits:
-                if self.vy > 0:
-                    self.y = hits[0].rect.top - self.rect.height
-                if self.vy < 0:
-                    self.y = hits[0].rect.bottom
-                self.vy = 0
-                self.rect.y = self.y
-
     def update(self):
         self.get_keys()
         self.x += self.vx * self.game.dt
