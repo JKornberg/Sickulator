@@ -4,8 +4,10 @@ import pygame_menu
 import pygame as pg
 from settings import HEIGHT, WIDTH, UISCALE
 
-menuTheme = pygame_menu.themes.THEME_DARK.copy()
+menuTheme = pygame_menu.themes.THEME_GREEN.copy()
 menuTheme.font = pygame_menu.font.FONT_NEVIS
+menuTheme.background_color=(51,87,57)
+menuTheme.selection_color=(250, 190, 112)
 
 uiTheme = menuTheme.copy()
 uiTheme.title = False
@@ -65,15 +67,22 @@ def optionsMenu(game):
         int(rr_slider.get_value()),int(fs_slider.get_value()),int(sd_slider.get_value()))))  # Add buttons to menu
     return options
 
-def uiMenu(function):
-    function()
-    ui = pygame_menu.Menu(title="", theme = uiTheme, width=WIDTH,height=HEIGHT * UISCALE, enabled=True,position=(0,85),columns=2,rows=[1,1])
-    ui.add.range_slider("Speed", default=2, range_text_value_tick_number=4, range_values=[.25,.5,1,2,4], value_format=lambda x: str(x).strip('0')+"x")
-
-    return ui
-
 
 def popup():
     surf = pg.Surface((100,100))
     surf.fill((255,255,255))
     return surf
+
+def resultsMenu():
+    results = pygame_menu.Menu(title="Results", height=HEIGHT,
+            width=WIDTH,
+            onclose=pygame_menu.events.CLOSE,
+            theme=menuTheme,
+            )
+    results.add.label("Peak Infected Percentage: ")
+    results.add.label("Total Healthy: ")
+    results.add.label("Total Infected: ")
+    results.add.label("Total Immune: ")
+    results.add.label("Total Deceased: ")
+
+    return results
