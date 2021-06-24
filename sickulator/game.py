@@ -62,3 +62,7 @@ class Game:
     def play_simulation(self, simulation_settings):
         self.set_settings(simulation_settings)
         self._update_from_selection(3)
+
+    def end_simulation(self):
+        results = resultsMenu()
+        results.mainloop(self.screen)
