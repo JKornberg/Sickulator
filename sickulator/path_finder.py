@@ -47,7 +47,7 @@ class PathFinder:
     def find_path(self, start, end):
         starting_col = start[0]
         starting_row = start[1]
-        starting_tile = self.map[starting_row][starting_col]
+        starting_tile = self.map[int(starting_row)][int(starting_col)]
 
         # Set up ending tile
         ending_col = end[0]

@@ -10,6 +10,10 @@ from math import floor, ceil
 import random
 import sys
 import pytmx
+from buildings import *
+import random
+
+
 class Simulation:
     def __init__(self,game):
         self.game = game
@@ -28,7 +32,7 @@ class Simulation:
     def enable_popup(self):
         print("PRESSED")
         self.show = True
-        
+
     def load_data(self):
         '''Load all assets'''
         game_folder = path.dirname(__file__)
@@ -45,29 +49,37 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
-        self.agent = Agent(self, 0, 4, 4)
 
-        num_agents = 20  # hard-coding this for now
+        num_agents = 10
         self.families = []
+        self.agents = []
 
-        # coords of all the houses in the map
-        home_coords = [
-            (8, 11), (22, 11), (36, 11), (50, 11),
-            (8, 23), (22, 23), (36, 23), (50, 23),
-            (8, 47), (22, 47), (36, 47), (50, 47),
-            (8, 59), (22, 59), (36, 59), (50, 59),
-            (8, 83), (22, 83), (36, 83), (50, 83),
-        ]
+        self.homes = []
+        for x in range(0, len(home_addresses) - 1):
+            print(home_addresses[x][0], ",", home_addresses[x][1])
+            new_building = Building(int(home_addresses[x][0]), int(home_addresses[x][1]), "home")
+            self.homes.append(new_building)
 
-        for x in range (0, math.ceil(num_agents/self.simulation_settings.family_size)): # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
-            new_home = home_coords[random.randint(0, len(home_coords)) - 1]
+        self.buildings = []
+        for x in range(0, len(building_addresses)):
+            if x < 6:  # index of park addresses start on 6
+                self.buildings.append(
+                    Building(int(building_addresses[x][0]), int(building_addresses[x][1]), "inside"))
+            else:
+                self.buildings.append(
+                    Building(int(building_addresses[x][0]), int(building_addresses[x][1]), "outside"))
+
+        for x in range(0, math.ceil(
+            num_agents / self.simulation_settings.family_size)):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
+            new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
-            home_coords.remove(new_home) # removes the possibility of duplicate homes -- NOT SUITABLE FOR num_agents > 20*family size
 
         index = 0
-        for agent in range (0, num_agents): #puts agents in families; fills families before moving to new ones
-            family_to_fill = self.families[int(index/self.simulation_settings.family_size)]
-            family_to_fill.add_agent(Agent(self, family_to_fill, family_to_fill.home[0], family_to_fill.home[1]))
+        for agent in range(0, num_agents):  # puts agents in families; fills families before moving to new ones
+            family_to_fill = self.families[int(index / self.simulation_settings.family_size)]
+            new_agent = Agent(self, family_to_fill, family_to_fill.home.pos[0], family_to_fill.home.pos[1])
+            family_to_fill.add_agent(new_agent)
+            self.agents.append(new_agent)
             index += 1
 
         for tile_object in self.map.tmxdata.objects:
@@ -97,7 +109,7 @@ class Simulation:
                                              manager=self.gui,container=bottom_bar)
         self.info = pygame_gui.elements.UIPanel(relative_rect=pg.Rect((0, 0), (350, HEIGHT-80)),starting_layer_height=0, manager=self.gui, visible=False)
         self.close_button = pygame_gui.elements.UIButton(relative_rect=pg.Rect((350-30,0), (30, 30)),text="X",
-                                             manager=self.gui,container=self.info, visible=False)                                    
+                                             manager=self.gui,container=self.info, visible=False)
 
         self.description = pygame_gui.elements.UITextBox(html_text=
         """<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. Agents begin every day at home with their family where they select a schedule for the day. They then venture out to the city and visit all the buildings their schedule includes. A small subset of agents begin the simulation infected, and we can watch the disease spread over time. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>"""
@@ -156,7 +168,7 @@ class Simulation:
         events = pg.event.get()
         for event in events:
             self.gui.process_events(event)
-            
+
             if event.type == pg.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == self.info_button:
@@ -167,17 +179,17 @@ class Simulation:
                         self.half_speed_button.set_text("*0.5x*")
                         self.normal_speed_button.set_text("1x")
                         self.double_speed_button.set_text("2x")
-                        self.multiplier = 0.5  
+                        self.multiplier = 0.5
                     elif event.ui_element == self.normal_speed_button:
                         self.half_speed_button.set_text("0.5x")
                         self.normal_speed_button.set_text("*1x*")
                         self.double_speed_button.set_text("2x")
-                        self.multiplier = 1                        
+                        self.multiplier = 1
                     elif event.ui_element == self.double_speed_button:
                         self.half_speed_button.set_text("0.5x")
                         self.normal_speed_button.set_text("1x")
                         self.double_speed_button.set_text("*2x*")
-                        self.multiplier = 2     
+                        self.multiplier = 2
                     elif event.ui_element == self.end_button:
                         self.end_game()
             if event.type == pg.QUIT:

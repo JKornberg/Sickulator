@@ -101,7 +101,7 @@ class Agent(pg.sprite.Sprite):
         try:
             next_tile = self.path[self.current_step + 1]
         except IndexError:
-            print("reached end of path")
+            #print("reached end of path")
             return
 
         vx = (next_tile[0] - current_tile[0]) * PLAYER_SPEED

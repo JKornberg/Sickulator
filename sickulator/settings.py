@@ -25,7 +25,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = .15
 
 # Camera Settings
-PLAYER_SPEED = 10
+PLAYER_SPEED = 8
 
 class SimulationSettings:
     def __init__(self,infection_rate=10, lifespan=10, illness_period=3, reproduction_rate=4, family_size=4, simulation_duration=50):
