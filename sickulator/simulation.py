@@ -9,6 +9,7 @@ from pygame_gui.elements import text
 from math import floor
 import sys
 import pytmx
+
 class Simulation:
     def __init__(self,game):
         self.game = game
@@ -34,6 +35,7 @@ class Simulation:
         self.map = TiledMap(path.join(map_folder, 'agentcity.tmx'))
         # following 2 lines added for generate_path_grid() function
         self.path_map = TiledMap(path.join(map_folder,'path_Map.tmx'))
+
         self.grid = self.generate_path_grid()
         self.map_img = self.map.make_map()
         self.map_rect = self.map_img.get_rect()
@@ -196,4 +198,5 @@ class Simulation:
                     grid[y][x] = gid
 
         return grid
+
 
