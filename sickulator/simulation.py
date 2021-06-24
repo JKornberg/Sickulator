@@ -43,7 +43,7 @@ class Simulation:
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 5,5)
-        self.agent = Agent(self, 0, 4, 5)
+        self.agent = Agent(self, 0, 4, 4)
 
         for tile_object in self.map.tmxdata.objects:
             if tile_object.name == 'wall':
@@ -190,7 +190,7 @@ class Simulation:
     # Should create a 2D array out of path_Map.tmx #
     def generate_path_grid(self):
         grid = [[0 for x in range(int(self.path_map.width / 16))] for y in range(int(self.path_map.height / 16))]
-        for layer in self.map.tmxdata.visible_layers:
+        for layer in self.path_map.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
                     grid[y][x] = gid

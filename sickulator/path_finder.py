@@ -1,6 +1,6 @@
 from copy import copy
 PATH_NUMBER = 25
-DOOR = 2
+DOOR = 39
 WIDTH = 64
 HEIGHT = 48
 
@@ -62,6 +62,7 @@ class PathFinder:
             for dir in directions:
                 new_tile = self.explore_direction(current_tile, dir)
                 if new_tile and new_tile.status == "Goal":
+                    new_tile.path.append((ending_col, ending_row))
                     return new_tile.path
                 elif new_tile and new_tile.status == "Valid":
                     self.queue.append(new_tile)
