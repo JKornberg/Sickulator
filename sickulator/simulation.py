@@ -218,7 +218,7 @@ class Simulation:
 
     def end_game(self):
         self.playing = False
-        self.game.end_simulation()
+        self.game.end_simulation(Agent.max_health_counts, Agent.health_counts)
 
     def quit(self):
         pg.quit()

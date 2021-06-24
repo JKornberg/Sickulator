@@ -63,6 +63,6 @@ class Game:
         self.set_settings(simulation_settings)
         self._update_from_selection(3)
 
-    def end_simulation(self):
-        results = resultsMenu()
+    def end_simulation(self, max_health_counts, health_counts):
+        results = resultsMenu(max_health_counts, health_counts)
         results.mainloop(self.screen)

@@ -54,7 +54,7 @@ class Agent(pg.sprite.Sprite):
         #Update counts of 
         Agent.health_counts[health_state.value] += 1
         if Agent.max_health_counts[health_state.value] < Agent.health_counts[health_state.value]:
-            Agent.max_health_counts = Agent.health_counts[health_state.value]
+            Agent.max_health_counts[health_state.value] = Agent.health_counts[health_state.value]
         self._inside = False
         self.path = self._init_path()
         self.current_step = 0
