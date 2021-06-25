@@ -36,7 +36,6 @@ class Agent(pg.sprite.Sprite):
 
     """
     
-    max_health_counts = [0,0,0,0]
     health_counts = [0,0,0,0]
 
     def __init__(self, simulation, family, x, y, health_state=HealthState.HEALTHY):
@@ -53,8 +52,6 @@ class Agent(pg.sprite.Sprite):
         self._health_state = health_state
         #Update counts of 
         Agent.health_counts[health_state.value] += 1
-        if Agent.max_health_counts[health_state.value] < Agent.health_counts[health_state.value]:
-            Agent.max_health_counts[health_state.value] = Agent.health_counts[health_state.value]
         self._inside = False
         self.path = self._init_path()
         self.current_step = 0
@@ -78,8 +75,6 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
         self.image.fill(health_colors[hs.value])
-        if Agent.max_health_counts[hs.value] < Agent.health_counts[hs.value]:
-            Agent.max_health_counts = Agent.health_counts[hs.value]
 
 
     @property

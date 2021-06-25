@@ -26,6 +26,7 @@ class Simulation:
         self.simulation_settings = game.simulation_settings
         self.multiplier = 1
         self.show_popup = False
+        self.result_data = [[0,0,0,0]]
         self.new()
 
 
@@ -152,6 +153,7 @@ class Simulation:
         if (self.day != (y:=(floor(self.time/10)))):
             self.day = y
             self.timer.set_text("Day: " + str(self.day))
+            self.result_data.append(Agent.health_counts)
             if (self.day > self.simulation_settings.simulation_duration):
                 self.end_game()
         self.all_sprites.update()
@@ -217,7 +219,7 @@ class Simulation:
 
     def end_game(self):
         self.playing = False
-        self.game.end_simulation(Agent.max_health_counts, Agent.health_counts)
+        self.game.end_simulation(self.result_data)
 
     def quit(self):
         pg.quit()

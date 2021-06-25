@@ -73,17 +73,20 @@ def popup():
     surf.fill((255,255,255))
     return surf
 
-def resultsMenu(max_health_counts, health_counts):
+def resultsMenu(result_data):
     results = pygame_menu.Menu(title="Results", height=HEIGHT,
             width=WIDTH,
             onclose=pygame_menu.events.CLOSE,
             theme=menuTheme,
             )
-    peak = str((max_health_counts[1] / (max_health_counts[0] + max_health_counts[1] + max_health_counts[2])) * 100) + "%"
-    results.add.label("Peak Infected Percentage: " + peak)
-    results.add.label("Total Healthy: " + str(health_counts[0]))
-    results.add.label("Total Infected: " + str(health_counts[1]))
-    results.add.label("Total Immune: " + str(health_counts[2]))
-    results.add.label("Total Deceased: " + str(health_counts[3]))
-
+    max_infection = 0
+    for h, s, i, d in result_data:
+        if (h + s == 0):
+            continue
+        max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
+    results.add.label("Peak Infected Percentage: " + str(max_infection))
+    results.add.label("Final Healthy: " + str(result_data[-1][0]))
+    results.add.label("Final Infected: " + str(result_data[-1][1]))
+    results.add.label("Final Immune: " + str(result_data[-1][2]))
+    results.add.label("Final Deceased: " + str(result_data[-1][3]))
     return results

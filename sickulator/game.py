@@ -4,6 +4,7 @@ import sys
 import pygame as pg
 from menus import *
 import pygame_menu
+import pickle 
 
 class Game:
     def __init__(self):
@@ -63,6 +64,24 @@ class Game:
         self.set_settings(simulation_settings)
         self._update_from_selection(3)
 
-    def end_simulation(self, max_health_counts, health_counts):
-        results = resultsMenu(max_health_counts, health_counts)
+    def end_simulation(self, result_data):
+        self.save_to_results(result_data)
+        results = resultsMenu(result_data)
         results.mainloop(self.screen)
+
+    def save_to_results(self, result_data):
+        obj = []
+        try:
+            with open("data.txt","rb") as f:
+                obj = pickle.load(f)
+        except:
+            print("No data.txt file found. Creating new file")
+        max_infection = 0
+        for h, s, i, d in result_data:
+            if (h + s == 0):
+                continue
+            max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
+        result = {'duration': len(result_data), 'max_infection' : max_infection,}
+        obj.append(result)
+        with open("data.txt","wb") as f:
+            pickle.dump(obj, f)
