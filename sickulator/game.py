@@ -4,7 +4,8 @@ import sys
 import pygame as pg
 from menus import *
 import pygame_menu
-import pickle 
+import pickle
+import os
 
 class Game:
     def __init__(self):
@@ -72,10 +73,11 @@ class Game:
     def save_to_results(self, result_data):
         obj = []
         try:
-            with open("data.txt","rb") as f:
+            with open("data/data.txt","rb") as f:
                 obj = pickle.load(f)
         except:
             print("No data.txt file found. Creating new file")
+            os.mkdir('data')
         max_infection = 0
         for h, s, i, d in result_data:
             if (h + s == 0):
@@ -83,5 +85,5 @@ class Game:
             max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
         result = {'duration': len(result_data), 'max_infection' : max_infection,}
         obj.append(result)
-        with open("data.txt","wb") as f:
+        with open("data/data.txt","wb") as f:
             pickle.dump(obj, f)
