@@ -6,7 +6,7 @@ from menus import *
 import pygame_menu
 import pickle
 import os
-
+from datetime import datetime
 class Game:
     def __init__(self):
         self.simulation_settings : SimulationSettings = SimulationSettings()
@@ -18,11 +18,11 @@ class Game:
         sys.stdout = _stdout
         sys.stderr = _stderr
         pg.display.set_caption("The Sickulator")
-        pg.key.set_repeat(500, 100)  # Determines how held keys are handled (delay, interval) in ms
-        self.home = homeMenu(lambda : self._update_from_selection(2))
-        self.current = 0
-        self.options = optionsMenu(self)
-
+        pg.key.set_repeat(500, 100)  # Held key handler
+        self.current = 0  # Current page index
+        self.home = homeMenu(lambda : self._update_from_selection(2), lambda : self._update_from_selection(4))
+        self.options = optionsMenu(self, lambda : self._update_from_selection(1))
+        self.data_menu = dataMenu(lambda : self._update_from_selection(1))
 
     def run(self):
         self.simulation = Simulation(self)
@@ -48,15 +48,24 @@ class Game:
         """
         self.current = index
         # Swap buttons using hide/show
+        if index == 1:
+            self.options.disable()
+            self.data_menu.disable()
+            self.home.enable()
+            self.home.mainloop(self.screen)
         if index == 2:
             self.options.enable()
             self.options.mainloop(self.screen)
             self.home.disable()
-
         elif index == 3:
             self.home.disable()
             self.options.disable()
             self.run()
+        elif index == 4:
+            self.home.disable()
+            self.options.disable()
+            data_menu = dataMenu(lambda : self._update_from_selection(1))
+            data_menu.mainloop(self.screen)
             
     def set_settings(self, simulation_settings: SimulationSettings):
         self.simulation_settings = simulation_settings
@@ -67,7 +76,7 @@ class Game:
 
     def end_simulation(self, result_data):
         self.save_to_results(result_data)
-        results = resultsMenu(result_data)
+        results = resultsMenu(result_data, lambda : self._update_from_selection(1))
         results.mainloop(self.screen)
 
     def save_to_results(self, result_data):
@@ -77,13 +86,14 @@ class Game:
                 obj = pickle.load(f)
         except:
             print("No data.txt file found. Creating new file")
-            os.mkdir('data')
+            if not os.path.isdir('data'):
+                os.mkdir('data')
         max_infection = 0
         for h, s, i, d in result_data:
             if (h + s == 0):
                 continue
             max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
-        result = {'duration': len(result_data), 'max_infection' : max_infection,}
+        result = {'date': datetime.now(), 'duration': len(result_data), 'max_infection' : max_infection,}
         obj.append(result)
         with open("data/data.txt","wb") as f:
             pickle.dump(obj, f)
