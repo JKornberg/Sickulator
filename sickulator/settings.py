@@ -1,4 +1,3 @@
-
 import pygame as pg
 
 # define some colors (R, G, B)
@@ -10,10 +9,10 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
-BLUE = (0,0,255)
+BLUE = (0, 0, 255)
 # game settings
-WIDTH = 1024   # originally 1024
-HEIGHT = 768 # og 768
+WIDTH = 1024  # originally 1024
+HEIGHT = 768  # og 768
 FPS = 60
 TITLE = "Agent City"
 BGCOLOR = DARKGREY
@@ -22,13 +21,22 @@ BGCOLOR = DARKGREY
 TILESIZE = 16
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
-UISCALE = .15
+UISCALE = 0.15
 
 # Camera Settings
 PLAYER_SPEED = 8
 
+
 class SimulationSettings:
-    def __init__(self,infection_rate=10, lifespan=10, illness_period=3, reproduction_rate=4, family_size=4, simulation_duration=50):
+    def __init__(
+        self,
+        infection_rate=10,
+        lifespan=10,
+        illness_period=3,
+        reproduction_rate=4,
+        family_size=4,
+        simulation_duration=50,
+    ):
         self.infection_rate = infection_rate
         self.lifespan = lifespan
         self.illness_period = illness_period
