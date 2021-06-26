@@ -23,9 +23,11 @@ GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = 0.15
 
-# Camera Settings
+# Agent Settings
 PLAYER_SPEED = 8
+DAILY_MORTALITY_CHANCE = .1
 
+DAY_DURATION = 20  # Day duration in seconds
 
 class SimulationSettings:
     def __init__(

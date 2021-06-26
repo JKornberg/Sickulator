@@ -1,16 +1,13 @@
 import math
 from os import curdir
-from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, TILESIZE
+from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_DURATION
 import pygame as pg
 from enum import Enum
 import numpy as np
 from path_finder import PathFinder
-<<<<<<< HEAD
 from math import ceil
-
-=======
 from buildings import building_addresses, home_addresses
->>>>>>> Scheduling WIP
+
 
 vec = pg.math.Vector2
 
@@ -54,8 +51,7 @@ class Agent(pg.sprite.Sprite):
         home_id,
         health_state=HealthState.HEALTHY,
     ):
-        self.x = x
-        self.y = y
+        self.pos = vec(x,y)
         self.home = home_id
         self.simulation = simulation
         self.groups = simulation.all_sprites
@@ -72,6 +68,7 @@ class Agent(pg.sprite.Sprite):
         self.schedule = []
         self.current_visit = 0
         self.time_on_current_visit = 0
+        self.infected_duration = 0
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -98,6 +95,16 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(0)
         else:
             self.image.set_alpha(255)
+
+    def daily_update(self):
+        if self.health_state == HealthState.INFECTED:
+            if np.random.randint(0,100) < 5:
+                self.health_state = HealthState.DEAD
+            if self.infected_duration >= self.simulation.simulation_settings.illness_period:
+                self.health_state = HealthState.IMMUNE
+            else:
+                self.infected_duration += 1
+        #Setup schedule/target destination
 
     def update(self):
         """

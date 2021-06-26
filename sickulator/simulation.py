@@ -12,7 +12,7 @@ import sys
 import pytmx
 from buildings import *
 import random
-
+from settings import DAY_DURATION
 
 class Simulation:
     def __init__(self, game):
@@ -237,7 +237,7 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
-        if self.day != (y := (floor(self.time / 10))):
+        if self.day != (y := (floor(self.time / DAY_DURATION))):
             if self.day > self.simulation_settings.simulation_duration:
                 self.end_game()
 
