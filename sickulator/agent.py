@@ -5,7 +5,7 @@ import pygame as pg
 from enum import Enum
 import numpy as np
 from path_finder import PathFinder
-
+from math import ceil
 
 
 vec = pg.math.Vector2
@@ -39,8 +39,7 @@ class Agent(pg.sprite.Sprite):
     health_counts = [0,0,0,0]
 
     def __init__(self, simulation, family, x, y, health_state=HealthState.HEALTHY):
-        self.x = x
-        self.y = y
+        self.pos = vec(x,y)
         self.simulation = simulation
         self.groups = simulation.all_sprites
         self.family = family
@@ -59,7 +58,7 @@ class Agent(pg.sprite.Sprite):
     def _init_path(self):
         path_finder = PathFinder(self.simulation.grid)
         #print(self.x, self.y)
-        start = (self.x, self.y)
+        start = self.pos[0], self.pos[1]
         end = (46, 47)
         path = path_finder.find_path(start, end)
         return path
@@ -97,29 +96,30 @@ class Agent(pg.sprite.Sprite):
             3. If on new tile, reset position to exact tile, update current step. 
             4. repeat until path is over
         """
-        self.rect.x = self.x * TILESIZE
-        self.rect.y = self.y * TILESIZE
+        self.rect.center = self.pos * TILESIZE
 
-        current_tile = self.path[self.current_step]
+        current_tile = vec(self.path[self.current_step][0], self.path[self.current_step][1])
         try:
             next_tile = self.path[self.current_step + 1]
         except IndexError:
             print("reached end of path")
             return
 
-        vx = (next_tile[0] - current_tile[0]) * PLAYER_SPEED
-        vy = (next_tile[1] - current_tile[1]) * PLAYER_SPEED
+        next_tile = vec(next_tile[0],next_tile[1])
+        dist = next_tile - self.pos
+        v = dist * PLAYER_SPEED
+        new_pos = self.pos + v * self.simulation.dt
+        d1 = self.pos - next_tile
+        d2 = new_pos - next_tile
+        if not (ceil(d1[0]) ^ ceil(d2[0]) and ceil(d1[1]) ^ ceil(d2[1])):
+            self.pos = next_tile
+        else:
+            self.pos = new_pos
+        self.rect.center = self.pos * TILESIZE
 
-        self.x = self.x + vx * self.simulation.dt
-        self.y = self.y + vy * self.simulation.dt
+        current_tile = vec(int(self.pos[0]), int(self.pos[1]))
 
-        self.rect.x = self.x * TILESIZE
-        self.rect.y = self.y * TILESIZE
-
-        current_tile_x = int(self.x)
-        current_tile_y = int(self.y)
-
-        if current_tile_x == next_tile[0] and current_tile_y == next_tile[1]:
+        if current_tile == next_tile:
             self.current_step += 1
 
         if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
