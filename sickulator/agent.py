@@ -104,7 +104,11 @@ class Agent(pg.sprite.Sprite):
                 self.health_state = HealthState.IMMUNE
             else:
                 self.infected_duration += 1
-        #Setup schedule/target destination
+        self.setup_path()
+
+    def setup_path(self):
+        #Get current scheduled task and create path
+        pass
 
     def update(self):
         """

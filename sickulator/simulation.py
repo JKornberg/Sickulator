@@ -223,10 +223,12 @@ class Simulation:
         # game loop - set self.playing = False to end the game
         self.playing = True
         self.time = 0
+        self.day_duration = 0
         while self.playing:
             # print(self.show)
             self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
             self.time += self.dt
+            self.day_duration += self.dt
             self.events()
             self.update()
             self.draw()
@@ -237,11 +239,11 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
-        if self.day != (y := (floor(self.time / DAY_DURATION))):
+        if self.day_duration >= DAY_DURATION:
+            self.day_duration = 0
+            self.day += 1
             if self.day > self.simulation_settings.simulation_duration:
                 self.end_game()
-
-            self.day = y
             self.timer.set_text("Day: " + str(self.day))
             self.result_data.append(Agent.health_counts)
 

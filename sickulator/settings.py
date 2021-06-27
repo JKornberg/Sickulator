@@ -28,6 +28,7 @@ PLAYER_SPEED = 8
 DAILY_MORTALITY_CHANCE = .1
 
 DAY_DURATION = 20  # Day duration in seconds
+NIGHT_DURATION = 5
 
 class SimulationSettings:
     def __init__(
