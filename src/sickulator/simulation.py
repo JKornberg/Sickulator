@@ -11,7 +11,7 @@ import sys
 import pytmx
 from sickulator.buildings import *
 import random
-from path_finder import PathFinder
+from sickulator.path_finder import PathFinder
 
 from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
