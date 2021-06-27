@@ -1,8 +1,8 @@
 
-from settings import SimulationSettings
+from sickulator.settings import SimulationSettings
 import pygame_menu
 import pygame as pg
-from settings import HEIGHT, WIDTH, UISCALE
+from sickulator.settings import HEIGHT, WIDTH, UISCALE
 import pickle
 
 menuTheme = pygame_menu.themes.THEME_GREEN.copy()
