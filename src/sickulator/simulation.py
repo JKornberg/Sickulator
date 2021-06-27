@@ -131,7 +131,7 @@ class Simulation:
 
         self.camera = Camera(self.map.width, self.map.height)
         self.gui = pygame_gui.UIManager(
-            (WIDTH, HEIGHT), theme_path="theme.json"
+            (WIDTH, HEIGHT), theme_path="sickulator/theme.json"
         )
         self.make_gui()
 
@@ -232,6 +232,7 @@ class Simulation:
         self.playing = True
         self.time = 0
         self.day_duration = 0
+        self.result_data.append(Agent.health_counts)
         while self.playing:
             # print(self.show)
             self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
