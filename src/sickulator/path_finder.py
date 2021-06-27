@@ -1,4 +1,5 @@
 from copy import copy
+
 PATH_NUMBER = 25
 DOOR = 39
 WIDTH = 64
@@ -18,33 +19,38 @@ grid[1][0] is the second row, first column
 grid[0][1] is the first row, second column
 etc...
 """
+
+
 class Tile:
     def __init__(self, col, row, type):
         self.col = col
         self.row = row
         self.path = []
-        self.status = 'Unknown'
+        self.status = "Unknown"
         self.visited = False
         self.type = type
 
 
 class PathFinder:
     def __init__(self, grid):
-        self.map = self.create_grid(grid)
+        self.grid = grid
+        self.map = self.create_grid()
         self.queue = []
 
-
-    def create_grid(self, grid):
+    def create_grid(self):
         map = []
-        for row in range(len(grid)):
+        for row in range(len(self.grid)):
             tiles = []
-            for col in range(len(grid[0])):
-                tile = Tile(col, row, grid[row][col])
+            for col in range(len(self.grid[0])):
+                tile = Tile(col, row, self.grid[row][col])
                 tiles.append(tile)
             map.append(tiles)
         return map
 
     def find_path(self, start, end):
+        if start == end:
+            return [start]
+
         starting_col = start[0]
         starting_row = start[1]
         starting_tile = self.map[int(starting_row)][int(starting_col)]
@@ -57,17 +63,23 @@ class PathFinder:
         directions = ["North", "East", "South", "West"]
         self.queue.append(starting_tile)
 
-        while (len(self.queue) > 0):
+        while len(self.queue) > 0:
             current_tile = self.queue.pop(0)
             for dir in directions:
                 new_tile = self.explore_direction(current_tile, dir)
                 if new_tile and new_tile.status == "Goal":
                     new_tile.path.append((ending_col, ending_row))
+                    self.reset_grid()
                     return new_tile.path
                 elif new_tile and new_tile.status == "Valid":
                     self.queue.append(new_tile)
 
+        self.reset_grid()
         return False  # No Path Found
+
+    def reset_grid(self):
+        self.map = self.create_grid()
+        self.queue = []
 
     def explore_direction(self, current_tile, direction):
         new_path = copy(current_tile.path)
@@ -75,13 +87,13 @@ class PathFinder:
 
         x, y = current_tile.col, current_tile.row
 
-        if (direction == 'North'):
+        if direction == "North":
             y -= 1
-        elif (direction == 'East'):
+        elif direction == "East":
             x += 1
-        elif (direction == 'South'):
+        elif direction == "South":
             y += 1
-        elif (direction == 'West'):
+        elif direction == "West":
             x -= 1
 
         try:
@@ -101,7 +113,7 @@ class PathFinder:
         x = tile.col
         y = tile.row
 
-        if (x < 0 or x >= WIDTH or y < 0 or y >= HEIGHT):
+        if x < 0 or x >= WIDTH or y < 0 or y >= HEIGHT:
             return "Invalid"
         elif tile.type == "END":
             return "Goal"
@@ -109,7 +121,6 @@ class PathFinder:
             return "Blocked"
         else:
             return "Valid"
-
 
 
 ## DEBUG
