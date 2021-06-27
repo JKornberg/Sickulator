@@ -1,18 +1,17 @@
 import math
 from os import path
-from agent import *
-from typing import Container
-from tiles import *
-from sprites import *
+from sickulator.agent import *
+from sickulator.tiles import *
+from sickulator.sprites import *
 import pygame_gui
 from pygame_gui.elements import text
 from math import floor, ceil
 import random
 import sys
 import pytmx
-from buildings import *
+from sickulator.buildings import *
 import random
-from settings import DAY_LENGTH
+from sickulator.settings import DAY_LENGTH
 
 class Simulation:
     def __init__(self, game):

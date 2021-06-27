@@ -1,12 +1,12 @@
 import math
 from os import curdir
-from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_LENGTH
+from sickulator.settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_LENGTH
 import pygame as pg
 from enum import Enum
 import numpy as np
-from path_finder import PathFinder
+from sickulator.path_finder import PathFinder
 from math import ceil
-from buildings import building_addresses, home_addresses
+from sickulator.buildings import building_addresses, home_addresses
 
 
 vec = pg.math.Vector2
