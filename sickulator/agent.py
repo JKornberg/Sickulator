@@ -1,6 +1,6 @@
 import math
 from os import curdir
-from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_DURATION
+from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_LENGTH
 import pygame as pg
 from enum import Enum
 import numpy as np
@@ -104,7 +104,7 @@ class Agent(pg.sprite.Sprite):
                 self.health_state = HealthState.IMMUNE
             else:
                 self.infected_duration += 1
-        self.setup_path()
+        self.setup_path(self)
 
     def setup_path(self):
         #Get current scheduled task and create path

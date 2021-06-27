@@ -12,7 +12,7 @@ import sys
 import pytmx
 from buildings import *
 import random
-from settings import DAY_DURATION
+from settings import DAY_LENGTH
 
 class Simulation:
     def __init__(self, game):
@@ -28,6 +28,7 @@ class Simulation:
         self.show_popup = False
         self.result_data = [[0, 0, 0, 0]]
         self.path_finder = PathFinder(self.grid)
+        self.isDaytime = True
         self.new()
 
     def enable_popup(self):
@@ -239,16 +240,23 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
-        if self.day_duration >= DAY_DURATION:
-            self.day_duration = 0
-            self.day += 1
-            if self.day > self.simulation_settings.simulation_duration:
-                self.end_game()
-            self.timer.set_text("Day: " + str(self.day))
-            self.result_data.append(Agent.health_counts)
-
-            generate_schedules(self.agents)
-
+        if self.day_duration >= DAY_LENGTH:
+            #Change to new day
+            if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
+                self.isDaytime = True
+                self.day += 1
+                self.day_duration = 0
+                if self.day > self.simulation_settings.simulation_duration:
+                    self.end_game()
+                self.timer.set_text("Day: " + str(self.day)) 
+                self.result_data.append(Agent.health_counts)
+                generate_schedules(self.agents)
+                for agent in self.agents:
+                    agent.daily_update()
+            #Day changes to night
+            if self.isDaytime:
+                self.isDaytime = False
+                #possibly teleport agents back
         self.all_sprites.update()
         self.camera.update(self.player)
         if self.show_popup:
