@@ -33,22 +33,23 @@ class Tile:
 
 class PathFinder:
     def __init__(self, grid):
-        self.map = self.create_grid(grid)
+        self.grid = grid
+        self.map = self.create_grid()
         self.queue = []
 
-    def create_grid(self, grid):
+    def create_grid(self):
         map = []
-        for row in range(len(grid)):
+        for row in range(len(self.grid)):
             tiles = []
-            for col in range(len(grid[0])):
-                tile = Tile(col, row, grid[row][col])
+            for col in range(len(self.grid[0])):
+                tile = Tile(col, row, self.grid[row][col])
                 tiles.append(tile)
             map.append(tiles)
         return map
 
     def find_path(self, start, end):
-        # if start == end:
-        #     return [start]
+        if start == end:
+            return [start]
 
         starting_col = start[0]
         starting_row = start[1]
@@ -68,11 +69,17 @@ class PathFinder:
                 new_tile = self.explore_direction(current_tile, dir)
                 if new_tile and new_tile.status == "Goal":
                     new_tile.path.append((ending_col, ending_row))
+                    self.reset_grid()
                     return new_tile.path
                 elif new_tile and new_tile.status == "Valid":
                     self.queue.append(new_tile)
 
+        self.reset_grid()
         return False  # No Path Found
+
+    def reset_grid(self):
+        self.map = self.create_grid()
+        self.queue = []
 
     def explore_direction(self, current_tile, direction):
         new_path = copy(current_tile.path)

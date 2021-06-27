@@ -1,13 +1,17 @@
-import math
-from os import curdir
-from settings import BLACK, BLUE, GREEN, PLAYER_SPEED, RED, SimulationSettings, TILESIZE, DAILY_MORTALITY_CHANCE, DAY_LENGTH
+from math import ceil
+from settings import (
+    BLACK,
+    BLUE,
+    GREEN,
+    PLAYER_SPEED,
+    RED,
+    TILESIZE,
+    DAY_LENGTH,
+)
 import pygame as pg
 from enum import Enum
 import numpy as np
-from path_finder import PathFinder
-from math import ceil
 from buildings import building_addresses, home_addresses
-
 
 vec = pg.math.Vector2
 
@@ -49,9 +53,11 @@ class Agent(pg.sprite.Sprite):
         x,
         y,
         home_id,
+        id,
         health_state=HealthState.HEALTHY,
     ):
-        self.pos = vec(x,y)
+        self.id = id
+        self.pos = vec(x, y)
         self.home = home_id
         self.simulation = simulation
         self.groups = simulation.all_sprites
@@ -68,7 +74,6 @@ class Agent(pg.sprite.Sprite):
         self.schedule = []
         self.current_visit = 0
         self.time_on_current_visit = 0
-        self.infected_duration = 0
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -97,18 +102,54 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(255)
 
     def daily_update(self):
+        if (
+            self.simulation.simulation_settings.lifespan
+            - (self.simulation.day - self._birthday)
+        ) <= 0:
+            self.health_state = HealthState.DEAD
+
         if self.health_state == HealthState.INFECTED:
-            if np.random.randint(0,100) < 5:
+            if np.random.randint(0, 100) < 5:
                 self.health_state = HealthState.DEAD
-            if self.infected_duration >= self.simulation.simulation_settings.illness_period:
+            if (
+                self.infected_duration
+                >= self.simulation.simulation_settings.illness_period
+            ):
                 self.health_state = HealthState.IMMUNE
             else:
                 self.infected_duration += 1
-        self.setup_path(self)
+
+        self.current_visit = 0
+        self.pos.x, self.pos.y = (
+            home_addresses[self.home][0],
+            home_addresses[self.home][1],
+        )
+        self.setup_path()
 
     def setup_path(self):
-        #Get current scheduled task and create path
-        pass
+        if self.current_visit > len(self.schedule) - 1:
+            print("No more visits")
+            return
+        else:
+            location_id = self.schedule[self.current_visit]
+            if (
+                self.current_visit == 0
+                or self.current_visit == len(self.schedule) - 1
+            ):
+                destination = home_addresses[self.home]
+            else:
+                destination = building_addresses[location_id[0]]
+
+            self.time_on_current_visit = 0
+        self.path = self.simulation.path_finder.find_path(
+            (int(self.pos.x), int(self.pos.y)), destination
+        )
+        if not self.path:
+            print(
+                f"Could not find path from {(int(self.pos.x), int(self.pos.y))} to {destination}"
+            )
+            self.path = [(int(self.pos.x), int(self.pos.y))]
+        self.current_step = 0
 
     def update(self):
         """
@@ -118,16 +159,30 @@ class Agent(pg.sprite.Sprite):
             3. If on new tile, reset position to exact tile, update current step.
             4. repeat until path is over
         """
+
         self.rect.center = self.pos * TILESIZE
 
-        current_tile = vec(self.path[self.current_step][0], self.path[self.current_step][1])
+        if self.schedule and self.current_visit < len(self.schedule):
+            current_visit = self.schedule[self.current_visit]
+            self.time_on_current_visit += self.simulation.dt
+        else:
+            return
+
+        if self.time_on_current_visit >= current_visit[1] * DAY_LENGTH:
+            self.current_visit += 1
+            self.time_on_current_visit = 0
+            self.setup_path()
+        else:
+            print(
+                f"Agent {self.id} on visit {self.current_visit}, waiting {round(current_visit[1] * DAY_LENGTH - self.time_on_current_visit, 2)} seconds till next path..."
+            )
+
         try:
             next_tile = self.path[self.current_step + 1]
         except IndexError:
-            print("reached end of path")
             return
 
-        next_tile = vec(next_tile[0],next_tile[1])
+        next_tile = vec(next_tile[0], next_tile[1])
         dist = next_tile - self.pos
         v = dist * PLAYER_SPEED
         new_pos = self.pos + v * self.simulation.dt
@@ -143,12 +198,6 @@ class Agent(pg.sprite.Sprite):
 
         if current_tile == next_tile:
             self.current_step += 1
-
-        if (
-            self.simulation.simulation_settings.lifespan
-            - (self.simulation.day - self._birthday)
-        ) <= 0:
-            self.health_state = HealthState.DEAD
 
 
 class Family:
@@ -223,4 +272,5 @@ def generate_schedules(agents):
         )
         agent.schedule = list(zip(visits, times))
         j += i
+        print(agent.schedule)
     return

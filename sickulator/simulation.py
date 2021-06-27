@@ -12,7 +12,9 @@ import sys
 import pytmx
 from buildings import *
 import random
-from settings import DAY_LENGTH
+from settings import DAY_LENGTH, NIGHT_LENGTH
+from path_finder import PathFinder
+
 
 class Simulation:
     def __init__(self, game):
@@ -105,6 +107,7 @@ class Simulation:
                 family_to_fill.home.pos[0],
                 family_to_fill.home.pos[1],
                 family_to_fill.home.id,
+                id=agent,
             )
             family_to_fill.add_agent(new_agent)
             self.agents.append(new_agent)
@@ -112,7 +115,11 @@ class Simulation:
 
         generate_schedules(self.agents)
 
+        for agent in self.agents:
+            agent.daily_update()
+
         for tile_object in self.map.tmxdata.objects:
+
             if tile_object.name == "wall":
                 Obstacle(
                     self,
@@ -241,22 +248,22 @@ class Simulation:
     def update(self):
         # update portion of the game loop
         if self.day_duration >= DAY_LENGTH:
-            #Change to new day
+            # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
                 self.isDaytime = True
                 self.day += 1
                 self.day_duration = 0
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
-                self.timer.set_text("Day: " + str(self.day)) 
+                self.timer.set_text("Day: " + str(self.day))
                 self.result_data.append(Agent.health_counts)
                 generate_schedules(self.agents)
                 for agent in self.agents:
                     agent.daily_update()
-            #Day changes to night
+            # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
-                #possibly teleport agents back
+                # possibly teleport agents back
         self.all_sprites.update()
         self.camera.update(self.player)
         if self.show_popup:
