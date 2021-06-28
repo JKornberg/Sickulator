@@ -102,7 +102,6 @@ def dataMenu(onBack):
     obj = []
     location = path.dirname(path.realpath(__file__))
     file = path.join(location,'data','data.txt')
-    print("Local file path: " + file)
     try:
         with open(file,"rb") as f:
             obj = pickle.load(f)

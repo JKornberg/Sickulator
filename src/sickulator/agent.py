@@ -16,7 +16,7 @@ from enum import Enum
 import numpy as np
 from sickulator.path_finder import PathFinder
 from math import ceil
-from sickulator.buildings import building_addresses, home_addresses
+from sickulator.settings import building_addresses, home_addresses
 
 vec = pg.math.Vector2
 
@@ -77,8 +77,10 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[health_state.value] += 1
         self._inside = False
         self.schedule = []
-        self.current_visit = 0
+        self.visit_index = 0
         self.time_on_current_visit = 0
+        self.arrived = False
+        self.infected_duration = 0
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -114,7 +116,7 @@ class Agent(pg.sprite.Sprite):
             self.health_state = HealthState.DEAD
 
         if self.health_state == HealthState.INFECTED:
-            if np.random.randint(0, 100) < 5:
+            if np.random.rand() < DAILY_MORTALITY_CHANCE:
                 self.health_state = HealthState.DEAD
             if (
                 self.infected_duration
@@ -124,7 +126,7 @@ class Agent(pg.sprite.Sprite):
             else:
                 self.infected_duration += 1
 
-        self.current_visit = 0
+        self.visit_index = 0
         self.pos.x, self.pos.y = (
             home_addresses[self.home][0],
             home_addresses[self.home][1],
@@ -132,14 +134,13 @@ class Agent(pg.sprite.Sprite):
         self.setup_path()
 
     def setup_path(self):
-        if self.current_visit > len(self.schedule) - 1:
-            print("No more visits")
+        if self.visit_index > len(self.schedule) - 1:
             return
         else:
-            location_id = self.schedule[self.current_visit]
+            location_id = self.schedule[self.visit_index]
             if (
-                self.current_visit == 0
-                or self.current_visit == len(self.schedule) - 1
+                self.visit_index == 0
+                or self.visit_index == len(self.schedule) - 1
             ):
                 destination = home_addresses[self.home]
             else:
@@ -150,9 +151,6 @@ class Agent(pg.sprite.Sprite):
             (int(self.pos.x), int(self.pos.y)), destination
         )
         if not self.path:
-            print(
-                f"Could not find path from {(int(self.pos.x), int(self.pos.y))} to {destination}"
-            )
             self.path = [(int(self.pos.x), int(self.pos.y))]
         self.current_step = 0
 
@@ -167,25 +165,37 @@ class Agent(pg.sprite.Sprite):
 
         self.rect.center = self.pos * TILESIZE
 
-        if self.schedule and self.current_visit < len(self.schedule):
-            current_visit = self.schedule[self.current_visit]
+        if self.schedule and self.visit_index < len(self.schedule):
+            current_visit = self.schedule[self.visit_index]
             self.time_on_current_visit += self.simulation.dt
         else:
             return
 
         if self.time_on_current_visit >= current_visit[1] * DAY_LENGTH:
-            self.current_visit += 1
-            self.time_on_current_visit = 0
-            self.setup_path()
-        else:
-            print(
-                f"Agent {self.id} on visit {self.current_visit}, waiting {round(current_visit[1] * DAY_LENGTH - self.time_on_current_visit, 2)} seconds till next path..."
-            )
+            self.arrived = False
+            if self.visit_index == 0 or self.visit_index == len(self.schedule) - 1:
+                self.simulation.homes[current_visit[0]].remove_agent(self)
+            else:
+                self.simulation.buildings[current_visit[0]].remove_agent(self)
+            if self.visit_index < len(self.schedule) - 1:
+                self.visit_index += 1
+                self.time_on_current_visit = 0
+                self.setup_path()
 
-        try:
+        if self.current_step < len(self.path) - 1:
             next_tile = self.path[self.current_step + 1]
-        except IndexError:
+        else:
+            if not self.arrived:
+                self.arrived = True
+                try:
+                    if self.visit_index == 0 or self.visit_index == len(self.schedule) - 1:
+                        self.simulation.homes[current_visit[0]].add_agent(self)
+                    else:
+                        self.simulation.buildings[current_visit[0]].add_agent(self)
+                except Exception:
+                    print("YOU FUCKED UP")
             return
+
 
         next_tile = vec(next_tile[0], next_tile[1])
         dist = next_tile - self.pos
@@ -277,5 +287,4 @@ def generate_schedules(agents):
         )
         agent.schedule = list(zip(visits, times))
         j += i
-        print(agent.schedule)
     return
