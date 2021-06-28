@@ -25,7 +25,7 @@ UISCALE = 0.15
 
 # Agent Settings
 PLAYER_SPEED = 3
-DAILY_MORTALITY_CHANCE = .1
+DAILY_MORTALITY_CHANCE = .2
 
 DAY_LENGTH = 20  # Day duration in seconds
 NIGHT_LENGTH = 5
@@ -46,3 +46,38 @@ class SimulationSettings:
         self.reproduction_rate = reproduction_rate
         self.family_size = family_size
         self.simulation_duration = simulation_duration
+
+home_addresses = [
+    (4, 4),
+    (11, 4),
+    (18, 4),
+    (25, 4),
+    (4, 12),
+    (11, 12),
+    (18, 12),
+    (25, 12),
+    (4, 22),
+    (11, 22),
+    (18, 22),
+    (25, 22),
+    (4, 30),
+    (11, 30),
+    (18, 30),
+    (25, 30),
+    (4, 40),
+    (11, 40),
+    (18, 40),
+    (25, 40),
+]
+
+building_addresses = [
+    (49, 6),
+    (44, 19),
+    (36, 23),
+    (54, 23),
+    (54, 30),
+    (38, 36),
+    (37, 8),
+    (61, 6),
+    (48, 43),
+]

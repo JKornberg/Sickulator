@@ -61,7 +61,7 @@ class Simulation:
         self.homes = []  # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             new_building = Building(
-                int(home_addresses[x][0]), int(home_addresses[x][1]), "home", x
+                int(home_addresses[x][0]), int(home_addresses[x][1]), "inside", x, self.simulation_settings
             )
             self.homes.append(new_building)
 
@@ -76,6 +76,7 @@ class Simulation:
                         int(building_addresses[x][1]),
                         "inside",
                         x,
+                        self.simulation_settings
                     )
                 )
             else:
@@ -85,6 +86,7 @@ class Simulation:
                         int(building_addresses[x][1]),
                         "outside",
                         x,
+                        self.simulation_settings
                     )
                 )
 
@@ -109,6 +111,8 @@ class Simulation:
                 family_to_fill.home.id,
                 id=agent,
             )
+            if index == 0:
+                new_agent.health_state = HealthState.INFECTED
             family_to_fill.add_agent(new_agent)
             self.agents.append(new_agent)
             index += 1
@@ -236,7 +240,6 @@ class Simulation:
         self.day_duration = 0
         self.result_data.append(Agent.health_counts)
         while self.playing:
-            # print(self.show)
             self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
             self.time += self.dt
             self.day_duration += self.dt

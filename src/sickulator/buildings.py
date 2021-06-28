@@ -1,17 +1,57 @@
 import pygame as pg
 
+import numpy as np
+from sickulator.agent import HealthState
+
+from sickulator.settings import SimulationSettings, building_addresses, home_addresses
 vec2 = pg.Vector2
 
 
 class Building:
     """
-    type - 'home' or 'work'
+    type - 'outside', or 'inside'
     """
 
-    def __init__(self, x, y, type, id):
+    def __init__(self, x, y, type, id, simulation_settings):
         self.pos = vec2(x, y)
         self.type = type
         self.id = id
+        self.agents = []
+        self.simulation_settings = simulation_settings
+        self.infected_count = 0
+    
+    def add_agent(self, agent):
+        self.agents.append(agent)
+        if (self.type != 'outside'):
+            agent.inside = True  # Makes agent invisible
+        if (agent.health_state == HealthState.INFECTED):
+            self.infected_count += 1
+            self.infect_building()
+        elif (agent.health_state == HealthState.HEALTHY and self.infected_count > 0):
+            rng = np.random.default_rng()
+            randoms = rng.random(self.infected_count)
+            if np.any(randoms[randoms < self.simulation_settings.infection_rate * .01]):
+                agent.health_state = HealthState.INFECTED
+                self.infected_count += 1
+
+
+    def remove_agent(self, agent):
+        for i, a in enumerate(self.agents):
+            if a.id == agent.id:
+                self.agents[i].inside = False
+                self.agents.pop(i)
+                self.infected_count -= 1
+                return
+        print("Agent not found in building")
+        return
+
+    def infect_building(self):
+        rng = np.random.default_rng()
+        randoms = rng.random(len(self.agents))
+        for i, agent in enumerate(self.agents):
+            if agent.health_state == HealthState.HEALTHY and randoms[i] <= self.simulation_settings.infection_rate * .01:
+                agent.health_state = HealthState.INFECTED
+                self.infected_count += 1
 
     """
     def create_homes(self):
@@ -33,40 +73,6 @@ class Building:
 # building x-coord > 30
 
 
-home_addresses = [
-    (4, 4),
-    (11, 4),
-    (18, 4),
-    (25, 4),
-    (4, 12),
-    (11, 12),
-    (18, 12),
-    (25, 12),
-    (4, 22),
-    (11, 22),
-    (18, 22),
-    (25, 22),
-    (4, 30),
-    (11, 30),
-    (18, 30),
-    (25, 30),
-    (4, 40),
-    (11, 40),
-    (18, 40),
-    (25, 40),
-]
-
-building_addresses = [
-    (49, 6),
-    (44, 19),
-    (36, 23),
-    (54, 23),
-    (54, 30),
-    (38, 36),
-    (37, 8),
-    (61, 6),
-    (48, 43),
-]
 
 # (37, 8) = north park
 # (61, 6) = baseball field
