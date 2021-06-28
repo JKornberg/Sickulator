@@ -1,4 +1,5 @@
 import math
+import os
 from os import path
 from sickulator.agent import *
 from sickulator.tiles import *
@@ -12,7 +13,6 @@ import pytmx
 from sickulator.buildings import *
 import random
 from sickulator.path_finder import PathFinder
-
 from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
 
@@ -130,8 +130,10 @@ class Simulation:
                 )
 
         self.camera = Camera(self.map.width, self.map.height)
+        location = path.dirname(os.path.realpath(__file__))
+        file = path.join(location, 'theme.json')
         self.gui = pygame_gui.UIManager(
-            (WIDTH, HEIGHT), theme_path="sickulator/theme.json"
+            (WIDTH, HEIGHT), theme_path=file
         )
         self.make_gui()
 

@@ -4,7 +4,7 @@ import pygame_menu
 import pygame as pg
 from sickulator.settings import HEIGHT, WIDTH, UISCALE
 import pickle
-
+from os import path
 menuTheme = pygame_menu.themes.THEME_GREEN.copy()
 menuTheme.font = pygame_menu.font.FONT_NEVIS
 menuTheme.background_color=(51,87,57)
@@ -100,8 +100,11 @@ def resultsMenu(result_data, onBack):
 def dataMenu(onBack):
     dataMenu = pygame_menu.Menu(title="Previous Simulations", width=WIDTH, height=HEIGHT, theme=menuTheme)
     obj = []
+    location = path.dirname(path.realpath(__file__))
+    file = path.join(location,'data','data.txt')
+    print("Local file path: " + file)
     try:
-        with open("data/data.txt","rb") as f:
+        with open(file,"rb") as f:
             obj = pickle.load(f)
             for result in obj:
                 f = dataMenu.add.frame_h(width=500, height=100)
