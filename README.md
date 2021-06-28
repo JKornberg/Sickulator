@@ -13,6 +13,7 @@ The Sickulator is an agent-based simulator made to visually represent the spread
 
 # References
 Kids Can Code - https://www.youtube.com/watch?v=3UxnelT9aCo&list=PLsk-HSGFjnaGQq7ybM8Lgkh5EMxUWPm2i
+
 Assets - www.kenney.nl
 # Development set up
 
