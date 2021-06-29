@@ -42,7 +42,7 @@ class Building:
                 self.agents.pop(i)
                 self.infected_count -= 1
                 return
-        print("Agent not found in building")
+        #print("Agent not found in building")
         return
 
     def infect_building(self):

@@ -50,10 +50,10 @@ def optionsMenu(game, onBack):
     ir_slider = options.add.range_slider("Infection Rate (%)", default=infection_rate, \
                 increment=1, range_text_value_tick_number=2, range_values=(1,100), \
                 value_format=(lambda x : str(int(x))))
-    l_slider = options.add.range_slider("Lifespan (in weeks)", default=lifespan, \
+    l_slider = options.add.range_slider("Lifespan (in days)", default=lifespan, \
                 increment=1, range_text_value_tick_number=2, range_values=(1,10), \
                 value_format=(lambda x : str(int(x))))
-    ip_slider = options.add.range_slider("Illness Period (in days)", default=illness_period, \
+    ip_slider = options.add.range_slider("Illness Duration (in days)", default=illness_period, \
                 increment=1, range_text_value_tick_number=2, range_values=(1,20), \
                 value_format=(lambda x : str(int(x)))) 
     rr_slider = options.add.range_slider("Reproduction Rate", default=reproduction_rate,\
@@ -61,7 +61,7 @@ def optionsMenu(game, onBack):
                 value_format=(lambda x : str(int(x))))
     fs_slider = options.add.range_slider("Family Size", default=family_size, increment=1,\
                 range_text_value_tick_number=2, range_values=(2,10), value_format=(lambda x : str(int(x))))
-    sd_slider = options.add.range_slider("Simulation Duration (virtual days)",\
+    sd_slider = options.add.range_slider("Simulation Duration (in days)",\
                 default=simulation_duration, increment=1, range_text_value_tick_number=2,\
                 range_values=(1,100), value_format=(lambda x : str(int(x))))
     options.add.button('Run Simulation', lambda : game.play_simulation(SimulationSettings(\
@@ -89,7 +89,7 @@ def resultsMenu(result_data, onBack):
         if (h + s == 0):
             continue
         max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
-    results.add.label("Peak Infected Percentage: " + str(max_infection))
+    results.add.label("Peak Infected Percentage: " + str(round(max_infection,2)))
     results.add.label("Final Healthy: " + str(result_data[-1][0]))
     results.add.label("Final Infected: " + str(result_data[-1][1]))
     results.add.label("Final Immune: " + str(result_data[-1][2]))
@@ -109,7 +109,7 @@ def dataMenu(onBack):
                 f = dataMenu.add.frame_h(width=500, height=100)
                 f._relax=True
                 f.pack(dataMenu.add.label("Date: " + result['date'].strftime("%B %d %Y, %H:%M")))
-                f.pack(dataMenu.add.label("Peak Infection: " + str(result['max_infection'])))
+                f.pack(dataMenu.add.label("Peak Infection: " + str(round(result['max_infection'],2))))
     except FileNotFoundError as e:
         print("No data.txt file found.")
         dataMenu.add.label(title="No historical simulations, run the sickulator!")
