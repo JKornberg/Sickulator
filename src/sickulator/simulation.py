@@ -222,6 +222,20 @@ class Simulation:
             text="End Simulation",
         )
 
+        self.sprite_status = pygame_gui.elements.UIPanel(
+            relative_rect=pg.Rect((WIDTH - 180, 200), (150, 150)),
+            starting_layer_height=0,
+            manager=self.gui,
+        )
+
+        self.sprite_description = pygame_gui.elements.UITextBox(
+            html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}</body>""",
+            relative_rect=pg.Rect((0, 0), (150, 150)),
+            container=self.sprite_status,
+            manager=self.gui,
+            layer_starting_height=2,
+        )
+
     def toggle_info(self, val):
         self.show_popup = val
         self.info.visible = val

@@ -193,7 +193,7 @@ class Agent(pg.sprite.Sprite):
                     else:
                         self.simulation.buildings[current_visit[0]].add_agent(self)
                 except Exception:
-                    print("YOU FUCKED UP")
+                    print("Exception")
             return
 
 
