@@ -9,6 +9,8 @@ Link to repository: https://github.com/JKornberg/Sickulator
 # Installation
 `pip install sickulator`
 
+Run with `sickulator`
+
 # Description
 The Sickulator is an agent-based simulator made to visually represent the spread of disease in a small city. The user is provided several configurable options to affect the outcome of the "sickulation". 
 
@@ -26,6 +28,5 @@ source venv/bin/activate
 # If you're using VSCode, make sure your python interpreter is set to 'venv' #
 pip install --upgrade pip
 pip install -r requirements.txt
-cd sickulator
-python main.py
+python sickulator/main.py
 ```
