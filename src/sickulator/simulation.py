@@ -28,6 +28,9 @@ class Simulation:
         self.simulation_settings = game.simulation_settings
         self.multiplier = 1
         self.show_popup = False
+        self.show_sprite_popup = False
+        self.selected_sprite = None
+        self.selected_label = None
         self.result_data = [[0, 0, 0, 0]]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
@@ -61,7 +64,7 @@ class Simulation:
         self.homes = []  # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             new_building = Building(
-                int(home_addresses[x][0]), int(home_addresses[x][1]), "inside", x, self.simulation_settings
+                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self.simulation_settings
             )
             self.homes.append(new_building)
 
@@ -74,6 +77,7 @@ class Simulation:
                     Building(
                         int(building_addresses[x][0]),
                         int(building_addresses[x][1]),
+                        building_rectangles[x],
                         "inside",
                         x,
                         self.simulation_settings
@@ -84,6 +88,7 @@ class Simulation:
                     Building(
                         int(building_addresses[x][0]),
                         int(building_addresses[x][1]),
+                        building_rectangles[x],
                         "outside",
                         x,
                         self.simulation_settings
@@ -209,7 +214,7 @@ class Simulation:
 
         self.status = pygame_gui.elements.UITextBox(
             relative_rect=pg.Rect((0, 550), (300, 200)),
-            html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>""",
+            html_text=f"""<body></body>""",
             container=self.info,
             manager=self.gui,
             layer_starting_height=2,
@@ -226,6 +231,7 @@ class Simulation:
             relative_rect=pg.Rect((WIDTH - 180, 200), (150, 150)),
             starting_layer_height=0,
             manager=self.gui,
+            visible=False
         )
 
         self.sprite_description = pygame_gui.elements.UITextBox(
@@ -236,12 +242,37 @@ class Simulation:
             layer_starting_height=2,
         )
 
+        self.sprite_close_button = pygame_gui.elements.UIButton(
+            relative_rect=pg.Rect((150-30,0), (30, 30)),
+            text="X",
+            manager=self.gui,
+            container=self.sprite_status,
+            visible=False,
+            starting_height=3
+        )
+
     def toggle_info(self, val):
         self.show_popup = val
         self.info.visible = val
         self.close_button.visible = val
         self.description.visible = val
         self.status.visible = val
+
+    def toggle_sprite_status(self, val):
+        self.show_sprite_popup = val
+        self.sprite_status.visible = val
+        self.sprite_description.visible = val
+        self.sprite_close_button.visible = val
+
+    def update_sprite_status(self):
+        d = {}
+        if (self.selected_label == 'building'):
+            d = {'Visitors' : len(self.selected_sprite.agents)}
+        details = ""
+        for key, val in d.items():
+            details += f"{key}: {val}<br>"
+        self.sprite_description.html_text = f"<body>{details}</body>"
+        self.sprite_description.rebuild()
 
     def update_status(self):
         self.status.html_text = f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
@@ -288,6 +319,8 @@ class Simulation:
         self.camera.update(self.player)
         if self.show_popup:
             self.update_status()
+        if self.show_sprite_popup:
+            self.update_sprite_status()
 
     def events(self):
         # catch all events here
@@ -301,6 +334,8 @@ class Simulation:
                         self.toggle_info(True)
                     elif event.ui_element == self.close_button:
                         self.toggle_info(False)
+                    elif event.ui_element == self.sprite_close_button:
+                        self.toggle_sprite_status(False)
                     elif event.ui_element == self.half_speed_button:
                         self.half_speed_button.set_text("*0.5x*")
                         self.normal_speed_button.set_text("1x")
@@ -327,6 +362,17 @@ class Simulation:
                     self.playing = False
                     pg.quit()
                     sys.exit()
+            if event.type == pg.MOUSEBUTTONUP:
+                pos = pg.mouse.get_pos()
+                # get a list of all sprites that are under the mouse cursor
+                clicked_buildings = [s for s in self.buildings if s.rect.collidepoint(pos)]
+                if len(clicked_buildings) > 0:
+                    building = clicked_buildings[0]
+                    self.selected_label = "building"
+                    self.selected_sprite = building
+                    self.toggle_sprite_status(True)
+
+
         return events
 
     def draw_grid(self):
