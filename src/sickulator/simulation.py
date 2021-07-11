@@ -266,8 +266,11 @@ class Simulation:
 
     def update_sprite_status(self):
         d = {}
-        if (self.selected_label == 'building'):
-            d = {'Visitors' : len(self.selected_sprite.agents)}
+        if (self.selected_label == 'building' or self.selected_label == 'building'):
+            d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
+        elif (self.selected_label == "agent"):
+            states = ["Healthy","Infected","Immune","Dead"]
+            d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}
         details = ""
         for key, val in d.items():
             details += f"{key}: {val}<br>"
@@ -365,13 +368,26 @@ class Simulation:
             if event.type == pg.MOUSEBUTTONUP:
                 pos = pg.mouse.get_pos()
                 # get a list of all sprites that are under the mouse cursor
-                clicked_buildings = [s for s in self.buildings if s.rect.collidepoint(pos)]
-                if len(clicked_buildings) > 0:
-                    building = clicked_buildings[0]
-                    self.selected_label = "building"
-                    self.selected_sprite = building
+                clicked_agents = [s for s in self.agents if s.rect.collidepoint(pos)]
+                if len(clicked_agents) > 0:
+                    agent = clicked_agents[0]
+                    self.selected_label = "agent"
+                    self.selected_sprite = agent
                     self.toggle_sprite_status(True)
-
+                else:
+                    clicked_buildings = [s for s in self.buildings if s.rect.collidepoint(pos)]
+                    if len(clicked_buildings) > 0:
+                        building = clicked_buildings[0]
+                        self.selected_label = "building"
+                        self.selected_sprite = building
+                        self.toggle_sprite_status(True)
+                    else:
+                        clicked_homes = [s for s in self.homes if s.rect.collidepoint(pos)]
+                        if len(clicked_homes) > 0:
+                            home = clicked_homes[0]
+                            self.selected_label = "home"
+                            self.selected_sprite = home
+                            self.toggle_sprite_status(True)
 
         return events
 

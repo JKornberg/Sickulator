@@ -86,6 +86,10 @@ class Agent(pg.sprite.Sprite):
         return self.simulation.path_finder.find_path(start, end)
 
     @property
+    def birthday(self):
+        return self._birthday
+
+    @property
     def health_state(self):
         return self._health_state
 
