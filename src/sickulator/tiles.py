@@ -1,6 +1,6 @@
 import pygame as pg
 import pytmx
-from settings import *
+from sickulator.settings import *
 
 class TiledMap:
     def __init__(self, filename):

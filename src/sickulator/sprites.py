@@ -1,5 +1,7 @@
 import pygame as pg
-from settings import *
+
+from sickulator.settings import *
+
 
 
 class Player(pg.sprite.Sprite):
@@ -9,6 +11,7 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(YELLOW)
+        self.image.set_alpha(0)
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
@@ -41,21 +44,6 @@ class Player(pg.sprite.Sprite):
                 self.rect.x = self.x
         if dir == 'y':
             hits = pg.sprite.spritecollide(self, self.game.walls, False)
-            if hits:
-                if self.vy > 0:
-                    self.y = hits[0].rect.top - self.rect.height
-                if self.vy < 0:
-                    self.y = hits[0].rect.bottom
-                self.vy = 0
-                self.rect.y = self.y
-
-    def inside_building(self, dir):
-        if dir == 'x':
-            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
-            if hits:
-                self.image.convert_alpha()
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, self.game.buildings, False)
             if hits:
                 if self.vy > 0:
                     self.y = hits[0].rect.top - self.rect.height
@@ -99,13 +87,3 @@ class Obstacle(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-
-class Building(pg.sprite.Sprite):
-    def __init__(self, game, x, y, w, h):
-        self.groups = game.buildings
-        pg.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.x = x
-        self.y = y
-        self.rect.x = x
-        self.rect.y = y
