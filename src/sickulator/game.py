@@ -87,9 +87,17 @@ class Game:
         file = path.join(location,'data','temp_results.png')
         if not os.path.isdir(path.join(location,'data')):
             os.mkdir(path.join(location,'data'))
+        #self.simulation_settings.infection_rate
+
         plt.clf()
-        plt.stackplot(x,y, labels=['Healthy','Infected','Immune', 'Deceased'])
+        # Green, Red, Blue, Black #
+        pal = ["#00ff40", "#f7020f", "#0a53f2", "#0a140c"]
+        plt.stackplot(x, y, labels=['Healthy', 'Infected', 'Immune', 'Deceased'], colors=pal)
+        plt.title('Change in agent population over time at infection rate: ' + str(self.simulation_settings.infection_rate) + '%', fontproperties='Times New Roman', size='16')
         plt.legend(loc='upper left')
+        plt.xlabel('Time (days of simulation passed)', fontproperties='Times New Roman', size='16')
+        plt.ylabel('Number of agents', fontproperties='Times New Roman',
+                   size='16')
         plt.savefig(file, dpi=100)
         results = resultsMenu(daily_stats,cumulative_stats, lambda : self._update_from_selection(1))
         results.mainloop(self.screen)
