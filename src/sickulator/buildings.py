@@ -35,7 +35,6 @@ class Building:
             if np.any(randoms[randoms < self.simulation_settings.infection_rate * .01]):
                 agent.health_state = HealthState.INFECTED
                 self.infected_count += 1
-                self.simulation.infect_agent()
 
 
     def remove_agent(self, agent):

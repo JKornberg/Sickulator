@@ -81,11 +81,13 @@ class Game:
         self.save_to_results(daily_stats, cumulative_stats)
 
         x = range(len(daily_stats))
-        y = list(zip(*daily_stats))
+        #y = list(zip(*daily_stats))
+        y = [[daily_stats[j][i] for j in range(len(daily_stats))] for i in range(len(daily_stats[0]))]
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location,'data','temp_results.png')
         if not os.path.isdir(path.join(location,'data')):
             os.mkdir(path.join(location,'data'))
+        plt.clf()
         plt.stackplot(x,y, labels=['Healthy','Infected','Immune', 'Deceased'])
         plt.legend(loc='upper left')
         plt.savefig(file, dpi=100)

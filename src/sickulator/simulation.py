@@ -18,6 +18,7 @@ from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
 class Simulation:
     def __init__(self, game):
+        Agent.health_counts = [0,0,0,0]
         self.game = game
         self.screen = game.screen
         self.load_data()
@@ -31,10 +32,11 @@ class Simulation:
         self.show_sprite_popup = False
         self.selected_sprite = None
         self.selected_label = None
-        self.daily_stats = [[10, 0, 0, 0]]  # [Healthy, Infected, Immune, Dead]
+        self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
         self.cumulative_stats = [0,0,0,10] # [Total Killed, Total Immune, Total Infected, Total agents]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
+        self.infected_today = 0
         self.new()
 
     def enable_popup(self):
@@ -287,7 +289,7 @@ class Simulation:
         self.playing = True
         self.time = 0
         self.day_duration = 0
-        self.daily_stats.append(Agent.health_counts)
+        self.daily_stats.append(Agent.health_counts.copy())
         while self.playing:
             self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
             self.time += self.dt
@@ -305,16 +307,18 @@ class Simulation:
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
+                self.cumulative_stats[2] += self.infected_today
+                self.infected_today = 0
                 self.isDaytime = True
                 self.day += 1
                 self.day_duration = 0
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
                 self.timer.set_text("Day: " + str(self.day))
-                self.daily_stats.append(Agent.health_counts)
                 generate_schedules(self.agents)
                 for agent in self.agents:
                     agent.daily_update()
+                self.daily_stats.append(Agent.health_counts.copy())
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
@@ -432,10 +436,6 @@ class Simulation:
     def kill_agent(self):
         '''Gets called when agent dies to disease'''
         self.cumulative_stats[0] = self.cumulative_stats[0] + 1
-    
-    def infect_agent(self):
-        '''Increases cumulative_stats when agent is infected'''
-        self.cumulative_stats[2] = self.cumulative_stats[2] + 1
 
     def immunize_agent(self):
         self.cumulative_stats[1] = self.cumulative_stats[1] + 1
