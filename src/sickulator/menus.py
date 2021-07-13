@@ -107,11 +107,14 @@ def dataMenu(onBack):
     try:
         with open(file,"rb") as f:
             obj = pickle.load(f)
-            for result in obj:
-                f = dataMenu.add.frame_h(width=500, height=100)
-                f._relax=True
-                f.pack(dataMenu.add.label("Date: " + result['date'].strftime("%B %d %Y, %H:%M")))
-                f.pack(dataMenu.add.label("Percentage Infected: " + str(round(result['cumulative_stats'][0],2))))
+            if len(obj) == 0:
+                 dataMenu.add.label(title="No historical simulations, run the sickulator!")
+            else:
+                for result in obj:
+                    f = dataMenu.add.frame_h(width=500, height=100)
+                    f._relax=True
+                    f.pack(dataMenu.add.label("Date: " + result['date'].strftime("%B %d %Y, %H:%M")))
+                    f.pack(dataMenu.add.label("Percentage Infected: " + str(round(result['cumulative_stats'][0],2))))
     except FileNotFoundError as e:
         print("No data.txt file found.")
         dataMenu.add.label(title="No historical simulations, run the sickulator!")
