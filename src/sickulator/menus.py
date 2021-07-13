@@ -78,22 +78,24 @@ def popup():
     surf.fill((255,255,255))
     return surf
 
-def resultsMenu(result_data, onBack):
+def resultsMenu(daily_stats,cumulative_stats, onBack):
     results = pygame_menu.Menu(title="Results", height=HEIGHT,
             width=WIDTH,
             onclose=pygame_menu.events.CLOSE,
             theme=menuTheme,
             )
     max_infection = 0
-    for h, s, i, d in result_data:
+    for h, s, i, d in daily_stats:
         if (h + s == 0):
             continue
         max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
+    location = path.dirname(path.realpath(__file__))
+    image_file = path.join(location,'data','temp_results.png')
+    results.add.image(image_file)
     results.add.label("Peak Infected Percentage: " + str(round(max_infection,2)))
-    results.add.label("Final Healthy: " + str(result_data[-1][0]))
-    results.add.label("Final Infected: " + str(result_data[-1][1]))
-    results.add.label("Final Immune: " + str(result_data[-1][2]))
-    results.add.label("Final Deceased: " + str(result_data[-1][3]))
+    results.add.label("Percentage Killed: " + str(100*(cumulative_stats[0]/cumulative_stats[3])) + "%")
+    results.add.label("Percentage Immunized: " + str(100*(cumulative_stats[1]/cumulative_stats[3])) + "%")
+    results.add.label("Percentage Infected: " + str(100*(cumulative_stats[2]/cumulative_stats[3])) + "%")
     results.add.button("Back", onBack)
     return results
 
@@ -109,7 +111,7 @@ def dataMenu(onBack):
                 f = dataMenu.add.frame_h(width=500, height=100)
                 f._relax=True
                 f.pack(dataMenu.add.label("Date: " + result['date'].strftime("%B %d %Y, %H:%M")))
-                f.pack(dataMenu.add.label("Peak Infection: " + str(round(result['max_infection'],2))))
+                f.pack(dataMenu.add.label("Percentage Infected: " + str(round(result['cumulative_stats'][0],2))))
     except FileNotFoundError as e:
         print("No data.txt file found.")
         dataMenu.add.label(title="No historical simulations, run the sickulator!")

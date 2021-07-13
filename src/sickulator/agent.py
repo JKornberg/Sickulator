@@ -121,12 +121,14 @@ class Agent(pg.sprite.Sprite):
 
         if self.health_state == HealthState.INFECTED:
             if np.random.rand() < DAILY_MORTALITY_CHANCE:
+                self.simulation.kill_agent()
                 self.health_state = HealthState.DEAD
             if (
                 self.infected_duration
                 >= self.simulation.simulation_settings.illness_period
             ):
                 self.health_state = HealthState.IMMUNE
+                self.simulation.immunize_agent()
             else:
                 self.infected_duration += 1
 

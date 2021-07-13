@@ -8,6 +8,8 @@ import pickle
 import os
 from os import path
 from datetime import datetime
+import seaborn as sns
+import matplotlib.pyplot as plt
 class Game:
     def __init__(self):
         self.simulation_settings : SimulationSettings = SimulationSettings()
@@ -75,12 +77,22 @@ class Game:
         self.set_settings(simulation_settings)
         self._update_from_selection(3)
 
-    def end_simulation(self, result_data):
-        self.save_to_results(result_data)
-        results = resultsMenu(result_data, lambda : self._update_from_selection(1))
+    def end_simulation(self, daily_stats, cumulative_stats):
+        self.save_to_results(daily_stats, cumulative_stats)
+
+        x = range(len(daily_stats))
+        y = list(zip(*daily_stats))
+        location = path.dirname(os.path.realpath(__file__))
+        file = path.join(location,'data','temp_results.png')
+        if not os.path.isdir(path.join(location,'data')):
+            os.mkdir(path.join(location,'data'))
+        plt.stackplot(x,y, labels=['Healthy','Infected','Immune', 'Deceased'])
+        plt.legend(loc='upper left')
+        plt.savefig(file, dpi=100)
+        results = resultsMenu(daily_stats,cumulative_stats, lambda : self._update_from_selection(1))
         results.mainloop(self.screen)
 
-    def save_to_results(self, result_data):
+    def save_to_results(self, daily_stats, cumulative_stats):
         obj = []
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location,'data','data.txt')
@@ -92,11 +104,14 @@ class Game:
             if not os.path.isdir(path.join(location,'data')):
                 os.mkdir(path.join(location,'data'))
         max_infection = 0
-        for h, s, i, d in result_data:
+        
+
+
+        for h, s, i, d in daily_stats:
             if (h + s == 0):
                 continue
             max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
-        result = {'date': datetime.now(), 'duration': len(result_data), 'max_infection' : max_infection,}
+        result = {'date': datetime.now(), 'daily_stats': daily_stats, 'cumulative_stats' : cumulative_stats}
         obj.append(result)
         with open(file,"wb") as f:
             pickle.dump(obj, f)
