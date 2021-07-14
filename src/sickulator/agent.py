@@ -162,18 +162,11 @@ class Agent(pg.sprite.Sprite):
             (int(self.pos.x), int(self.pos.y)), destination
         )
         if not self.path:
-            self.path = [(int(self.pos.x), int(self.pos.y))]
+            self.path = [(int(self.pos.x), int(self.pos.y), "Goal")]
         self.current_step = 0
+        self.distance_traveled_along_path = 0
 
     def update(self):
-        """
-        Per path in schedule:
-            1. Get current step of path
-            2. Move by pixels according to speed, time passed and direction towards next step
-            3. If on new tile, reset position to exact tile, update current step.
-            4. repeat until path is over
-        """
-
         self.rect.center = self.pos * TILESIZE
 
         if self.schedule and self.visit_index < len(self.schedule):
@@ -193,9 +186,18 @@ class Agent(pg.sprite.Sprite):
                 self.time_on_current_visit = 0
                 self.setup_path()
 
-        if self.current_step < len(self.path) - 1:
-            next_tile = self.path[self.current_step + 1]
-        else:
+        """
+        1. Get current distance traveled on path
+        2. Get the current tile the agent should be on given the distance traveled
+        3. For example, if the path is 64 pixels (4 steps, 4 * 16 = 64), and you've traveled 16 pixels (1 step) the current tile index should be (16 / 64) * len of path - 1 = 1/4 * 4 = 1
+           a. could also be, current distance traveled / 16 = 16 / 16 = 1
+        """
+
+        distance_traveled = self.time_on_current_visit * PLAYER_SPEED # pixels = seconds * (pixels / second)
+        current_tile_index = math.floor(distance_traveled / TILESIZE) # constant = pixels / pixels
+
+
+        if current_tile_index > len(self.path) - 1: # reached end of path
             if not self.arrived:
                 self.arrived = True
                 try:
@@ -203,27 +205,34 @@ class Agent(pg.sprite.Sprite):
                         self.simulation.homes[current_visit[0]].add_agent(self)
                     else:
                         self.simulation.buildings[current_visit[0]].add_agent(self)
-                except Exception:
-                    print("Exception")
-            return
+                except Exception as e:
+                    print(distance_traveled, path_distance, current_tile_index)
+
+            return 
+
+        # current tile based on distance traveled
+        current_tile = self.path[current_tile_index]
+
+        # reset position, could be improved since this causes slight glitches when the agent was almost at the end of the tile
+        self.pos.x = current_tile[0]
+        self.pos.y = current_tile[1]
 
 
-        next_tile = vec(next_tile[0], next_tile[1])
-        dist = next_tile - self.pos
-        v = dist * PLAYER_SPEED
-        new_pos = self.pos + v * self.simulation.dt
-        d1 = self.pos - next_tile
-        d2 = new_pos - next_tile
-        if not (ceil(d1[0]) ^ ceil(d2[0]) and ceil(d1[1]) ^ ceil(d2[1])):
-            self.pos = next_tile
+        # Since we're at the start of the tile, I need to figure out how far along the tile the agent has moved. 
+        # I take the distance traveld UP TO the current tile and then find the difference from the total distance
+        floored_distance_traveled = current_tile_index * TILESIZE # pixels = n*pixels
+        remaining_distance_traveled = distance_traveled - floored_distance_traveled # pixels = pixels - pixels
+
+
+        # Then I need to check which direction to move the agent along the tile to make sure he continues moving along the path.  
+        if current_tile[2] == "North":
+            self.pos.y -= remaining_distance_traveled / TILESIZE
+        elif current_tile[2] == "South":
+            self.pos.y += remaining_distance_traveled / TILESIZE
+        elif current_tile[2] == "East":
+            self.pos.x +=  remaining_distance_traveled / TILESIZE
         else:
-            self.pos = new_pos
-        self.rect.center = self.pos * TILESIZE
-
-        current_tile = vec(int(self.pos[0]), int(self.pos[1]))
-
-        if current_tile == next_tile:
-            self.current_step += 1
+            self.pos.x -=  remaining_distance_traveled / TILESIZE
 
 
 class Family:
