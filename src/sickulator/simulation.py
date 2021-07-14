@@ -18,6 +18,7 @@ from settings import DAY_LENGTH, NIGHT_LENGTH
 
 class Simulation:
     def __init__(self, game):
+        Agent.health_counts = [0,0,0,0]
         self.game = game
         self.screen = game.screen
         self.load_data()
@@ -31,9 +32,11 @@ class Simulation:
         self.show_sprite_popup = False
         self.selected_sprite = None
         self.selected_label = None
-        self.result_data = [[0, 0, 0, 0]]
+        self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
+        self.cumulative_stats = [0,0,0,10] # [Total Killed, Total Immune, Total Infected, Total agents]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
+        self.infected_today = 0
         self.new()
 
     def enable_popup(self):
@@ -64,7 +67,7 @@ class Simulation:
         self.homes = []  # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             new_building = Building(
-                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self.simulation_settings
+                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self
             )
             self.homes.append(new_building)
 
@@ -80,7 +83,7 @@ class Simulation:
                         building_rectangles[x],
                         "inside",
                         x,
-                        self.simulation_settings
+                        self
                     )
                 )
             else:
@@ -91,7 +94,7 @@ class Simulation:
                         building_rectangles[x],
                         "outside",
                         x,
-                        self.simulation_settings
+                        self
                     )
                 )
 
@@ -286,7 +289,7 @@ class Simulation:
         self.playing = True
         self.time = 0
         self.day_duration = 0
-        self.result_data.append(Agent.health_counts)
+        self.daily_stats.append(Agent.health_counts.copy())
         while self.playing:
             self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
             self.time += self.dt
@@ -304,16 +307,18 @@ class Simulation:
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
+                self.cumulative_stats[2] += self.infected_today
+                self.infected_today = 0
                 self.isDaytime = True
                 self.day += 1
                 self.day_duration = 0
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
                 self.timer.set_text("Day: " + str(self.day))
-                self.result_data.append(Agent.health_counts)
                 generate_schedules(self.agents)
                 for agent in self.agents:
                     agent.daily_update()
+                self.daily_stats.append(Agent.health_counts.copy())
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
@@ -407,7 +412,7 @@ class Simulation:
 
     def end_game(self):
         self.playing = False
-        self.game.end_simulation(self.result_data)
+        self.game.end_simulation(self.daily_stats,self.cumulative_stats)
 
     def quit(self):
         pg.quit()
@@ -424,3 +429,13 @@ class Simulation:
                     grid[y][x] = gid
 
         return grid
+
+    def spawn_agent(self):
+        self.cumulative_stats[3] = self.cumulative_stats[3] + 1
+
+    def kill_agent(self):
+        '''Gets called when agent dies to disease'''
+        self.cumulative_stats[0] = self.cumulative_stats[0] + 1
+
+    def immunize_agent(self):
+        self.cumulative_stats[1] = self.cumulative_stats[1] + 1

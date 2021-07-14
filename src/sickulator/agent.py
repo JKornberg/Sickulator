@@ -99,6 +99,13 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
         self.image.fill(health_colors[hs.value])
+        if (hs == HealthState.INFECTED):
+            self.simulation.infected_today += 1
+        elif (hs == HealthState.DEAD):
+            self.simulation.kill_agent()
+        elif (hs == HealthState.IMMUNE):
+            self.simulation.immunize_agent()
+
 
     @property
     def inside(self):

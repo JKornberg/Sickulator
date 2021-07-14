@@ -12,13 +12,14 @@ class Building:
     type - 'outside', or 'inside'
     """
 
-    def __init__(self, x, y, rect, type, id, simulation_settings):
+    def __init__(self, x, y, rect, type, id, simulation):
         self.pos = vec2(x, y)
         self.rect = rect
         self.type = type
         self.id = id
         self.agents = []
-        self.simulation_settings = simulation_settings
+        self.simulation = simulation
+        self.simulation_settings = simulation.simulation_settings
         self.infected_count = 0
     
     def add_agent(self, agent):
