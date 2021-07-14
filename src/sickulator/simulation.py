@@ -1,19 +1,19 @@
 import math
 import os
 from os import path
-from sickulator.agent import *
-from sickulator.tiles import *
-from sickulator.sprites import *
+from agent import *
+from tiles import *
+from sprites import *
 import pygame_gui
 from pygame_gui.elements import text
 from math import floor, ceil
 import random
 import sys
 import pytmx
-from sickulator.buildings import *
+from buildings import *
 import random
-from sickulator.path_finder import PathFinder
-from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
+from path_finder import PathFinder
+from settings import DAY_LENGTH, NIGHT_LENGTH
 
 
 class Simulation:

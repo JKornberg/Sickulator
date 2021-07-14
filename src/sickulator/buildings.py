@@ -1,9 +1,9 @@
 import pygame as pg
 
 import numpy as np
-from sickulator.agent import HealthState
+from agent import HealthState
 
-from sickulator.settings import SimulationSettings, building_addresses, home_addresses
+from settings import SimulationSettings, building_addresses, home_addresses
 vec2 = pg.Vector2
 
 

@@ -1,6 +1,6 @@
 import pygame as pg
 
-from sickulator.settings import *
+from settings import *
 
 
 

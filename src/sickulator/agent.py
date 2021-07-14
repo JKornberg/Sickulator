@@ -1,6 +1,6 @@
 import math
 from os import curdir
-from sickulator.settings import (
+from settings import (
     BLACK,
     BLUE,
     GREEN,
@@ -14,9 +14,9 @@ from sickulator.settings import (
 import pygame as pg
 from enum import Enum
 import numpy as np
-from sickulator.path_finder import PathFinder
+from path_finder import PathFinder
 from math import ceil
-from sickulator.settings import building_addresses, home_addresses
+from settings import building_addresses, home_addresses
 
 vec = pg.math.Vector2
 

@@ -1,8 +1,8 @@
 
-from sickulator.settings import SimulationSettings
+from settings import SimulationSettings
 import pygame_menu
 import pygame as pg
-from sickulator.settings import HEIGHT, WIDTH, UISCALE
+from settings import HEIGHT, WIDTH, UISCALE
 import pickle
 from os import path
 menuTheme = pygame_menu.themes.THEME_GREEN.copy()
@@ -13,7 +13,6 @@ menuTheme.selection_color=(250, 190, 112)
 uiTheme = menuTheme.copy()
 uiTheme.title = False
 uiTheme.background_color = (55,96,113)
-
 
 
 def homeMenu(onPlay, onResult):
