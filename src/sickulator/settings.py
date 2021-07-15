@@ -25,7 +25,7 @@ UISCALE = 0.15
 
 # Agent Settings
 CAMERA_SPEED = 100
-PLAYER_SPEED = 3
+PLAYER_SPEED = 256 # pixels per second
 DAILY_MORTALITY_CHANCE = .2
 
 DAY_LENGTH = 20  # Day duration in seconds
