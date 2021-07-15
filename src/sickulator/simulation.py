@@ -57,6 +57,7 @@ class Simulation:
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
+        self.walls = pg.sprite.Group()
         self.player = Player(self, 5, 5)
 
         # num_agents = 10
@@ -103,8 +104,6 @@ class Simulation:
             new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
 
-        print(self.simulation_settings.agent_count)
-
         index = 0
         for agent in range(
                 0, self.simulation_settings.agent_count
@@ -130,6 +129,17 @@ class Simulation:
 
         for agent in self.agents:
             agent.daily_update()
+
+        for tile_object in self.map.tmxdata.objects:
+
+            if tile_object.name == "wall":
+                Obstacle(
+                    self,
+                    tile_object.x,
+                    tile_object.y,
+                    tile_object.width,
+                    tile_object.height,
+                )
 
         self.camera = Camera(self.map.width, self.map.height)
         location = path.dirname(os.path.realpath(__file__))
