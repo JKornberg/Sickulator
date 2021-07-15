@@ -30,22 +30,28 @@ DAILY_MORTALITY_CHANCE = .2
 DAY_LENGTH = 20  # Day duration in seconds
 NIGHT_LENGTH = 5
 
+
 class SimulationSettings:
     def __init__(
-        self,
-        infection_rate=10,
-        lifespan=10,
-        illness_period=3,
-        reproduction_rate=4,
-        family_size=4,
-        simulation_duration=50,
+            self,
+            infection_rate=10,
+            mortality_rate=10,
+            lifespan=10,
+            illness_period=3,
+            reproduction_rate=4,
+            agent_count=20,
+            family_size=4,
+            simulation_duration=50,
     ):
         self.infection_rate = infection_rate
+        self.mortality = mortality_rate
         self.lifespan = lifespan
         self.illness_period = illness_period
         self.reproduction_rate = reproduction_rate
+        self.agent_count = agent_count
         self.family_size = family_size
         self.simulation_duration = simulation_duration
+
 
 home_addresses = [
     (4, 4),
@@ -92,6 +98,7 @@ home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg
                    pg.Rect((256, 592), (80, 96)), pg.Rect((368, 592), (80, 96))]
 
 building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 128)), pg.Rect((528, 272), (112, 128)),
-                       pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)), pg.Rect((560, 480), (112, 112)),
+                       pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)),
+                       pg.Rect((560, 480), (112, 112)),
                        pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144))
                        ]

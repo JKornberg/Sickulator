@@ -18,7 +18,7 @@ from settings import DAY_LENGTH, NIGHT_LENGTH
 
 class Simulation:
     def __init__(self, game):
-        Agent.health_counts = [0,0,0,0]
+        Agent.health_counts = [0, 0, 0, 0]
         self.game = game
         self.screen = game.screen
         self.load_data()
@@ -33,7 +33,7 @@ class Simulation:
         self.selected_sprite = None
         self.selected_label = None
         self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
-        self.cumulative_stats = [0,0,0,10] # [Total Killed, Total Immune, Total Infected, Total agents]
+        self.cumulative_stats = [0, 0, 0, 10]  # [Total Killed, Total Immune, Total Infected, Total agents]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
         self.infected_today = 0
@@ -57,10 +57,9 @@ class Simulation:
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
-        self.walls = pg.sprite.Group()
         self.player = Player(self, 5, 5)
 
-        num_agents = 10
+        # num_agents = 10
         self.families = []
         self.agents = []
 
@@ -99,14 +98,16 @@ class Simulation:
                 )
 
         for x in range(
-            0, math.ceil(num_agents / self.simulation_settings.family_size)
+                0, math.ceil(self.simulation_settings.agent_count / self.simulation_settings.family_size)
         ):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
             new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
 
+        print(self.simulation_settings.agent_count)
+
         index = 0
         for agent in range(
-            0, num_agents
+                0, self.simulation_settings.agent_count
         ):  # puts agents in families; fills families before moving to new ones
             family_to_fill = self.families[
                 int(index / self.simulation_settings.family_size)
@@ -129,17 +130,6 @@ class Simulation:
 
         for agent in self.agents:
             agent.daily_update()
-
-        for tile_object in self.map.tmxdata.objects:
-
-            if tile_object.name == "wall":
-                Obstacle(
-                    self,
-                    tile_object.x,
-                    tile_object.y,
-                    tile_object.width,
-                    tile_object.height,
-                )
 
         self.camera = Camera(self.map.width, self.map.height)
         location = path.dirname(os.path.realpath(__file__))
@@ -208,7 +198,12 @@ class Simulation:
         )
 
         self.description = pygame_gui.elements.UITextBox(
-            html_text="""<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. Agents begin every day at home with their family where they select a schedule for the day. They then venture out to the city and visit all the buildings their schedule includes. A small subset of agents begin the simulation infected, and we can watch the disease spread over time. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>""",
+            html_text="""<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the 
+            spread of disease in a small city. Agents begin every day at home with their family where they select a 
+            schedule for the day. They then venture out to the city and visit all the buildings their schedule 
+            includes. A small subset of agents begin the simulation infected, and we can watch the disease spread 
+            over time. The health status of an agent is represented by their color. Green is healthy, 
+            red is infected, blue is immune, and dark grey is deceased.</body>""",
             relative_rect=pg.Rect((0, 0), (300, 400)),
             container=self.info,
             manager=self.gui,
@@ -246,7 +241,7 @@ class Simulation:
         )
 
         self.sprite_close_button = pygame_gui.elements.UIButton(
-            relative_rect=pg.Rect((150-30,0), (30, 30)),
+            relative_rect=pg.Rect((150 - 30, 0), (30, 30)),
             text="X",
             manager=self.gui,
             container=self.sprite_status,
@@ -269,11 +264,11 @@ class Simulation:
 
     def update_sprite_status(self):
         d = {}
-        if (self.selected_label == 'building' or self.selected_label == 'building'):
-            d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
-        elif (self.selected_label == "agent"):
-            states = ["Healthy","Infected","Immune","Dead"]
-            d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}
+        if self.selected_label == 'building' or self.selected_label == 'building':
+            d = {'Visitors': len(self.selected_sprite.agents), "Infected": self.selected_sprite.infected_count}
+        elif self.selected_label == "agent":
+            states = ["Healthy", "Infected", "Immune", "Dead"]
+            d = {'Status': states[self.selected_sprite.health_state.value], 'Birthday': self.selected_sprite.birthday}
         details = ""
         for key, val in d.items():
             details += f"{key}: {val}<br>"
@@ -281,8 +276,9 @@ class Simulation:
         self.sprite_description.rebuild()
 
     def update_status(self):
-        self.status.html_text = f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
-        self.status.rebuild()  #  This might not be proper
+        self.status.html_text = f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br
+>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body> """
+        self.status.rebuild()  # This might not be proper
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -412,7 +408,7 @@ class Simulation:
 
     def end_game(self):
         self.playing = False
-        self.game.end_simulation(self.daily_stats,self.cumulative_stats)
+        self.game.end_simulation(self.daily_stats, self.cumulative_stats)
 
     def quit(self):
         pg.quit()
