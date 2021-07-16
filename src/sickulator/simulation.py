@@ -269,7 +269,7 @@ class Simulation:
 
     def update_sprite_status(self):
         d = {}
-        if (self.selected_label == 'building' or self.selected_label == 'building'):
+        if (self.selected_label == 'building' or self.selected_label == 'home'):
             d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
         elif (self.selected_label == "agent"):
             states = ["Healthy","Infected","Immune","Dead"]
