@@ -119,10 +119,7 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(255)
 
     def daily_update(self):
-        if (
-                self.simulation.simulation_settings.lifespan
-                - (self.simulation.day - self._birthday)
-        ) <= 0:
+        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
             self.health_state = HealthState.DEAD
 
         if self.health_state == HealthState.INFECTED:
