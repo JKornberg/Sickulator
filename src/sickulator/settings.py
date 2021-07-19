@@ -24,8 +24,13 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = 0.15
 
 # Agent Settings
+<<<<<<< Updated upstream
 CAMERA_SPEED = 150
 PLAYER_SPEED = 256 # pixels per second
+=======
+CAMERA_SPEED = 100
+PLAYER_SPEED = 256  # pixels per second
+>>>>>>> Stashed changes
 DAILY_MORTALITY_CHANCE = .2
 
 DAY_LENGTH = 20  # Day duration in seconds
@@ -86,7 +91,14 @@ building_addresses = [
     (38, 36),
     (37, 8),
     (61, 6),
-    (48, 43),
+    (48, 43)
+  #  (66, 42),  # new stuff starts here ( 7 )
+   # (70, 24),
+    #(70, 3),
+    #(84, 38),
+    #(84, 24),
+    #(83, 12),
+    #(85, 6)
 ]
 
 # Rect((left, top), (w, h))

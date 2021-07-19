@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< Updated upstream
 <map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="64" height="48" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="208">
+=======
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="94" height="48" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="209">
+>>>>>>> Stashed changes
  <tileset firstgid="1" source="roguelikeCity_magenta.tsx"/>
  <layer id="1" name="Grass" width="64" height="48">
   <data encoding="csv">
@@ -157,17 +161,21 @@
 0,0,957,958,959,0,957,958,959,0,661,662,663,0,809,810,811,0,809,810,811,0,661,662,663,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+<<<<<<< Updated upstream
  <objectgroup id="5" name="Walls">
   <object id="2" name="wall" x="32.834" y="16.759" width="78.3227" height="2.73617"/>
   <object id="7" name="wall" x="145.017" y="16.5877" width="78.3227" height="2.73617"/>
   <object id="12" name="wall" x="257.2" y="16.9298" width="78.3227" height="2.73617"/>
   <object id="17" name="wall" x="368.356" y="16.5877" width="78.3227" height="2.73617"/>
+=======
+ <objectgroup id="5" name="Walls" visible="0">
+>>>>>>> Stashed changes
   <object id="104" name="wall" x="495.314" y="0.398804" width="208.227" height="4.78564"/>
   <object id="126" name="wall" x="752.144" y="0" width="111.266" height="3.19043"/>
   <object id="150" name="wall" x="767.043" y="758.151" width="192.554" height="9.50313"/>
-  <object id="162" name="wall" x="1020.43" y="-0.609468" width="3.14027" height="768.11"/>
   <object id="163" name="wall" x="0.537051" y="-1.24963" width="3.14027" height="768.11"/>
-  <object id="164" name="wall" x="0" y="766.313" width="1024.79" height="2.10719"/>
-  <object id="165" name="wall" x="-1.75371" y="-0.3512" width="1024.79" height="2.10719"/>
+  <object id="164" name="wall" x="0" y="766.313" width="1497.2" height="2.10719"/>
+  <object id="165" name="wall" x="-1.75371" y="-0.3512" width="1497.2" height="2.10719"/>
+  <object id="208" name="wall" x="1498.52" y="-1.54134" width="3.14027" height="768.11"/>
  </objectgroup>
 </map>
