@@ -42,7 +42,8 @@ class Building:
             if a.id == agent.id:
                 self.agents[i].inside = False
                 self.agents.pop(i)
-                self.infected_count -= 1
+                if a.health_state == HealthState.INFECTED:
+                    self.infected_count -= 1
                 return
         # print("Agent not found in building")
         return

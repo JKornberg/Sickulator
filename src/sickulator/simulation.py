@@ -277,11 +277,11 @@ class Simulation:
 
     def update_sprite_status(self):
         d = {}
-        if self.selected_label == 'building' or self.selected_label == 'building':
-            d = {'Visitors': len(self.selected_sprite.agents), "Infected": self.selected_sprite.infected_count}
-        elif self.selected_label == "agent":
-            states = ["Healthy", "Infected", "Immune", "Dead"]
-            d = {'Status': states[self.selected_sprite.health_state.value], 'Birthday': self.selected_sprite.birthday}
+        if (self.selected_label == 'building' or self.selected_label == 'home'):
+            d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
+        elif (self.selected_label == "agent"):
+            states = ["Healthy","Infected","Immune","Dead"]
+            d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}
         details = ""
         for key, val in d.items():
             details += f"{key}: {val}<br>"
