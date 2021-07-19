@@ -258,21 +258,29 @@ class Family:
 def gen_schedules(agents):
     count = len(agents)
     rng = np.random.default_rng()
+    #Work food social
+    # [2] : 10, [1]: 7, [2,3,4,5] : [10], [4] : 3, [6] : 2.5
+    # [(2,10), (1,7), (2,0), (3,0), (4,0)
+    # 20
+    # 5 3
     wb = rng.choice(work_buildings, 1000)
     sb = rng.choice(social_buildings, 1000)
     fb = rng.choice(food_buildings, 1000)
     wv = rng.integers(1,3,1000)
     fv = rng.integers(5,10,1000)
+    sv 
     indices = rng.integers(0,1000,2000)
     index = 0
-    work_threshold = DAY_LENGTH/5
+    work_threshold = 5
+    social_threshold = 3
     for agent in agents:
         #generate work_buildings
-        work_visits = rng.randint(1,agent.preferences[0]/5)
+        if agent.preferences[0] > work_threshold:
+            work_visits = rng.randint(1,agent.preferences[0]/(DAY_LENGTH/work_threshold))
         work_ids = wb[index:index+work_visits]
-        index += work_visits
-        food_ids = fb[index: index+wv[index]]
-        
+        food_ids = fb[index: index+fv[index]]
+        if agent.preferences[2]
+        social_ids = sb[ind]
 
 def generate_schedules(agents):
     """
