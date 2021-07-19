@@ -14,9 +14,9 @@ from sickulator.settings import (
 import pygame as pg
 from enum import Enum
 import numpy as np
-from path_finder import PathFinder
+from sickulator.path_finder import PathFinder
 from math import ceil
-from settings import building_addresses, home_addresses
+from sickulator.settings import building_addresses, home_addresses
 
 vec = pg.math.Vector2
 

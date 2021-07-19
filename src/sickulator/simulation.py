@@ -313,6 +313,8 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+        self.all_sprites.update()
+        self.camera.update(self.player)
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
@@ -332,8 +334,6 @@ class Simulation:
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
-        self.all_sprites.update()
-        self.camera.update(self.player)
         if self.show_popup:
             self.update_status()
         if self.show_sprite_popup:
