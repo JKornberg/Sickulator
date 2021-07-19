@@ -274,6 +274,7 @@ def generate_schedules(agents):
     """
     count = len(agents)
     building_ids = len(building_addresses)
+    print(building_ids)
     rng = np.random.default_rng()
     number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
     number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
@@ -281,7 +282,7 @@ def generate_schedules(agents):
 
     # [ random(0-8) repeated for the total number of visits * 9]
     buildings = rng.integers(
-        low=0, high=building_ids - 1, size=np.sum(number_of_visits)
+        low=0, high=building_ids, size=np.sum(number_of_visits)
     )  # get list of buildings for visits
     j = 0
     # loop can be optimized, assigns buildings to visits

@@ -33,7 +33,7 @@ class Simulation:
         self.selected_sprite = None
         self.selected_label = None
         self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
-        self.cumulative_stats = [0, 0, 0, 10]  # [Total Killed, Total Immune, Total Infected, Total agents]
+        self.cumulative_stats = [0, 0, 0, self.simulation_settings.agent_count]  # [Total Killed, Total Immune, Total Infected, Total agents]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
         self.infected_today = 0
@@ -49,7 +49,7 @@ class Simulation:
         map_folder = path.join(game_folder, "map")
         self.map = TiledMap(path.join(map_folder, "agentcityO.tmx"))
         # following 2 lines added for generate_path_grid() function
-        self.path_map = TiledMap(path.join(map_folder, "path_MapO.tmx"))
+        self.path_map = TiledMap(path.join(map_folder, "path_Map.tmx"))
         self.grid = self.generate_path_grid()
         self.map_img = self.map.make_map()
         self.map.rect = self.map_img.get_rect()
@@ -75,7 +75,7 @@ class Simulation:
             []
         )  # create_buildings from buildings; better suited here
         for x in range(0, len(building_addresses)):
-            if x < 6:  # index of park addresses start on 6
+            if x < 12:  # index of park addresses start on 6
                 self.buildings.append(
                     Building(
                         int(building_addresses[x][0]),
