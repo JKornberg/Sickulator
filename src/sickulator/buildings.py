@@ -3,7 +3,7 @@ import pygame as pg
 import numpy as np
 from agent import HealthState
 
-from settings import SimulationSettings, building_addresses, home_addresses
+from sickulator.settings import SimulationSettings, building_addresses, home_addresses
 
 vec2 = pg.Vector2
 

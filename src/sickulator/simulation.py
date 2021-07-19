@@ -1,19 +1,19 @@
 import math
 import os
 from os import path
-from agent import *
-from tiles import *
-from sprites import *
+from sickulator.agent import *
+from sickulator.tiles import *
+from sickulator.sprites import *
 import pygame_gui
 from pygame_gui.elements import text
 from math import floor, ceil
 import random
 import sys
 import pytmx
-from buildings import *
+from sickulator.buildings import *
 import random
-from path_finder import PathFinder
-from settings import DAY_LENGTH, NIGHT_LENGTH
+from sickulator.path_finder import PathFinder
+from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
 
 class Simulation:
@@ -58,7 +58,7 @@ class Simulation:
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 5, 5)
+        self.player = Player(self, 32, 24)
 
         # num_agents = 10
         self.families = []
@@ -415,12 +415,8 @@ class Simulation:
         # self.screen.fill(BGCOLOR)
         self.screen.blit(self.map_img, self.camera.apply(self.map))
         # self.draw_grid()
-
-        print(self.camera.camera.x, self.camera.camera.y)
-
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-        self.all_sprites.draw(self.screen)
 
 
     def end_game(self):

@@ -24,13 +24,8 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = 0.15
 
 # Agent Settings
-<<<<<<< Updated upstream
-CAMERA_SPEED = 150
-PLAYER_SPEED = 256 # pixels per second
-=======
 CAMERA_SPEED = 100
 PLAYER_SPEED = 256  # pixels per second
->>>>>>> Stashed changes
 DAILY_MORTALITY_CHANCE = .2
 
 DAY_LENGTH = 20  # Day duration in seconds

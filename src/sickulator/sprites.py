@@ -1,6 +1,6 @@
 import pygame as pg
 
-from settings import *
+from sickulator.settings import *
 
 
 class Player(pg.sprite.Sprite):
@@ -53,8 +53,14 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
+        x = self.x + self.vx * self.game.dt
+        y = self.y + self.vy * self.game.dt
+        x = min(992, x)  # left
+        y = min(384, y)  # top
+        x = max(512, x)  # right
+        y = max(384, y)  # bottom
+        self.x = x
+        self.y = y
         self.rect.x = self.x
         self.collide_with_walls('x')
         self.rect.y = self.y

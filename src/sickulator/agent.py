@@ -1,6 +1,6 @@
 import math
 from os import curdir
-from settings import (
+from sickulator.settings import (
     BLACK,
     BLUE,
     GREEN,
