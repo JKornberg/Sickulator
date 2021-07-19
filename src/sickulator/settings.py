@@ -1,4 +1,5 @@
 import pygame as pg
+import numpy as np
 
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
@@ -95,3 +96,9 @@ building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 
                        pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)), pg.Rect((560, 480), (112, 112)),
                        pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144))
                        ]
+
+work_buildings = np.array([])
+
+social_buildings = np.array([])
+
+food_buildings = np.array([])

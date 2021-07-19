@@ -16,7 +16,7 @@ from enum import Enum
 import numpy as np
 from sickulator.path_finder import PathFinder
 from math import ceil
-from sickulator.settings import building_addresses, home_addresses
+from sickulator.settings import building_addresses, home_addresses, social_buildings, work_buildings, food_buildings
 
 vec = pg.math.Vector2
 
@@ -60,6 +60,7 @@ class Agent(pg.sprite.Sprite):
         home_id,
         id,
         health_state=HealthState.HEALTHY,
+        preferences=[1/3,1/3,1/3]
     ):
         self.id = id
         self.pos = vec(x, y)
@@ -254,6 +255,24 @@ class Family:
         """Add agent to a family's agents list"""
         self.agents.append(agent)
 
+def gen_schedules(agents):
+    count = len(agents)
+    rng = np.random.default_rng()
+    wb = rng.choice(work_buildings, 1000)
+    sb = rng.choice(social_buildings, 1000)
+    fb = rng.choice(food_buildings, 1000)
+    wv = rng.integers(1,3,1000)
+    fv = rng.integers(5,10,1000)
+    indices = rng.integers(0,1000,2000)
+    index = 0
+    work_threshold = DAY_LENGTH/5
+    for agent in agents:
+        #generate work_buildings
+        work_visits = rng.randint(1,agent.preferences[0]/5)
+        work_ids = wb[index:index+work_visits]
+        index += work_visits
+        food_ids = fb[index: index+wv[index]]
+        
 
 def generate_schedules(agents):
     """

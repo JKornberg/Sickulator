@@ -10,6 +10,7 @@ vec2 = pg.Vector2
 class Building:
     """
     type - 'outside', or 'inside'
+    class = 'work', 'food', or 'social'
     """
 
     def __init__(self, x, y, rect, type, id, simulation):
