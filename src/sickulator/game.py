@@ -1,5 +1,5 @@
-from simulation import Simulation
-from settings import HEIGHT, WIDTH, UISCALE, SimulationSettings
+from sickulator.simulation import Simulation
+from sickulator.settings import HEIGHT, WIDTH, UISCALE, SimulationSettings
 import sys
 import pygame as pg
 from menus import *

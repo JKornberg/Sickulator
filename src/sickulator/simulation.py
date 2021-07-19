@@ -1,19 +1,19 @@
 import math
 import os
 from os import path
-from agent import *
-from tiles import *
-from sprites import *
+from sickulator.agent import *
+from sickulator.tiles import *
+from sickulator.sprites import *
 import pygame_gui
 from pygame_gui.elements import text
 from math import floor, ceil
 import random
 import sys
 import pytmx
-from buildings import *
+from sickulator.buildings import *
 import random
-from path_finder import PathFinder
-from settings import DAY_LENGTH, NIGHT_LENGTH
+from sickulator.path_finder import PathFinder
+from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
 
 class Simulation:
@@ -313,6 +313,8 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+        self.all_sprites.update()
+        self.camera.update(self.player)
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
@@ -332,8 +334,6 @@ class Simulation:
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
-        self.all_sprites.update()
-        self.camera.update(self.player)
         if self.show_popup:
             self.update_status()
         if self.show_sprite_popup:
@@ -420,7 +420,6 @@ class Simulation:
 
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-        self.all_sprites.draw(self.screen)
 
 
     def end_game(self):

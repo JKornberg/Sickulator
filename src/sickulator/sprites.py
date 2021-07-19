@@ -1,6 +1,6 @@
 import pygame as pg
 
-from settings import *
+from sickulator.settings import *
 
 
 class Player(pg.sprite.Sprite):
