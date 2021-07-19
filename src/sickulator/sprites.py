@@ -10,7 +10,7 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(YELLOW)
-        self.image.set_alpha(0)
+        #self.image.set_alpha(0)
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
@@ -55,10 +55,10 @@ class Player(pg.sprite.Sprite):
         self.get_keys()
         x = self.x + self.vx * self.game.dt
         y = self.y + self.vy * self.game.dt
-        x = min(992, x)  # left
-        y = min(384, y)  # top
-        x = max(512, x)  # right
-        y = max(384, y)  # bottom
+        x = min(992, x)  # right
+        y = min(430, y)  # bottom
+        x = max(512, x)  # left
+        y = max(384, y)  # top
         self.x = x
         self.y = y
         self.rect.x = self.x
