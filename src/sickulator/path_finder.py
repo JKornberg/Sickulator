@@ -2,7 +2,7 @@ from copy import copy
 
 PATH_NUMBER = 25
 DOOR = 39
-WIDTH = 64
+WIDTH = 94
 HEIGHT = 48
 
 """ 
