@@ -47,12 +47,12 @@ class Simulation:
         """Load all assets"""
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, "map")
-        self.map = TiledMap(path.join(map_folder, "agentcity.tmx"))
+        self.map = TiledMap(path.join(map_folder, "agentcityO.tmx"))
         # following 2 lines added for generate_path_grid() function
-        self.path_map = TiledMap(path.join(map_folder, "path_Map.tmx"))
+        self.path_map = TiledMap(path.join(map_folder, "path_MapO.tmx"))
         self.grid = self.generate_path_grid()
         self.map_img = self.map.make_map()
-        self.map_rect = self.map_img.get_rect()
+        self.map.rect = self.map_img.get_rect()
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -142,6 +142,9 @@ class Simulation:
                 )
 
         self.camera = Camera(self.map.width, self.map.height)
+
+        print(self.map.width, self.map.height)
+
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location, 'theme.json')
         self.gui = pygame_gui.UIManager(
@@ -410,11 +413,15 @@ class Simulation:
 
     def draw(self):
         # self.screen.fill(BGCOLOR)
-        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        self.screen.blit(self.map_img, self.camera.apply(self.map))
         # self.draw_grid()
+
+        print(self.camera.camera.x, self.camera.camera.y)
+
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         self.all_sprites.draw(self.screen)
+
 
     def end_game(self):
         self.playing = False
@@ -423,7 +430,7 @@ class Simulation:
     def quit(self):
         pg.quit()
 
-    # Should create a 2D array out of path_Map.tmx #
+    # Should create a 2D array out of path_MapO.tmx #
     def generate_path_grid(self):
         grid = [
             [0 for x in range(int(self.path_map.width / 16))]
