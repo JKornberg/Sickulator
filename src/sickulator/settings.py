@@ -83,18 +83,19 @@ building_addresses = [
     (36, 23),
     (54, 23),
     (54, 30),
-    (38, 36),
-    (37, 8),
+    (38, 35),  # changed from (38,36) to (38,35) --> see map
+    (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
+    (70, 24), # new buildings inside
+    (66, 42),
+    (84, 38),
+    (84, 24),
+    (85, 6),
+    (37, 8), #old buildings outside
     (61, 6),
     (48, 43),
-    # (39, 43),  # this is new too
-    # (66, 42),  # new stuff starts here ( 7 )
-    # (70, 24),
-    # (70, 3),
-    # (84, 38),
-    # (84, 24),
-    # (83, 12),
-    # (85, 6)
+    (70, 3), # new buildings outside
+    (83, 12)
+
 ]
 
 # Rect((left, top), (w, h))
@@ -109,5 +110,9 @@ home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg
 building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 128)), pg.Rect((528, 272), (112, 128)),
                        pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)),
                        pg.Rect((560, 480), (112, 112)),
-                       pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144))
+                       pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144)),
+                       # New Rectangles start here #
+                       pg.Rect((512, 608), (192, 96)), pg.Rect((1024, 0), (208, 96)), pg.Rect((1056, 272), (144, 144)),
+                       pg.Rect((1024, 576), (192, 128)), pg.Rect((1296, 512), (112, 128)),
+                       pg.Rect((1328, 288), (128, 128)), pg.Rect((1296, 160), (208, 96)), pg.Rect((1328, 0), (128, 128))
                        ]
