@@ -334,8 +334,10 @@ class Simulation:
                 # possibly teleport agents back
                 for fam in range (0, len(self.families)): # reproduction start at night when they come home
                     num_healthy = 0
+                    # if it been enough days since theyve had a kid
                     for member in range (0, len(self.families[fam].agents)):
                         if self.families[fam].agents[member].health_state_but_works() == 0 or self.families[fam].agents[member].health_state_but_works() == 2:
+                            #sum all the traits of healthy and immune
                             num_healthy += 1
                     if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(num_healthy):
                         # slider reproduction rate multiplied by number of healthy agents (eventually only healthy will pass down genes)
