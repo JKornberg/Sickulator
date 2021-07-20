@@ -77,26 +77,70 @@ home_addresses = [
     (25, 40),
 ]
 
+# Work buildings = building_addresses[0-6]
+# Food Buildings = building_addresses[7-8]
+# Social Buildings = building_addresses[9-11]
+# Outside Areas = building_addresses[12-16]
 building_addresses = [
-    (49, 6),
-    (44, 19),
     (36, 23),
+    (44, 19),
     (54, 23),
+    (49, 6),
     (54, 30),
-    (38, 35),  # changed from (38,36) to (38,35) --> see map
-    (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
-    (70, 24),  # new buildings inside
+    (70, 24),
     (66, 42),
+    (38, 35),
+    (34, 43),
     (84, 38),
     (88, 24),
     (85, 6),
-    (35, 3),  # old buildings outside # changed from (37, 8) --> (35, 3)
+    (35, 3),
     (61, 6),
     (51, 42),
-    (70, 3),  # new buildings outside
+    (70, 3),
     (86, 14)
-
 ]
+
+
+class WorkBuilding:
+    def __init__(self, address):
+        self.address = address
+
+
+class SocialBuilding:
+    def __init__(self, address):
+        self.address = address
+
+
+class FoodBuilding:
+    def __init__(self, address):
+        self.address = address
+
+
+class OutsideArea:
+    def __init__(self, address):
+        self.address = address
+
+
+# Fills the list_O_places variable ---> list_O_places = [(address, place_Object), (address, place_Object)...]
+list_O_places = []
+index = 0
+for addy in building_addresses:
+    if 0 <= index <= 6:
+        work_building = WorkBuilding(addy)
+        list_O_places.append((addy, work_building))
+    elif 7 <= index <= 8:
+        food_building = FoodBuilding(addy)
+        list_O_places.append((addy, food_building))
+    elif 9 <= index <= 11:
+        social_building = SocialBuilding(addy)
+        list_O_places.append((addy, social_building))
+    else:
+        outside = OutsideArea(addy)
+        list_O_places.append((addy, outside))
+
+    index += 1
+
 
 # Rect((left, top), (w, h))
 home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg.Rect((256, 16), (80, 96)),
