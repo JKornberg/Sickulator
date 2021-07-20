@@ -143,8 +143,6 @@ class Simulation:
 
         self.camera = Camera(self.map.width, self.map.height)
 
-        print(self.map.width, self.map.height)
-
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location, 'theme.json')
         self.gui = pygame_gui.UIManager(
@@ -334,40 +332,6 @@ class Simulation:
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
-                for fam in range (0, len(self.families)): # reproduction start at night when they come home
-                    if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(len(self.families[fam].agents)):
-                        if len(self.families[fam].agents) < self.simulation_settings.family_size:
-                            # if family is not full, make new member of same family
-                            child = Agent(
-                                self,
-                                self.families[fam],
-                                self.families[fam].home.pos[0],
-                                self.families[fam].home.pos[1],
-                                self.families[fam].home.id,
-                                id=self.cumulative_stats[3]+1,
-                            )
-
-                            self.families[fam].add_agent(child)
-                            self.agents.append(child)
-                            self.spawn_agent()
-                        else:
-                            # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
-                            new_home = self.homes[random.randint(0, len(self.homes)) - 1]
-                            self.families.append(Family(self, new_home))
-                            self.families[-1].add_agent(self.families[fam].agents.pop(0)) # removes first agent from old fam and adds to new
-
-                            child = Agent(
-                                self,
-                                self.families[-1],
-                                self.families[-1].home.pos[0],
-                                self.families[-1].home.pos[1],
-                                self.families[-1].home.id,
-                                id=self.cumulative_stats[3]+1,
-                            )
-                            self.families[-1].add_agent(child)
-                            self.agents.append(child)
-                            self.spawn_agent()
-
         if self.show_popup:
             self.update_status()
         if self.show_sprite_popup:
