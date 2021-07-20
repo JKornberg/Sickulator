@@ -332,6 +332,62 @@ class Simulation:
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
+                for fam in range (0, len(self.families)): # reproduction start at night when they come home
+                    num_healthy = 0
+                    for member in range (0, len(self.families[fam].agents)):
+                        if self.families[fam].agents[member].health_state() == 0:
+                            num_healthy += 1
+                    if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(num_healthy):
+                        # slider reproduction rate multiplied by number of healthy agents (eventually only healthy will pass down genes)
+                        if len(self.families[fam].agents) < self.simulation_settings.family_size:
+                            # if family is not full, make new member of same family
+                            child = Agent(
+                                self,
+                                self.families[fam],
+                                self.families[fam].home.pos[0],
+                                self.families[fam].home.pos[1],
+                                self.families[fam].home.id,
+                                id=self.cumulative_stats[3]+1,
+                            )
+
+                            self.families[fam].add_agent(child)
+                            self.agents.append(child)
+                            self.spawn_agent()
+                        else:
+                            empty_fam_found = False
+                            for fam_checking in range (0, len(self.families)):
+                                if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
+                                    child = Agent(
+                                        self,
+                                        self.families[fam_checking],
+                                        self.families[fam_checking].home.pos[0],
+                                        self.families[fam_checking].home.pos[1],
+                                        self.families[fam_checking].home.id,
+                                        id=self.cumulative_stats[3] + 1,
+                                    )
+                                    self.families[fam].add_agent(child)
+                                    self.agents.append(child)
+                                    self.spawn_agent()
+                                    empty_fam_found = True
+                                    break
+                            if not empty_fam_found:
+                                # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
+                                new_home = self.homes[random.randint(0, len(self.homes)) - 1]
+                                self.families.append(Family(self, new_home))
+                                self.families[-1].add_agent(self.families[fam].agents.pop(0)) # removes first agent from old fam and adds to new
+
+                                child = Agent(
+                                    self,
+                                    self.families[-1],
+                                    self.families[-1].home.pos[0],
+                                    self.families[-1].home.pos[1],
+                                    self.families[-1].home.id,
+                                    id=self.cumulative_stats[3]+1,
+                                )
+                                self.families[-1].add_agent(child)
+                                self.agents.append(child)
+                                self.spawn_agent()
+
         if self.show_popup:
             self.update_status()
         if self.show_sprite_popup:
