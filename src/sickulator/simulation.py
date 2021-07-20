@@ -365,7 +365,7 @@ class Simulation:
                                         self.families[fam_checking].home.id,
                                         id=self.cumulative_stats[3] + 1,
                                     )
-                                    self.families[fam].add_agent(child)
+                                    self.families[fam_checking].add_agent(child)
                                     self.agents.append(child)
                                     self.spawn_agent()
                                     roomy_fam_found = True
