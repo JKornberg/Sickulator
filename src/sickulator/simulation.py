@@ -143,8 +143,6 @@ class Simulation:
 
         self.camera = Camera(self.map.width, self.map.height)
 
-        print(self.map.width, self.map.height)
-
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location, 'theme.json')
         self.gui = pygame_gui.UIManager(

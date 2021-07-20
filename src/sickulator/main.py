@@ -5,8 +5,8 @@ sys.path.append(os.getcwd())
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 from game import Game
-os.environ["SDL_VIDEODRIVER"]="x11"
-os.environ['SDL_AUDIODRIVER'] = 'dsp'
+# os.environ["SDL_VIDEODRIVER"]="x11"
+# os.environ['SDL_AUDIODRIVER'] = 'dsp'
 
 
 def main():
