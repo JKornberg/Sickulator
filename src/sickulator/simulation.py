@@ -354,7 +354,7 @@ class Simulation:
                             self.agents.append(child)
                             self.spawn_agent()
                         else:
-                            empty_fam_found = False
+                            roomy_fam_found = False
                             for fam_checking in range (0, len(self.families)):
                                 if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
                                     child = Agent(
@@ -368,9 +368,9 @@ class Simulation:
                                     self.families[fam].add_agent(child)
                                     self.agents.append(child)
                                     self.spawn_agent()
-                                    empty_fam_found = True
+                                    roomy_fam_found = True
                                     break
-                            if not empty_fam_found:
+                            if not roomy_fam_found:
                                 # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
                                 new_home = self.homes[random.randint(0, len(self.homes)) - 1]
                                 self.families.append(Family(self, new_home))
