@@ -85,16 +85,16 @@ building_addresses = [
     (54, 30),
     (38, 35),  # changed from (38,36) to (38,35) --> see map
     (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
-    (70, 24), # new buildings inside
+    (70, 24),  # new buildings inside
     (66, 42),
     (84, 38),
-    (84, 24),
+    (88, 24),
     (85, 6),
-    (37, 8), #old buildings outside
+    (35, 3),  # old buildings outside # changed from (37, 8) --> (35, 3)
     (61, 6),
-    (48, 43),
-    (70, 3), # new buildings outside
-    (83, 12)
+    (51, 42),
+    (70, 3),  # new buildings outside
+    (86, 14)
 
 ]
 
