@@ -24,28 +24,35 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = 0.15
 
 # Agent Settings
-PLAYER_SPEED = 256 # pixels per second
+CAMERA_SPEED = 100
+PLAYER_SPEED = 256  # pixels per second
 DAILY_MORTALITY_CHANCE = .2
 
 DAY_LENGTH = 20  # Day duration in seconds
 NIGHT_LENGTH = 5
 
+
 class SimulationSettings:
     def __init__(
-        self,
-        infection_rate=10,
-        lifespan=10,
-        illness_period=3,
-        reproduction_rate=4,
-        family_size=4,
-        simulation_duration=50,
+            self,
+            infection_rate=10,
+            mortality_rate=10,
+            lifespan=10,
+            illness_period=3,
+            reproduction_rate=4,
+            agent_count=20,
+            family_size=4,
+            simulation_duration=50,
     ):
         self.infection_rate = infection_rate
+        self.mortality = mortality_rate
         self.lifespan = lifespan
         self.illness_period = illness_period
         self.reproduction_rate = reproduction_rate
+        self.agent_count = agent_count
         self.family_size = family_size
         self.simulation_duration = simulation_duration
+
 
 home_addresses = [
     (4, 4),
@@ -76,10 +83,19 @@ building_addresses = [
     (36, 23),
     (54, 23),
     (54, 30),
-    (38, 36),
-    (37, 8),
+    (38, 35),  # changed from (38,36) to (38,35) --> see map
+    (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
+    (70, 24),  # new buildings inside
+    (66, 42),
+    (84, 38),
+    (88, 24),
+    (85, 6),
+    (35, 3),  # old buildings outside # changed from (37, 8) --> (35, 3)
     (61, 6),
-    (48, 43),
+    (51, 42),
+    (70, 3),  # new buildings outside
+    (86, 14)
+
 ]
 
 # Rect((left, top), (w, h))
@@ -92,6 +108,11 @@ home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg
                    pg.Rect((256, 592), (80, 96)), pg.Rect((368, 592), (80, 96))]
 
 building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 128)), pg.Rect((528, 272), (112, 128)),
-                       pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)), pg.Rect((560, 480), (112, 112)),
-                       pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144))
+                       pg.Rect((816, 272), (112, 128)), pg.Rect((816, 464), (112, 128)),
+                       pg.Rect((560, 480), (112, 112)),
+                       pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144)),
+                       # New Rectangles start here #
+                       pg.Rect((512, 608), (192, 96)), pg.Rect((1024, 0), (208, 96)), pg.Rect((1056, 272), (144, 144)),
+                       pg.Rect((1024, 576), (192, 128)), pg.Rect((1296, 512), (112, 128)),
+                       pg.Rect((1328, 288), (128, 128)), pg.Rect((1296, 160), (208, 96)), pg.Rect((1328, 0), (128, 128))
                        ]

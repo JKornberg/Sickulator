@@ -52,14 +52,14 @@ class Agent(pg.sprite.Sprite):
     health_counts = [0, 0, 0, 0]
 
     def __init__(
-        self,
-        simulation,
-        family,
-        x,
-        y,
-        home_id,
-        id,
-        health_state=HealthState.HEALTHY,
+            self,
+            simulation,
+            family,
+            x,
+            y,
+            home_id,
+            id,
+            health_state=HealthState.HEALTHY,
     ):
         self.id = id
         self.pos = vec(x, y)
@@ -99,13 +99,12 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
         self.image.fill(health_colors[hs.value])
-        if (hs == HealthState.INFECTED):
+        if hs == HealthState.INFECTED:
             self.simulation.infected_today += 1
-        elif (hs == HealthState.DEAD):
+        elif hs == HealthState.DEAD:
             self.simulation.kill_agent()
-        elif (hs == HealthState.IMMUNE):
+        elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
-
 
     @property
     def inside(self):
@@ -120,18 +119,15 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(255)
 
     def daily_update(self):
-        if (
-            self.simulation.simulation_settings.lifespan
-            - (self.simulation.day - self._birthday)
-        ) <= 0:
+        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
             self.health_state = HealthState.DEAD
 
         if self.health_state == HealthState.INFECTED:
-            if np.random.rand() < DAILY_MORTALITY_CHANCE:
+            if np.random.rand() < self.simulation.simulation_settings.mortality/100:
                 self.health_state = HealthState.DEAD
             if (
-                self.infected_duration
-                >= self.simulation.simulation_settings.illness_period
+                    self.infected_duration
+                    >= self.simulation.simulation_settings.illness_period
             ):
                 self.health_state = HealthState.IMMUNE
             else:
@@ -150,8 +146,8 @@ class Agent(pg.sprite.Sprite):
         else:
             location_id = self.schedule[self.visit_index]
             if (
-                self.visit_index == 0
-                or self.visit_index == len(self.schedule) - 1
+                    self.visit_index == 0
+                    or self.visit_index == len(self.schedule) - 1
             ):
                 destination = home_addresses[self.home]
             else:
@@ -278,6 +274,7 @@ def generate_schedules(agents):
     """
     count = len(agents)
     building_ids = len(building_addresses)
+    print(building_ids)
     rng = np.random.default_rng()
     number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
     number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
@@ -285,7 +282,7 @@ def generate_schedules(agents):
 
     # [ random(0-8) repeated for the total number of visits * 9]
     buildings = rng.integers(
-        low=0, high=building_ids - 1, size=np.sum(number_of_visits)
+        low=0, high=building_ids, size=np.sum(number_of_visits)
     )  # get list of buildings for visits
     j = 0
     # loop can be optimized, assigns buildings to visits
@@ -296,11 +293,11 @@ def generate_schedules(agents):
         #  in this case, agent redirects path mid-travel to next target
         times = (y := rng.random(i + 2)) / np.sum(
             y
-        )  #  this line just generates proportions from a uniform distribution
+        )  # this line just generates proportions from a uniform distribution
         visits = np.concatenate(
             (
                 agent.home,
-                buildings[j : j + i],
+                buildings[j: j + i],
                 agent.home,
             ),
             axis=None,

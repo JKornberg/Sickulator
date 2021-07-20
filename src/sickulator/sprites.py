@@ -3,7 +3,6 @@ import pygame as pg
 from sickulator.settings import *
 
 
-
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -11,7 +10,7 @@ class Player(pg.sprite.Sprite):
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(YELLOW)
-        self.image.set_alpha(0)
+        #self.image.set_alpha(0)
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
@@ -21,13 +20,13 @@ class Player(pg.sprite.Sprite):
         self.vx, self.vy = 0, 0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
-            self.vx = -PLAYER_SPEED
+            self.vx = -CAMERA_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
-            self.vx = PLAYER_SPEED
+            self.vx = CAMERA_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:
-            self.vy = -PLAYER_SPEED
+            self.vy = -CAMERA_SPEED
         if keys[pg.K_DOWN] or keys[pg.K_s]:
-            self.vy = PLAYER_SPEED
+            self.vy = CAMERA_SPEED
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
             self.vy *= 0.7071
@@ -54,8 +53,14 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
+        x = self.x + self.vx * self.game.dt
+        y = self.y + self.vy * self.game.dt
+        x = min(992, x)  # right
+        y = min(430, y)  # bottom
+        x = max(512, x)  # left
+        y = max(384, y)  # top
+        self.x = x
+        self.y = y
         self.rect.x = self.x
         self.collide_with_walls('x')
         self.rect.y = self.y
