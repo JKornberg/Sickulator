@@ -106,6 +106,17 @@ class Agent(pg.sprite.Sprite):
         elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
 
+    def health_state_but_works(self):
+        if self._health_state == HealthState.HEALTHY:
+            return 0
+        elif self._health_state == HealthState.INFECTED:
+            return 1
+        elif self._health_state == HealthState.IMMUNE:
+            return 2
+        elif self._health_state == HealthState.DEAD:
+            return 3
+
+
     @property
     def inside(self):
         return self._inside
