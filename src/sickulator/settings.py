@@ -101,45 +101,10 @@ building_addresses = [
     (86, 14)
 ]
 
-
-class WorkBuilding:
-    def __init__(self, address):
-        self.address = address
-
-
-class SocialBuilding:
-    def __init__(self, address):
-        self.address = address
-
-
-class FoodBuilding:
-    def __init__(self, address):
-        self.address = address
-
-
-class OutsideArea:
-    def __init__(self, address):
-        self.address = address
-
-
-# Fills the list_O_places variable ---> list_O_places = [(address, place_Object), (address, place_Object)...]
-list_O_places = []
-index = 0
-for addy in building_addresses:
-    if 0 <= index <= 6:
-        work_building = WorkBuilding(addy)
-        list_O_places.append((addy, work_building))
-    elif 7 <= index <= 8:
-        food_building = FoodBuilding(addy)
-        list_O_places.append((addy, food_building))
-    elif 9 <= index <= 11:
-        social_building = SocialBuilding(addy)
-        list_O_places.append((addy, social_building))
-    else:
-        outside = OutsideArea(addy)
-        list_O_places.append((addy, outside))
-
-    index += 1
+# New lists :D #
+work_area_IDs = [5, 2, 1, 0, 4, 12]
+food_area_IDs = [7, 8, 14, 6, 9, 16, 10, 3]
+social_area_IDs = [11, 13, 15]
 
 
 # Rect((left, top), (w, h))
