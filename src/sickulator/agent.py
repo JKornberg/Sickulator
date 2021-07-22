@@ -82,6 +82,7 @@ class Agent(pg.sprite.Sprite):
         self.time_on_current_visit = 0
         self.arrived = False
         self.infected_duration = 0
+        self.preferences=preferences
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)

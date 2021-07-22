@@ -24,7 +24,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 UISCALE = 0.15
 
 # Agent Settings
-CAMERA_SPEED = 100
+CAMERA_SPEED = 300
 PLAYER_SPEED = 256  # pixels per second
 DAILY_MORTALITY_CHANCE = .2
 
@@ -77,26 +77,35 @@ home_addresses = [
     (25, 40),
 ]
 
+# Work buildings = building_addresses[0-6]
+# Food Buildings = building_addresses[7-8]
+# Social Buildings = building_addresses[9-11]
+# Outside Areas = building_addresses[12-16]
 building_addresses = [
-    (49, 6),
-    (44, 19),
     (36, 23),
+    (44, 19),
     (54, 23),
+    (49, 6),
     (54, 30),
-    (38, 35),  # changed from (38,36) to (38,35) --> see map
-    (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
-    (70, 24), # new buildings inside
+    (70, 24),
     (66, 42),
+    (38, 35),
+    (34, 43),
     (84, 38),
-    (84, 24),
+    (88, 24),
     (85, 6),
-    (37, 8), #old buildings outside
+    (35, 3),
     (61, 6),
-    (48, 43),
-    (70, 3), # new buildings outside
-    (83, 12)
-
+    (51, 42),
+    (70, 3),
+    (86, 14)
 ]
+
+# New lists :D #
+work_area_IDs = [5, 2, 1, 0, 4, 12]
+food_area_IDs = [7, 8, 14, 6, 9, 16, 10, 3]
+social_area_IDs = [11, 13, 15]
+
 
 # Rect((left, top), (w, h))
 home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg.Rect((256, 16), (80, 96)),

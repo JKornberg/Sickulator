@@ -150,3 +150,4 @@ def onDelete(onBack):
     for f in os.listdir(dir):
         os.remove(os.path.join(dir, f))
     onBack()
+
