@@ -25,19 +25,20 @@ class Building:
 
     def add_agent(self, agent):
         self.agents.append(agent)
+        agent.active_building = self
         if self.type != 'outside':
             agent.inside = True  # Makes agent invisible
         if agent.health_state == HealthState.INFECTED:
-            self.infected_count += 1
             self.infect_building()
         elif agent.health_state == HealthState.HEALTHY and self.infected_count > 0:
             rng = np.random.default_rng()
             randoms = rng.random(self.infected_count)
             if np.any(randoms[randoms < self.simulation_settings.infection_rate * .01]):
                 agent.health_state = HealthState.INFECTED
-                self.infected_count += 1
+        self.check_health_states()        
 
     def remove_agent(self, agent):
+        agent.active_building = None
         for i, a in enumerate(self.agents):
             if a.id == agent.id:
                 self.agents[i].inside = False
@@ -46,6 +47,7 @@ class Building:
                     self.infected_count -= 1
                 return
         # print("Agent not found in building")
+        self.check_health_states()
         return
 
     def infect_building(self):
@@ -54,8 +56,13 @@ class Building:
         for i, agent in enumerate(self.agents):
             if agent.health_state == HealthState.HEALTHY and randoms[i] <= self.simulation_settings.infection_rate * .01:
                 agent.health_state = HealthState.INFECTED
-                self.infected_count += 1
 
+    def check_health_states(self):
+        infected = 0
+        for agent in self.agents:
+            if agent.health_state == HealthState.INFECTED:
+                infected += 1
+        self.infected_count = infected
 # home x-coord < 30
 # building x-coord > 30
 

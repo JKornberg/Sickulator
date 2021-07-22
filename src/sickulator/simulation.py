@@ -133,7 +133,7 @@ class Simulation:
         generate_schedules(self.agents)
 
         for agent in self.agents:
-            agent.daily_update()
+            agent.daily_update(True)
 
         for tile_object in self.map.tmxdata.objects:
 
@@ -333,6 +333,7 @@ class Simulation:
                 for agent in self.agents:
                     agent.daily_update()
                 self.daily_stats.append(Agent.health_counts.copy())
+                self.agents = [agent for agent in self.agents if agent.health_state != HealthState.DEAD]
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False

@@ -86,6 +86,7 @@ class Agent(pg.sprite.Sprite):
         self.arrived = False
         self.infected_duration = 0
         self.preferences=preferences
+        self.active_building = None
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -118,6 +119,9 @@ class Agent(pg.sprite.Sprite):
             self.simulation.infected_today += 1
         elif hs == HealthState.DEAD:
             self.simulation.kill_agent()
+            self.groups.remove(self)
+            if self.active_building != None:
+                self.active_building.agents.remove(self)
         elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
 
@@ -133,20 +137,20 @@ class Agent(pg.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-    def daily_update(self):
+    def daily_update(self, firstDay = False):
         if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
             self.health_state = HealthState.DEAD
-
-        if self.health_state == HealthState.INFECTED:
-            if np.random.rand() < self.simulation.simulation_settings.mortality/100:
-                self.health_state = HealthState.DEAD
-            if (
-                    self.infected_duration
-                    >= self.simulation.simulation_settings.illness_period
-            ):
-                self.health_state = HealthState.IMMUNE
-            else:
-                self.infected_duration += 1
+        if firstDay == False:
+            if self.health_state == HealthState.INFECTED:
+                if np.random.rand() < self.simulation.simulation_settings.mortality/100:
+                    self.health_state = HealthState.DEAD
+                if (
+                        self.infected_duration
+                        >= self.simulation.simulation_settings.illness_period
+                ):
+                    self.health_state = HealthState.IMMUNE
+                else:
+                    self.infected_duration += 1
 
         self.visit_index = 0
         self.pos.x, self.pos.y = (
