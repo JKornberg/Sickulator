@@ -105,12 +105,17 @@ class Simulation:
             self.families.append(Family(self, new_home))
 
         index = 0
+        rng = np.random.default_rng()
+        random_samples = rng.random(num_agents * 3)
+        random_index = 0
         for agent in range(
             0, num_agents
         ):  # puts agents in families; fills families before moving to new ones
             family_to_fill = self.families[
                 int(index / self.simulation_settings.family_size)
             ]
+            preferences = random_samples[random_index:random_index+3]/random_samples[random_index:random_index+3].sum()
+            random_index+=3
             new_agent = Agent(
                 self,
                 family_to_fill,
@@ -118,6 +123,7 @@ class Simulation:
                 family_to_fill.home.pos[1],
                 family_to_fill.home.id,
                 id=agent,
+                preferences=preferences
             )
             if index == 0:
                 new_agent.health_state = HealthState.INFECTED
@@ -318,6 +324,9 @@ class Simulation:
                 generate_schedules(self.agents)
                 for agent in self.agents:
                     agent.daily_update()
+                print(len(self.agents))
+                self.agents = [agent for agent in self.agents if not (agent.health_state == HealthState.DEAD)] # Remove dead agents from list
+                print(len(self.agents))
                 self.daily_stats.append(Agent.health_counts.copy())
             # Day changes to night
             if self.isDaytime:

@@ -16,7 +16,7 @@ from enum import Enum
 import numpy as np
 from sickulator.path_finder import PathFinder
 from math import ceil
-from sickulator.settings import building_addresses, home_addresses, social_buildings, work_buildings, food_buildings
+from sickulator.settings import building_addresses, home_addresses, social_building_ids, work_building_ids, food_building_ids
 
 vec = pg.math.Vector2
 
@@ -103,6 +103,7 @@ class Agent(pg.sprite.Sprite):
         if (hs == HealthState.INFECTED):
             self.simulation.infected_today += 1
         elif (hs == HealthState.DEAD):
+            self.groups.remove(self)
             self.simulation.kill_agent()
         elif (hs == HealthState.IMMUNE):
             self.simulation.immunize_agent()
@@ -255,32 +256,52 @@ class Family:
         """Add agent to a family's agents list"""
         self.agents.append(agent)
 
+class dummy_agent:
+    def __init__(self):
+        self.preferences = (y:=np.random.rand(3))/y.sum() * DAY_LENGTH
+
 def gen_schedules(agents):
+    '''New scheduling algorithm'''
     count = len(agents)
     rng = np.random.default_rng()
     #Work food social
-    # [2] : 10, [1]: 7, [2,3,4,5] : [10], [4] : 3, [6] : 2.5
+    # [[2,10], [1, 7], [[2,3,4,5], 10], [4 , 3], [6 , 2.5]]
     # [(2,10), (1,7), (2,0), (3,0), (4,0)
     # 20
     # 5 3
-    wb = rng.choice(work_buildings, 1000)
-    sb = rng.choice(social_buildings, 1000)
-    fb = rng.choice(food_buildings, 1000)
-    wv = rng.integers(1,3,1000)
+    wb = rng.choice(work_building_ids, 1000)
+    sb = rng.choice(social_building_ids, 1000)
+    fb = rng.choice(food_building_ids, 1000)
     fv = rng.integers(5,10,1000)
-    sv 
-    indices = rng.integers(0,1000,2000)
+    wakeup = rng.random(1000)/0.6
     index = 0
-    work_threshold = 5
-    social_threshold = 3
+    work_threshold = 4
+    social_threshold = 2
     for agent in agents:
         #generate work_buildings
-        if agent.preferences[0] > work_threshold:
-            work_visits = rng.randint(1,agent.preferences[0]/(DAY_LENGTH/work_threshold))
+        work_visits = 0
+        if agent.preferences[0] >= work_threshold:
+            if (work_visits:=int(agent.preferences[0]/(work_threshold))) > 1:
+                work_visits = rng.integers(1,int(agent.preferences[0]/(work_threshold)))
+        work_duration = [agent.preferences[0] / work_visits]
         work_ids = wb[index:index+work_visits]
         food_ids = fb[index: index+fv[index]]
-        if agent.preferences[2]
-        social_ids = sb[ind]
+        social_visits = 0
+        if agent.preferences[2] > social_threshold:
+             if (social_visits:=int(agent.preferences[2]/(social_threshold))) > 1:
+                social_visits = rng.integers(1,int(agent.preferences[2]/(social_threshold)))
+                print(social_visits)
+        social_duration = [agent.preferences[2]/social_visits]
+        social_ids=sb[index:index+social_visits]
+        social_ids = [[social_id] for social_id in social_ids]
+        work_ids = [[work_id] for work_id in work_ids]
+        sched = [(-1,wakeup[index])] + [(work_id, work_duration) for work_id in work_ids] + [(food_ids,agent.preferences[1])] + [(social_id, social_duration) for social_id in social_ids]
+        np.random.shuffle(sched)
+        agent.schedule = sched
+        index += max(work_visits,social_visits)
+
+
+        
 
 def generate_schedules(agents):
     """

@@ -97,8 +97,6 @@ building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 
                        pg.Rect((496, 0), (208, 144)), pg.Rect((944, 32), (64, 96)), pg.Rect((768, 624), (192, 144))
                        ]
 
-work_buildings = np.array([])
-
-social_buildings = np.array([])
-
-food_buildings = np.array([])
+work_building_ids = [5, 2, 1, 0, 4, 12]
+food_building_ids = [7, 8, 14, 6, 9, 16, 10, 3]
+social_building_ids = [11, 13, 15]
