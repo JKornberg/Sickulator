@@ -2,7 +2,7 @@ from copy import copy
 
 PATH_NUMBER = 25
 DOOR = 39
-WIDTH = 64
+WIDTH = 94
 HEIGHT = 48
 
 """ 
@@ -49,7 +49,7 @@ class PathFinder:
 
     def find_path(self, start, end):
         if start == end:
-            return [start]
+            return [(start[0], start[1], "Goal")]
 
         starting_col = start[0]
         starting_row = start[1]
@@ -68,7 +68,7 @@ class PathFinder:
             for dir in directions:
                 new_tile = self.explore_direction(current_tile, dir)
                 if new_tile and new_tile.status == "Goal":
-                    new_tile.path.append((ending_col, ending_row))
+                    new_tile.path.append((ending_col, ending_row, "Goal"))
                     self.reset_grid()
                     return new_tile.path
                 elif new_tile and new_tile.status == "Valid":
@@ -83,7 +83,7 @@ class PathFinder:
 
     def explore_direction(self, current_tile, direction):
         new_path = copy(current_tile.path)
-        new_path.append((current_tile.col, current_tile.row))
+        new_path.append((current_tile.col, current_tile.row, direction))
 
         x, y = current_tile.col, current_tile.row
 

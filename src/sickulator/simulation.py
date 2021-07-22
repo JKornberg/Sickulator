@@ -18,7 +18,7 @@ from sickulator.settings import DAY_LENGTH, NIGHT_LENGTH
 
 class Simulation:
     def __init__(self, game):
-        Agent.health_counts = [0,0,0,0]
+        Agent.health_counts = [0, 0, 0, 0]
         self.game = game
         self.screen = game.screen
         self.load_data()
@@ -33,7 +33,7 @@ class Simulation:
         self.selected_sprite = None
         self.selected_label = None
         self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
-        self.cumulative_stats = [0,0,0,10] # [Total Killed, Total Immune, Total Infected, Total agents]
+        self.cumulative_stats = [0, 0, 0, self.simulation_settings.agent_count]  # [Total Killed, Total Immune, Total Infected, Total agents]
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
         self.infected_today = 0
@@ -47,20 +47,20 @@ class Simulation:
         """Load all assets"""
         game_folder = path.dirname(__file__)
         map_folder = path.join(game_folder, "map")
-        self.map = TiledMap(path.join(map_folder, "agentcity.tmx"))
+        self.map = TiledMap(path.join(map_folder, "agentcityO.tmx"))
         # following 2 lines added for generate_path_grid() function
         self.path_map = TiledMap(path.join(map_folder, "path_Map.tmx"))
         self.grid = self.generate_path_grid()
         self.map_img = self.map.make_map()
-        self.map_rect = self.map_img.get_rect()
+        self.map.rect = self.map_img.get_rect()
 
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 5, 5)
+        self.player = Player(self, 32, 24)
 
-        num_agents = 10
+        # num_agents = 10
         self.families = []
         self.agents = []
 
@@ -75,7 +75,7 @@ class Simulation:
             []
         )  # create_buildings from buildings; better suited here
         for x in range(0, len(building_addresses)):
-            if x < 6:  # index of park addresses start on 6
+            if x < 12:  # index of park addresses start on 6
                 self.buildings.append(
                     Building(
                         int(building_addresses[x][0]),
@@ -99,17 +99,17 @@ class Simulation:
                 )
 
         for x in range(
-            0, math.ceil(num_agents / self.simulation_settings.family_size)
+                0, math.ceil(self.simulation_settings.agent_count / self.simulation_settings.family_size)
         ):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
             new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
 
         index = 0
         rng = np.random.default_rng()
-        random_samples = rng.random(num_agents * 3)
+        random_samples = rng.random(self.simulation_settings.agent_count * 3)
         random_index = 0
         for agent in range(
-            0, num_agents
+            0, self.simulation_settings.agent_count
         ):  # puts agents in families; fills families before moving to new ones
             family_to_fill = self.families[
                 int(index / self.simulation_settings.family_size)
@@ -148,6 +148,9 @@ class Simulation:
                 )
 
         self.camera = Camera(self.map.width, self.map.height)
+
+        print(self.map.width, self.map.height)
+
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location, 'theme.json')
         self.gui = pygame_gui.UIManager(
@@ -252,7 +255,7 @@ class Simulation:
         )
 
         self.sprite_close_button = pygame_gui.elements.UIButton(
-            relative_rect=pg.Rect((150-30,0), (30, 30)),
+            relative_rect=pg.Rect((150 - 30, 0), (30, 30)),
             text="X",
             manager=self.gui,
             container=self.sprite_status,
@@ -287,8 +290,9 @@ class Simulation:
         self.sprite_description.rebuild()
 
     def update_status(self):
-        self.status.html_text = f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body>"""
-        self.status.rebuild()  #  This might not be proper
+        self.status.html_text = f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}<br
+>Immune:   {Agent.health_counts[2]}<br>Dead:     {Agent.health_counts[3]}</body> """
+        self.status.rebuild()  # This might not be proper
 
     def run(self):
         # game loop - set self.playing = False to end the game
@@ -310,6 +314,8 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+        self.all_sprites.update()
+        self.camera.update(self.player)
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
@@ -324,16 +330,12 @@ class Simulation:
                 generate_schedules(self.agents)
                 for agent in self.agents:
                     agent.daily_update()
-                print(len(self.agents))
-                self.agents = [agent for agent in self.agents if not (agent.health_state == HealthState.DEAD)] # Remove dead agents from list
-                print(len(self.agents))
                 self.daily_stats.append(Agent.health_counts.copy())
+                self.agents = [agent for agent in self.agents if not (agent.health_state == HealthState.DEAD)] # Remove dead agents from list
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
-        self.all_sprites.update()
-        self.camera.update(self.player)
         if self.show_popup:
             self.update_status()
         if self.show_sprite_popup:
@@ -413,20 +415,20 @@ class Simulation:
 
     def draw(self):
         # self.screen.fill(BGCOLOR)
-        self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
+        self.screen.blit(self.map_img, self.camera.apply(self.map))
         # self.draw_grid()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
-        self.all_sprites.draw(self.screen)
+
 
     def end_game(self):
         self.playing = False
-        self.game.end_simulation(self.daily_stats,self.cumulative_stats)
+        self.game.end_simulation(self.daily_stats, self.cumulative_stats)
 
     def quit(self):
         pg.quit()
 
-    # Should create a 2D array out of path_Map.tmx #
+    # Should create a 2D array out of path_MapO.tmx #
     def generate_path_grid(self):
         grid = [
             [0 for x in range(int(self.path_map.width / 16))]

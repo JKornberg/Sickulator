@@ -2,7 +2,7 @@ from sickulator.simulation import Simulation
 from sickulator.settings import HEIGHT, WIDTH, UISCALE, SimulationSettings
 import sys
 import pygame as pg
-from sickulator.menus import *
+from menus import *
 import pygame_menu
 import pickle
 import os
@@ -10,9 +10,11 @@ from os import path
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+
 class Game:
     def __init__(self):
-        self.simulation_settings : SimulationSettings = SimulationSettings()
+        self.simulation_settings: SimulationSettings = SimulationSettings()
         _stdout = sys.stdout
         _stderr = sys.stderr
         sys.stdout = sys.stderr = None
@@ -31,14 +33,12 @@ class Game:
         self.simulation = Simulation(self)
         self.simulation.run()
 
-
     def quit(self):
         pg.quit()
         sys.exit()
 
     def show_start_screen(self):
         self.home.mainloop(self.screen)
-
 
     def show_go_screen(self):
         pass
@@ -69,7 +69,7 @@ class Game:
             self.options.disable()
             data_menu = dataMenu(lambda : self._update_from_selection(1), self.save_result_image)
             data_menu.mainloop(self.screen)
-            
+
     def set_settings(self, simulation_settings: SimulationSettings):
         self.simulation_settings = simulation_settings
 
@@ -91,14 +91,14 @@ class Game:
     def save_to_results(self, daily_stats, cumulative_stats):
         obj = []
         location = path.dirname(os.path.realpath(__file__))
-        file = path.join(location,'data','data.txt')
+        file = path.join(location, 'data', 'data.txt')
         try:
-            with open(file,"rb") as f:
+            with open(file, "rb") as f:
                 obj = pickle.load(f)
         except:
             print("No data.txt file found. Creating new file")
-            if not os.path.isdir(path.join(location,'data')):
-                os.mkdir(path.join(location,'data'))
+            if not os.path.isdir(path.join(location, 'data')):
+                os.mkdir(path.join(location, 'data'))
         max_infection = 0
         for h, s, i, d in daily_stats:
             if (h + s == 0):
@@ -106,7 +106,7 @@ class Game:
             max_infection = y if (y:=s/(h+s)) > max_infection else max_infection
         result = {'date': datetime.now(), 'daily_stats': daily_stats, 'cumulative_stats' : cumulative_stats, 'infection_rate' : self.simulation_settings.infection_rate}
         obj.append(result)
-        with open(file,"wb") as f:
+        with open(file, "wb") as f:
             pickle.dump(obj, f)
 
 

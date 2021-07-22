@@ -4,13 +4,13 @@ import numpy as np
 from sickulator.agent import HealthState
 
 from sickulator.settings import SimulationSettings, building_addresses, home_addresses
+
 vec2 = pg.Vector2
 
 
 class Building:
     """
     type - 'outside', or 'inside'
-    class = 'work', 'food', or 'social'
     """
 
     def __init__(self, x, y, rect, type, id, simulation):
@@ -22,21 +22,20 @@ class Building:
         self.simulation = simulation
         self.simulation_settings = simulation.simulation_settings
         self.infected_count = 0
-    
+
     def add_agent(self, agent):
         self.agents.append(agent)
-        if (self.type != 'outside'):
+        if self.type != 'outside':
             agent.inside = True  # Makes agent invisible
-        if (agent.health_state == HealthState.INFECTED):
+        if agent.health_state == HealthState.INFECTED:
             self.infected_count += 1
             self.infect_building()
-        elif (agent.health_state == HealthState.HEALTHY and self.infected_count > 0):
+        elif agent.health_state == HealthState.HEALTHY and self.infected_count > 0:
             rng = np.random.default_rng()
             randoms = rng.random(self.infected_count)
             if np.any(randoms[randoms < self.simulation_settings.infection_rate * .01]):
                 agent.health_state = HealthState.INFECTED
                 self.infected_count += 1
-
 
     def remove_agent(self, agent):
         for i, a in enumerate(self.agents):
@@ -46,7 +45,7 @@ class Building:
                 if a.health_state == HealthState.INFECTED:
                     self.infected_count -= 1
                 return
-        #print("Agent not found in building")
+        # print("Agent not found in building")
         return
 
     def infect_building(self):
@@ -57,25 +56,8 @@ class Building:
                 agent.health_state = HealthState.INFECTED
                 self.infected_count += 1
 
-    """
-    def create_homes(self):
-        self.homes = []
-        for x in range(0, len(home_addresses) - 1):
-            self.homes.append(Building(home_addresses[x][0], home_addresses[x][1], "home"))
-    
-    def create_buildings(self):
-        self.buildings = []
-        for x in range(0, len(building_addresses)):
-            if x < 6: # index of park addresses start on 6
-                self.buildings.append(Building(building_addresses[x][0], building_addresses[x][1], "inside"))
-            else:
-                self.buildings.append(Building(building_addresses[x][0], building_addresses[x][1], "outside"))
-    """
-
-
 # home x-coord < 30
 # building x-coord > 30
-
 
 
 # (37, 8) = north park
