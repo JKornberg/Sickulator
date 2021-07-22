@@ -60,7 +60,7 @@ class Agent(pg.sprite.Sprite):
         home_id,
         id,
         health_state=HealthState.HEALTHY,
-        preferences=[1/3,1/3,1/3]
+        preferences=np.array(1/3,1/3,1/3) * DAY_LENGTH
     ):
         self.id = id
         self.pos = vec(x, y)
