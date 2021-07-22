@@ -10,6 +10,9 @@ from sickulator.settings import (
     TILESIZE,
     DAILY_MORTALITY_CHANCE,
     DAY_LENGTH,
+    work_building_ids,
+    food_building_ids,
+    social_building_ids
 )
 import pygame as pg
 from enum import Enum
@@ -86,6 +89,16 @@ class Agent(pg.sprite.Sprite):
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
+
+    def health_state_but_works(self):
+            if self._health_state == HealthState.HEALTHY:
+                return 0
+            elif self._health_state == HealthState.INFECTED:
+                return 1
+            elif self._health_state == HealthState.IMMUNE:
+                return 2
+            elif self._health_state == HealthState.DEAD:
+                return 3
 
     @property
     def birthday(self):
@@ -292,7 +305,6 @@ def gen_schedules(agents):
         if agent.preferences[2] > social_threshold:
              if (social_visits:=int(agent.preferences[2]/(social_threshold))) > 1:
                 social_visits = rng.integers(1,int(agent.preferences[2]/(social_threshold)))
-                print(social_visits)
         social_duration = [agent.preferences[2]/social_visits]
         social_ids=sb[index:index+social_visits]
         social_ids = [[social_id] for social_id in social_ids]
@@ -317,7 +329,6 @@ def generate_schedules(agents):
     """
     count = len(agents)
     building_ids = len(building_addresses)
-    print(building_ids)
     rng = np.random.default_rng()
     number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
     number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1

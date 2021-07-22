@@ -111,36 +111,40 @@ class Game:
 
 
     def save_result_image(self, results, fileName):
-        daily_stats = results['daily_stats']
-        infection_rate = results['infection_rate']
-        location = path.dirname(os.path.realpath(__file__))
-        file = path.join(location,'data',fileName)
-        if not os.path.isdir(path.join(location,'data')):
-            os.mkdir(path.join(location,'data'))
-        if len(daily_stats) > 1:
-            x = range(len(daily_stats))
-            #y = list(zip(*daily_stats))
-            y = [[daily_stats[j][i] for j in range(len(daily_stats))] for i in range(len(daily_stats[0]))]
-            #self.simulation_settings.infection_rate
-            plt.clf()
-            # Green, Red, Blue, Black #
-            pal = ["#00ff40", "#f7020f", "#0a53f2", "#0a140c"]
-            plt.stackplot(x, y, labels=['Healthy', 'Infected', 'Immune', 'Deceased'], colors=pal)
-            plt.title('Agent Population with Infection Rate: ' + str(infection_rate) + '%')
-            plt.legend(loc='upper left')
-            plt.xlabel('Time (days of simulation passed)',)
-            plt.ylabel('Number of agents')
-            plt.savefig(file, dpi=100)
-        elif len(daily_stats) == 1:
-            label = "Day 0"
-            plt.clf()
-            # Green, Red, Blue, Black #
-            pal = ["#00ff40", "#f7020f", "#0a53f2", "#0a140c"]
-            plt.bar(label, daily_stats[0][0], label="Healthy", color=pal[0])
-            plt.bar(label, daily_stats[0][1], label="Infected", color=pal[1])
-            plt.bar(label, daily_stats[0][2], label="Immune", color=pal[2])
-            plt.bar(label, daily_stats[0][3], label="Dead", color=pal[3])
-            plt.title('Initial Stats')
-            plt.legend(loc='upper left')
-            plt.ylabel('Number of agents')
-            plt.savefig(file, dpi=100)
+        try:
+            daily_stats = results['daily_stats']
+            infection_rate = results['infection_rate']
+            location = path.dirname(os.path.realpath(__file__))
+            file = path.join(location,'data',fileName)
+            if not os.path.isdir(path.join(location,'data')):
+                os.mkdir(path.join(location,'data'))
+            if len(daily_stats) > 1:
+                x = range(len(daily_stats))
+                #y = list(zip(*daily_stats))
+                y = [[daily_stats[j][i] for j in range(len(daily_stats))] for i in range(len(daily_stats[0]))]
+                #self.simulation_settings.infection_rate
+                plt.clf()
+                # Green, Red, Blue, Black #
+                pal = ["#00ff40", "#f7020f", "#0a53f2", "#0a140c"]
+                plt.stackplot(x, y, labels=['Healthy', 'Infected', 'Immune', 'Deceased'], colors=pal)
+                plt.title('Agent Population with Infection Rate: ' + str(infection_rate) + '%')
+                plt.legend(loc='upper left')
+                plt.xlabel('Time (days of simulation passed)',)
+                plt.ylabel('Number of agents')
+                plt.savefig(file, dpi=100)
+            elif len(daily_stats) == 1:
+                label = "Day 0"
+                plt.clf()
+                # Green, Red, Blue, Black #
+                pal = ["#00ff40", "#f7020f", "#0a53f2", "#0a140c"]
+                plt.bar(label, daily_stats[0][0], label="Healthy", color=pal[0])
+                plt.bar(label, daily_stats[0][1], label="Infected", color=pal[1])
+                plt.bar(label, daily_stats[0][2], label="Immune", color=pal[2])
+                plt.bar(label, daily_stats[0][3], label="Dead", color=pal[3])
+                plt.title('Initial Stats')
+                plt.legend(loc='upper left')
+                plt.ylabel('Number of agents')
+                plt.savefig(file, dpi=100)
+        except Exception as e:
+            print("Could not save result image")
+            

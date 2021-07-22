@@ -101,10 +101,6 @@ building_addresses = [
     (86, 14)
 ]
 
-# New lists :D #
-work_area_IDs = [5, 2, 1, 0, 4, 12]
-food_area_IDs = [7, 8, 14, 6, 9, 16, 10, 3]
-social_area_IDs = [11, 13, 15]
 
 
 # Rect((left, top), (w, h))

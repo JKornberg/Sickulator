@@ -40,7 +40,6 @@ class Simulation:
         self.new()
 
     def enable_popup(self):
-        print("PRESSED")
         self.show = True
 
     def load_data(self):

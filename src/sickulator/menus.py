@@ -99,15 +99,18 @@ def resultsMenu(daily_stats, cumulative_stats, has_image, onBack):
             continue
         max_infection = y if (y := s / (h + s)) > max_infection else max_infection
     if has_image:
-        location = path.dirname(path.realpath(__file__))
-        image_file = path.join(location, 'data', 'temp_results.png')
-        results.add.image(image_file)
+        try:
+            location = path.dirname(path.realpath(__file__))
+            image_file = path.join(location, 'data', 'temp_results.png')
+            results.add.image(image_file)
+        except Exception as e:
+            results.add.label("Error loading results image")
     else:
         results.add.label("No result image found...")
     results.add.label("Peak Infected Percentage: " + str(round(max_infection, 2)))
-    results.add.label("Percentage Killed: " + str(100 * (cumulative_stats[0] / cumulative_stats[3])) + "%")
-    results.add.label("Percentage Immunized: " + str(100 * (cumulative_stats[1] / cumulative_stats[3])) + "%")
-    results.add.label("Percentage Infected: " + str(100 * (cumulative_stats[2] / cumulative_stats[3])) + "%")
+    results.add.label("Percentage Killed: " + str(round((100 * (cumulative_stats[0] / cumulative_stats[3])), 2)) + "%")
+    results.add.label("Percentage Immunized: " + str(round((100 * (cumulative_stats[1] / cumulative_stats[3])), 2)) + "%")
+    results.add.label("Percentage Infected: " + str(round((100 * (cumulative_stats[2] / cumulative_stats[3])), 2)) + "%")
     results.add.button("Back", onBack)
     return results
 
@@ -129,7 +132,6 @@ def dataMenu(onBack, onDownload):
                 dataMenu.add.button("Delete Results", lambda: onDelete(onBack))
                 for i, result in enumerate(obj[::-1]):
                     #dataMenu.add.button("Download",lambda: onDownload(obj[::-1][x], obj[::-1][x]['date'].strftime(f"%m-%d-%y  %H%M%S {x}")))
-                    print(result, i)
                     f = dataMenu.add.frame_h(width=750,align=pygame_menu.locals.ALIGN_CENTER, height=100)
                     #f._relax=True
                     f.pack(dataMenu.add.button("Download",lambda x=result: onDownload(x,x['date'].strftime(f"%m-%d-%y  %H%M%S"))))
