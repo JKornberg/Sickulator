@@ -125,3 +125,7 @@ building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 
                        pg.Rect((1024, 576), (192, 128)), pg.Rect((1296, 512), (112, 128)),
                        pg.Rect((1328, 288), (128, 128)), pg.Rect((1296, 160), (208, 96)), pg.Rect((1328, 0), (128, 128))
                        ]
+
+work_building_ids = [5, 2, 1, 0, 4, 12]
+food_building_ids = [7, 8, 14, 6, 9, 16, 10, 3]
+social_building_ids = [11, 13, 15]
