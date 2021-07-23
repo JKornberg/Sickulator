@@ -30,6 +30,7 @@ class Simulation:
         self.multiplier = 1
         self.show_popup = False
         self.show_sprite_popup = False
+        self.paused = False
         self.selected_sprite = None
         self.selected_label = None
         self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
@@ -56,6 +57,7 @@ class Simulation:
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
+        self.camera_sprite = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 32, 24)
 
@@ -199,6 +201,12 @@ class Simulation:
             manager=self.gui,
             container=bottom_bar,
         )
+        self.pause_button = pygame_gui.elements.UIButton(
+            relative_rect=pg.Rect((500, 0), (50, 50)),
+            text="Pause",
+            manager=self.gui,
+            container=bottom_bar,
+        )
         self.info = pygame_gui.elements.UIPanel(
             relative_rect=pg.Rect((0, 0), (350, HEIGHT - 80)),
             starting_layer_height=0,
@@ -242,7 +250,7 @@ class Simulation:
         )
 
         self.sprite_status = pygame_gui.elements.UIPanel(
-            relative_rect=pg.Rect((WIDTH - 180, 200), (150, 150)),
+            relative_rect=pg.Rect((WIDTH - 220, 30), (200, 150)),
             starting_layer_height=0,
             manager=self.gui,
             visible=False
@@ -250,14 +258,14 @@ class Simulation:
 
         self.sprite_description = pygame_gui.elements.UITextBox(
             html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}</body>""",
-            relative_rect=pg.Rect((0, 0), (150, 150)),
+            relative_rect=pg.Rect((2, 2), (190, 140)),
             container=self.sprite_status,
             manager=self.gui,
             layer_starting_height=2,
         )
 
         self.sprite_close_button = pygame_gui.elements.UIButton(
-            relative_rect=pg.Rect((150 - 30, 0), (30, 30)),
+            relative_rect=pg.Rect((200-30, 0), (30, 30)),
             text="X",
             manager=self.gui,
             container=self.sprite_status,
@@ -279,15 +287,16 @@ class Simulation:
         self.sprite_close_button.visible = val
 
     def update_sprite_status(self):
-        d = {}
-        if (self.selected_label == 'building' or self.selected_label == 'home'):
-            d = {'Class': self.selected_sprite.building_class, 'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
-        elif (self.selected_label == "agent"):
+        l = []
+
+        if (self.selected_label == "agent"):
             states = ["Healthy","Infected","Immune","Dead"]
-            d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}
+            l = [self.selected_sprite.name, states[self.selected_sprite.health_state.value], f'Birthday: {self.selected_sprite.birthday}']
+        elif (self.selected_label == 'building' or self.selected_label == 'home'):
+            l = ['Class: ' + self.selected_sprite.building_class, f'Visitors: {len(self.selected_sprite.agents)}', f"Infected {self.selected_sprite.infected_count}"]
         details = ""
-        for key, val in d.items():
-            details += f"{key}: {val}<br>"
+        for item in l:
+            details += f"{item}<br>"
         self.sprite_description.html_text = f"<body>{details}</body>"
         self.sprite_description.rebuild()
 
@@ -303,11 +312,19 @@ class Simulation:
         self.day_duration = 0
         self.daily_stats.append(Agent.health_counts.copy())
         while self.playing:
-            self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
-            self.time += self.dt
-            self.day_duration += self.dt
+            self.true_dt = (self.clock.tick(FPS) / 1000) * self.multiplier
+            if (self.paused == False):
+                self.dt = self.true_dt * self.multiplier
+                self.time += self.dt
+                self.day_duration += self.dt
+                self.update()
+            self.camera_sprite.update()
+            self.camera.update(self.player)
             self.events()
-            self.update()
+            if self.show_popup:
+                self.update_status()
+            if self.show_sprite_popup:
+                self.update_sprite_status()
             self.draw()
             self.gui.update(self.dt)
             self.gui.draw_ui(self.screen)
@@ -317,7 +334,6 @@ class Simulation:
     def update(self):
         # update portion of the game loop
         self.all_sprites.update()
-        self.camera.update(self.player)
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
@@ -396,10 +412,7 @@ class Simulation:
                                 self.agents.append(child)
                                 self.spawn_agent()
 
-        if self.show_popup:
-            self.update_status()
-        if self.show_sprite_popup:
-            self.update_sprite_status()
+
 
     def events(self):
         # catch all events here
@@ -430,6 +443,8 @@ class Simulation:
                         self.normal_speed_button.set_text("1x")
                         self.double_speed_button.set_text("*2x*")
                         self.multiplier = 2
+                    elif event.ui_element == self.pause_button:
+                        self.toggle_pause()
                     elif event.ui_element == self.end_button:
                         self.end_game()
             if event.type == pg.QUIT:
@@ -444,28 +459,37 @@ class Simulation:
             if event.type == pg.MOUSEBUTTONUP:
                 pos = pg.mouse.get_pos()
                 # get a list of all sprites that are under the mouse cursor
-                clicked_agents = [s for s in self.agents if s.rect.collidepoint(pos)]
-                if len(clicked_agents) > 0:
+                clicked_agents = [s for s in self.agents if self.camera.apply_rect(s.rect).collidepoint(pos)]
+                if len(clicked_agents) > 0 and clicked_agents[0].inside == False:
                     agent = clicked_agents[0]
                     self.selected_label = "agent"
                     self.selected_sprite = agent
                     self.toggle_sprite_status(True)
                 else:
-                    clicked_buildings = [s for s in self.buildings if s.rect.collidepoint(pos)]
+                    clicked_buildings = [s for s in self.buildings if self.camera.apply_rect(s.rect).collidepoint(pos)]
                     if len(clicked_buildings) > 0:
+                        print(pos)
                         building = clicked_buildings[0]
                         self.selected_label = "building"
                         self.selected_sprite = building
                         self.toggle_sprite_status(True)
                     else:
-                        clicked_homes = [s for s in self.homes if s.rect.collidepoint(pos)]
+                        clicked_homes = [s for s in self.homes if self.camera.apply_rect(s.rect).collidepoint(pos)]
                         if len(clicked_homes) > 0:
+                            print(pos)
                             home = clicked_homes[0]
                             self.selected_label = "home"
                             self.selected_sprite = home
                             self.toggle_sprite_status(True)
-
         return events
+
+    def toggle_pause(self):
+        if self.paused:
+            self.paused = False
+            self.pause_button.set_text("Pause")
+        else:
+            self.paused = True
+            self.pause_button.set_text("Play")
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):

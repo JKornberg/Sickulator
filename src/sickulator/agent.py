@@ -20,6 +20,7 @@ import numpy as np
 from sickulator.path_finder import PathFinder
 from math import ceil
 from sickulator.settings import building_addresses, home_addresses
+import names
 
 vec = pg.math.Vector2
 
@@ -87,6 +88,7 @@ class Agent(pg.sprite.Sprite):
         self.infected_duration = 0
         self.preferences=preferences
         self.active_building = None
+        self.name = names.get_full_name()
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
