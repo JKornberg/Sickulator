@@ -66,7 +66,7 @@ class Simulation:
         self.homes = []  # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             new_building = Building(
-                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self
+                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self, building_class="Home"
             )
             self.homes.append(new_building)
 
@@ -281,7 +281,7 @@ class Simulation:
     def update_sprite_status(self):
         d = {}
         if (self.selected_label == 'building' or self.selected_label == 'home'):
-            d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
+            d = {'Class': self.selected_sprite.building_class, 'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
         elif (self.selected_label == "agent"):
             states = ["Healthy","Infected","Immune","Dead"]
             d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}

@@ -3,7 +3,7 @@ import pygame as pg
 import numpy as np
 from sickulator.agent import HealthState
 
-from sickulator.settings import SimulationSettings, building_addresses, home_addresses
+from sickulator.settings import SimulationSettings, building_addresses, home_addresses, work_building_ids, social_building_ids, food_building_ids, MAX_OCCUPANCY_RATIOS
 
 vec2 = pg.Vector2
 
@@ -11,18 +11,31 @@ vec2 = pg.Vector2
 class Building:
     """
     type - 'outside', or 'inside'
+    building_class - "Home", "Shop", "Work", "Social"
     """
 
-    def __init__(self, x, y, rect, type, id, simulation):
+    def __init__(self, x, y, rect, type, id, simulation, building_class = None,):
         self.pos = vec2(x, y)
         self.rect = rect
         self.type = type
+        self.building_class = building_class
         self.id = id
         self.agents = []
         self.simulation = simulation
         self.simulation_settings = simulation.simulation_settings
         self.infected_count = 0
-
+        if building_class == None:
+            if id in work_building_ids:
+                self.building_class = "Work"
+            elif id in social_building_ids:
+                self.building_class = "Social"
+            elif id in food_building_ids:
+                self.building_class = "Shop"
+            else:
+                raise Exception("Building not identified: " + str(id))
+        else:
+            self.building_class = building_class
+        self.max_occupancy = np.ceil(MAX_OCCUPANCY_RATIOS[self.building_class] * self.simulation_settings.agent_count)
     def add_agent(self, agent):
         self.agents.append(agent)
         agent.active_building = self

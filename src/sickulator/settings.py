@@ -125,3 +125,5 @@ building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 
 work_building_ids = [5, 2, 1, 0, 4, 12]
 food_building_ids = [7, 8, 14, 6, 9, 16, 10, 3]
 social_building_ids = [11, 13, 15]
+
+MAX_OCCUPANCY_RATIOS = {"Work" : .2, "Shop": .2, "Social": .4, "Home" : float('inf')}
