@@ -110,7 +110,7 @@ class Simulation:
         random_samples = rng.random(self.simulation_settings.agent_count * 3)
         random_index = 0
         for agent in range(
-            0, self.simulation_settings.agent_count
+            0, self.simulation_settings.agent_count - 49
         ):  # puts agents in families; fills families before moving to new ones
             family_to_fill = self.families[
                 int(index / self.simulation_settings.family_size)
