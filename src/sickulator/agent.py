@@ -123,7 +123,7 @@ class Agent(pg.sprite.Sprite):
             self.simulation.kill_agent()
             self.groups.remove(self)
             if self.active_building != None:
-                self.active_building.agents.remove(self)
+                self.active_building.remove_agent(self)
         elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
 
