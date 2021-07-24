@@ -363,18 +363,18 @@ class Simulation:
                     for member in range(0, len(self.families[fam].agents)):
                         if self.families[fam].agents[member].health_state_but_works() == 0 or self.families[fam].agents[member].health_state_but_works() == 2:
                             # sum all the traits of healthy and immune
-                            sum_social += self.families[fam].agents[member].preferences[0]
+                            sum_work += self.families[fam].agents[member].preferences[0]
                             sum_food += self.families[fam].agents[member].preferences[1]
-                            sum_work += self.families[fam].agents[member].preferences[2]
+                            sum_social += self.families[fam].agents[member].preferences[2]
                             num_healthy += 1
-                            print("Parent #", num_healthy, ": \n", "Stat 1: ", self.families[fam].agents[member].preferences[0], "\nStat 2: ", self.families[fam].agents[member].preferences[1], "\nStat 3: ", self.families[fam].agents[member].preferences[2])
+                            # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
 
                     if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(
                             num_healthy):
                         # slider reproduction rate multiplied by number of healthy agents
                         # child genes averaged from healthy members in parent family
-                        child_preferences = np.array([sum_social / float(num_healthy), sum_food / float(num_healthy), sum_work / float(num_healthy)])
-                        print("Child: ", "\nStat 1: ", child_preferences[0], "\nStat 2: ", child_preferences[1], "\nStat 3: ", child_preferences[2])
+                        child_preferences = np.array([sum_work / float(num_healthy), sum_food / float(num_healthy), sum_social / float(num_healthy)])
+                        # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
                         if len(self.families[fam].agents) < self.simulation_settings.family_size:
                             # if family is not full, make new member of same family
                             child = Agent(
