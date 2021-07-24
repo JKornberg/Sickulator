@@ -290,7 +290,7 @@ def gen_schedules(agents):
     # [(2,10), (1,7), (2,0), (3,0), (4,0)
     # 20
     # 5 3
-    wb = rng.choice(work_building_ids, 1000)
+    wb = rng.choice(range(len(building_addresses)), 1000)
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
     fv = rng.integers(5,10,1000)
