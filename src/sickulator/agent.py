@@ -142,7 +142,7 @@ class Agent(pg.sprite.Sprite):
     def daily_update(self, firstDay = False):
         if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
             self.health_state = HealthState.DEAD
-        if firstDay == False:
+        elif firstDay == False:
             if self.health_state == HealthState.INFECTED:
                 if np.random.rand() < self.simulation.simulation_settings.mortality/100:
                     self.health_state = HealthState.DEAD
