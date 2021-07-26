@@ -93,16 +93,6 @@ class Agent(pg.sprite.Sprite):
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
 
-    def health_state_but_works(self):
-            if self._health_state == HealthState.HEALTHY:
-                return 0
-            elif self._health_state == HealthState.INFECTED:
-                return 1
-            elif self._health_state == HealthState.IMMUNE:
-                return 2
-            elif self._health_state == HealthState.DEAD:
-                return 3
-
     @property
     def birthday(self):
         return self._birthday
@@ -274,6 +264,7 @@ class Family:
         self.agents = []
         self.work = 0
         self.home = home
+        self.reproduction_days = 0  # days since last reproduction
         Family.count += 1
 
     def add_agent(self, agent: Agent):

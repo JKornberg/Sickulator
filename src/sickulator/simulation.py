@@ -354,6 +354,7 @@ class Simulation:
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
+
                 for fam in range(0, len(self.families)):  # reproduction start at night when they come home
                     num_healthy = 0
                     sum_work = 0
@@ -361,7 +362,7 @@ class Simulation:
                     sum_social = 0
                     # if it been enough days since theyve had a kid
                     for member in range(0, len(self.families[fam].agents)):
-                        if self.families[fam].agents[member].health_state_but_works() == 0 or self.families[fam].agents[member].health_state_but_works() == 2:
+                        if self.families[fam].agents[member].health_state == HealthState.HEALTHY or self.families[fam].agents[member].health_state == HealthState.IMMUNE:
                             # sum all the traits of healthy and immune
                             sum_work += self.families[fam].agents[member].preferences[0]
                             sum_food += self.families[fam].agents[member].preferences[1]
