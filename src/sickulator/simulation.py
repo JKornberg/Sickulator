@@ -370,69 +370,73 @@ class Simulation:
                             num_healthy += 1
                             # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
 
-                    if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(
-                            num_healthy):
-                        # slider reproduction rate multiplied by number of healthy agents
-                        # child genes averaged from healthy members in parent family
-                        child_preferences = np.array([sum_work / float(num_healthy), sum_food / float(num_healthy), sum_social / float(num_healthy)])
-                        # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
-                        if len(self.families[fam].agents) < self.simulation_settings.family_size:
-                            # if family is not full, make new member of same family
-                            child = Agent(
-                                self,
-                                self.families[fam],
-                                self.families[fam].home.pos[0],
-                                self.families[fam].home.pos[1],
-                                self.families[fam].home.id,
-                                id=self.cumulative_stats[3] + 1,
-                                health_state=HealthState.HEALTHY,
-                                preferences=child_preferences
-                            )
-
-                            self.families[fam].add_agent(child)
-                            self.agents.append(child)
-                            self.spawn_agent()
-                        else:
-                            roomy_fam_found = False
-                            for fam_checking in range(0, len(self.families)):
-                                if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
-                                    child = Agent(
-                                        self,
-                                        self.families[fam_checking],
-                                        self.families[fam_checking].home.pos[0],
-                                        self.families[fam_checking].home.pos[1],
-                                        self.families[fam_checking].home.id,
-                                        id=self.cumulative_stats[3] + 1,
-                                        health_state=HealthState.HEALTHY,
-                                        preferences=child_preferences
-                                    )
-                                    self.families[fam_checking].add_agent(child)
-                                    self.agents.append(child)
-                                    self.spawn_agent()
-                                    roomy_fam_found = True
-                                    break
-
-                            if not roomy_fam_found:
-                                # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
-                                new_home = self.homes[random.randint(0, len(self.homes)) - 1]
-                                self.families.append(Family(self, new_home))
-                                self.families[-1].add_agent(self.families[fam].agents.pop(
-                                    0))  # removes first agent from old fam and adds to new
-
+                    if self.families[fam].reproduction_days >= (self.simulation_settings.lifespan // 4):  # can reproduce 4x in a lifespan, could be a slider
+                        if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(num_healthy):
+                            # slider reproduction rate multiplied by number of healthy agents
+                            # child genes averaged from healthy members in parent family
+                            child_preferences = np.array([sum_work / float(num_healthy), sum_food / float(num_healthy), sum_social / float(num_healthy)])
+                            # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
+                            self.families[fam].reproduction_days = 0  # family is reproducing so their days counter gets reset to 0
+                            if len(self.families[fam].agents) < self.simulation_settings.family_size:
+                                # if family is not full, make new member of same family
                                 child = Agent(
                                     self,
-                                    self.families[-1],
-                                    self.families[-1].home.pos[0],
-                                    self.families[-1].home.pos[1],
-                                    self.families[-1].home.id,
+                                    self.families[fam],
+                                    self.families[fam].home.pos[0],
+                                    self.families[fam].home.pos[1],
+                                    self.families[fam].home.id,
                                     id=self.cumulative_stats[3] + 1,
                                     health_state=HealthState.HEALTHY,
                                     preferences=child_preferences
                                 )
-                                self.families[-1].add_agent(child)
+
+                                self.families[fam].add_agent(child)
                                 self.agents.append(child)
                                 self.spawn_agent()
+                            else:
+                                roomy_fam_found = False
+                                for fam_checking in range(0, len(self.families)):
+                                    if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
+                                        child = Agent(
+                                            self,
+                                            self.families[fam_checking],
+                                            self.families[fam_checking].home.pos[0],
+                                            self.families[fam_checking].home.pos[1],
+                                            self.families[fam_checking].home.id,
+                                            id=self.cumulative_stats[3] + 1,
+                                            health_state=HealthState.HEALTHY,
+                                            preferences=child_preferences
+                                        )
+                                        self.families[fam_checking].add_agent(child)
+                                        self.agents.append(child)
+                                        self.spawn_agent()
+                                        roomy_fam_found = True
+                                        break
 
+                                if not roomy_fam_found:
+                                    # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
+                                    new_home = self.homes[random.randint(0, len(self.homes)) - 1]
+                                    self.families.append(Family(self, new_home))
+                                    self.families[-1].add_agent(self.families[fam].agents.pop(
+                                        0))  # removes first agent from old fam and adds to new
+
+                                    child = Agent(
+                                        self,
+                                        self.families[-1],
+                                        self.families[-1].home.pos[0],
+                                        self.families[-1].home.pos[1],
+                                        self.families[-1].home.id,
+                                        id=self.cumulative_stats[3] + 1,
+                                        health_state=HealthState.HEALTHY,
+                                        preferences=child_preferences
+                                    )
+                                    self.families[-1].add_agent(child)
+                                    self.families[-1].reproduction_days == 0
+                                    self.agents.append(child)
+                                    self.spawn_agent()
+
+                    else:  # if it hasn't been long enough since they last reproduced
+                        self.families[fam].reproduction_days += 1
 
 
     def events(self):
