@@ -264,7 +264,7 @@ class Family:
         self.agents = []
         self.work = 0
         self.home = home
-        self.reproduction_days = (simulation.simulation_settings.lifespan // 4)  # days since last reproduction (can reproduce first night)
+        self.reproduction_days = simulation.simulation_settings.reproduction_cooldown  # days since last reproduction (can reproduce first night)
         Family.count += 1
 
     def add_agent(self, agent: Agent):
