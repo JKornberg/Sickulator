@@ -56,15 +56,15 @@ class Agent(pg.sprite.Sprite):
     health_counts = [0, 0, 0, 0]
 
     def __init__(
-        self,
-        simulation,
-        family,
-        x,
-        y,
-        home_id,
-        id,
-        health_state=HealthState.HEALTHY,
-        preferences=np.array([1/3,1/3,1/3]) * DAY_LENGTH
+            self,
+            simulation,
+            family,
+            x,
+            y,
+            home_id,
+            id,
+            health_state=HealthState.HEALTHY,
+            preferences=np.array([1 / 3, 1 / 3, 1 / 3]) * DAY_LENGTH
     ):
         self.id = id
         self.pos = vec(x, y)
@@ -73,9 +73,14 @@ class Agent(pg.sprite.Sprite):
         self.groups = simulation.all_sprites
         self.family = family
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(health_colors[health_state.value])
-        self.rect = self.image.get_rect()
+        self.glob_healthy = pg.image.load("sickulator/agent_sprites/healthyglob.png")
+        self.glob_healthy = pg.transform.scale(self.glob_healthy, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_infected = pg.image.load("sickulator/agent_sprites/sickglob.png")
+        self.glob_infected = pg.transform.scale(self.glob_infected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_immune = pg.image.load("sickulator/agent_sprites/immuneglob.png")
+        self.glob_immune = pg.transform.scale(self.glob_immune, (TILESIZE * 2, TILESIZE * 2))
+        self.image = self.glob_healthy.convert_alpha()
+        self.rect = self.glob_healthy.get_rect()
         self._birthday = simulation.day
         self._health_state = health_state
         # Update counts of
@@ -86,7 +91,7 @@ class Agent(pg.sprite.Sprite):
         self.time_on_current_visit = 0
         self.arrived = False
         self.infected_duration = 0
-        self.preferences=preferences
+        self.preferences = preferences
         self.active_building = None
         self.name = names.get_full_name()
 
@@ -106,7 +111,12 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
-        self.image.fill(health_colors[hs.value])
+        if self._health_state == hs.INFECTED:
+            self.image = self.glob_infected
+        elif self._health_state == hs.IMMUNE:
+            self.image = self.glob_immune
+        elif self._health_state == hs.HEALTHY:
+            self.image = self.glob_healthy
         if hs == HealthState.INFECTED:
             self.simulation.infected_today += 1
         elif hs == HealthState.DEAD:
@@ -129,12 +139,12 @@ class Agent(pg.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-    def daily_update(self, firstDay = False):
+    def daily_update(self, firstDay=False):
         if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
             self.health_state = HealthState.DEAD
         elif firstDay == False:
             if self.health_state == HealthState.INFECTED:
-                if np.random.rand() < self.simulation.simulation_settings.mortality/100:
+                if np.random.rand() < self.simulation.simulation_settings.mortality / 100:
                     self.health_state = HealthState.DEAD
                 if (
                         self.infected_duration
@@ -200,11 +210,10 @@ class Agent(pg.sprite.Sprite):
            a. could also be, current distance traveled / 16 = 16 / 16 = 1
         """
 
-        distance_traveled = self.time_on_current_visit * PLAYER_SPEED # pixels = seconds * (pixels / second)
-        current_tile_index = math.floor(distance_traveled / TILESIZE) # constant = pixels / pixels
+        distance_traveled = self.time_on_current_visit * PLAYER_SPEED  # pixels = seconds * (pixels / second)
+        current_tile_index = math.floor(distance_traveled / TILESIZE)  # constant = pixels / pixels
 
-
-        if current_tile_index > len(self.path) - 1: # reached end of path
+        if current_tile_index > len(self.path) - 1:  # reached end of path
             if not self.arrived:
                 self.arrived = True
                 try:
@@ -215,31 +224,31 @@ class Agent(pg.sprite.Sprite):
                 except Exception as e:
                     print(distance_traveled, path_distance, current_tile_index)
 
-            return 
+            return
 
-        # current tile based on distance traveled
+            # current tile based on distance traveled
         current_tile = self.path[current_tile_index]
 
-        # reset position, could be improved since this causes slight glitches when the agent was almost at the end of the tile
+        # reset position, could be improved since this causes slight glitches when the agent was almost at the end of
+        # the tile
         self.pos.x = current_tile[0]
         self.pos.y = current_tile[1]
 
-
-        # Since we're at the start of the tile, I need to figure out how far along the tile the agent has moved. 
+        # Since we're at the start of the tile, I need to figure out how far along the tile the agent has moved.
         # I take the distance traveld UP TO the current tile and then find the difference from the total distance
-        floored_distance_traveled = current_tile_index * TILESIZE # pixels = n*pixels
-        remaining_distance_traveled = distance_traveled - floored_distance_traveled # pixels = pixels - pixels
+        floored_distance_traveled = current_tile_index * TILESIZE  # pixels = n*pixels
+        remaining_distance_traveled = distance_traveled - floored_distance_traveled  # pixels = pixels - pixels
 
-
-        # Then I need to check which direction to move the agent along the tile to make sure he continues moving along the path.  
+        # Then I need to check which direction to move the agent along the tile to make sure he continues moving
+        # along the path.
         if current_tile[2] == "North":
             self.pos.y -= remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "South":
             self.pos.y += remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "East":
-            self.pos.x +=  remaining_distance_traveled / TILESIZE
+            self.pos.x += remaining_distance_traveled / TILESIZE
         else:
-            self.pos.x -=  remaining_distance_traveled / TILESIZE
+            self.pos.x -= remaining_distance_traveled / TILESIZE
 
 
 class Family:
@@ -264,7 +273,8 @@ class Family:
         self.agents = []
         self.work = 0
         self.home = home
-        self.reproduction_days = (simulation.simulation_settings.lifespan // 4)  # days since last reproduction (can reproduce first night)
+        self.reproduction_days = (
+                    simulation.simulation_settings.lifespan // 4)  # days since last reproduction (can reproduce first night)
         Family.count += 1
 
     def add_agent(self, agent: Agent):
@@ -276,7 +286,7 @@ def gen_schedules(agents):
     '''New scheduling algorithm'''
     count = len(agents)
     rng = np.random.default_rng()
-    #Work food social
+    # Work food social
     # [[2,10], [1, 7], [[2,3,4,5], 10], [4 , 3], [6 , 2.5]]
     # [(2,10), (1,7), (2,0), (3,0), (4,0)
     # 20
@@ -284,32 +294,33 @@ def gen_schedules(agents):
     wb = rng.choice(range(len(building_addresses)), 1000)
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
-    fv = rng.integers(5,10,1000)
-    wakeup = rng.random(1000)/0.6
+    fv = rng.integers(5, 10, 1000)
+    wakeup = rng.random(1000) / 0.6
     index = 0
     work_threshold = 4
     social_threshold = 2
     for agent in agents:
-        #generate work_buildings
+        # generate work_buildings
         work_visits = 0
         if agent.preferences[0] >= work_threshold:
-            if (work_visits:=int(agent.preferences[0]/(work_threshold))) > 1:
-                work_visits = rng.integers(1,int(agent.preferences[0]/(work_threshold)))
+            if (work_visits := int(agent.preferences[0] / (work_threshold))) > 1:
+                work_visits = rng.integers(1, int(agent.preferences[0] / (work_threshold)))
         work_duration = [agent.preferences[0] / work_visits]
-        work_ids = wb[index:index+work_visits]
-        food_ids = fb[index: index+fv[index]]
+        work_ids = wb[index:index + work_visits]
+        food_ids = fb[index: index + fv[index]]
         social_visits = 0
         if agent.preferences[2] > social_threshold:
-             if (social_visits:=int(agent.preferences[2]/(social_threshold))) > 1:
-                social_visits = rng.integers(1,int(agent.preferences[2]/(social_threshold)))
-        social_duration = [agent.preferences[2]/social_visits]
-        social_ids=sb[index:index+social_visits]
+            if (social_visits := int(agent.preferences[2] / (social_threshold))) > 1:
+                social_visits = rng.integers(1, int(agent.preferences[2] / (social_threshold)))
+        social_duration = [agent.preferences[2] / social_visits]
+        social_ids = sb[index:index + social_visits]
         social_ids = [[social_id] for social_id in social_ids]
         work_ids = [[work_id] for work_id in work_ids]
-        sched = [(-1,wakeup[index])] + [(work_id, work_duration) for work_id in work_ids] + [(food_ids,agent.preferences[1])] + [(social_id, social_duration) for social_id in social_ids]
+        sched = [(-1, wakeup[index])] + [(work_id, work_duration) for work_id in work_ids] + [
+            (food_ids, agent.preferences[1])] + [(social_id, social_duration) for social_id in social_ids]
         np.random.shuffle(sched)
         agent.schedule = sched
-        index += max(work_visits,social_visits)
+        index += max(work_visits, social_visits)
 
 
 def generate_schedules(agents):
