@@ -30,6 +30,7 @@ class Simulation:
         self.multiplier = 1
         self.show_popup = False
         self.show_sprite_popup = False
+        self.paused = False
         self.selected_sprite = None
         self.selected_label = None
         self.daily_stats = []  # [Healthy, Infected, Immune, Dead]
@@ -40,7 +41,6 @@ class Simulation:
         self.new()
 
     def enable_popup(self):
-        print("PRESSED")
         self.show = True
 
     def load_data(self):
@@ -57,6 +57,7 @@ class Simulation:
     def new(self):
         # initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
+        self.camera_sprite = pg.sprite.Group()
         self.walls = pg.sprite.Group()
         self.player = Player(self, 32, 24)
 
@@ -67,7 +68,7 @@ class Simulation:
         self.homes = []  # create_homes from buildings; better suited here
         for x in range(0, len(home_addresses) - 1):
             new_building = Building(
-                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self
+                int(home_addresses[x][0]), int(home_addresses[x][1]), home_rectangles[x], "inside", x, self, building_class="Home"
             )
             self.homes.append(new_building)
 
@@ -105,12 +106,17 @@ class Simulation:
             self.families.append(Family(self, new_home))
 
         index = 0
+        rng = np.random.default_rng()
+        random_samples = rng.random(self.simulation_settings.agent_count * 3)
+        random_index = 0
         for agent in range(
-                0, self.simulation_settings.agent_count
+            0, self.simulation_settings.agent_count
         ):  # puts agents in families; fills families before moving to new ones
             family_to_fill = self.families[
                 int(index / self.simulation_settings.family_size)
             ]
+            preferences = random_samples[random_index:random_index+3]/random_samples[random_index:random_index+3].sum()
+            random_index+=3
             new_agent = Agent(
                 self,
                 family_to_fill,
@@ -118,6 +124,7 @@ class Simulation:
                 family_to_fill.home.pos[1],
                 family_to_fill.home.id,
                 id=agent,
+                preferences=preferences
             )
             if index == 0:
                 new_agent.health_state = HealthState.INFECTED
@@ -128,7 +135,7 @@ class Simulation:
         generate_schedules(self.agents)
 
         for agent in self.agents:
-            agent.daily_update()
+            agent.daily_update(True)
 
         for tile_object in self.map.tmxdata.objects:
 
@@ -194,6 +201,12 @@ class Simulation:
             manager=self.gui,
             container=bottom_bar,
         )
+        self.pause_button = pygame_gui.elements.UIButton(
+            relative_rect=pg.Rect((500, 0), (50, 50)),
+            text="Pause",
+            manager=self.gui,
+            container=bottom_bar,
+        )
         self.info = pygame_gui.elements.UIPanel(
             relative_rect=pg.Rect((0, 0), (350, HEIGHT - 80)),
             starting_layer_height=0,
@@ -237,7 +250,7 @@ class Simulation:
         )
 
         self.sprite_status = pygame_gui.elements.UIPanel(
-            relative_rect=pg.Rect((WIDTH - 180, 200), (150, 150)),
+            relative_rect=pg.Rect((WIDTH - 220, 30), (200, 150)),
             starting_layer_height=0,
             manager=self.gui,
             visible=False
@@ -245,14 +258,14 @@ class Simulation:
 
         self.sprite_description = pygame_gui.elements.UITextBox(
             html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}</body>""",
-            relative_rect=pg.Rect((0, 0), (150, 150)),
+            relative_rect=pg.Rect((2, 2), (190, 140)),
             container=self.sprite_status,
             manager=self.gui,
             layer_starting_height=2,
         )
 
         self.sprite_close_button = pygame_gui.elements.UIButton(
-            relative_rect=pg.Rect((150 - 30, 0), (30, 30)),
+            relative_rect=pg.Rect((200-30, 0), (30, 30)),
             text="X",
             manager=self.gui,
             container=self.sprite_status,
@@ -274,15 +287,16 @@ class Simulation:
         self.sprite_close_button.visible = val
 
     def update_sprite_status(self):
-        d = {}
-        if (self.selected_label == 'building' or self.selected_label == 'home'):
-            d = {'Visitors' : len(self.selected_sprite.agents), "Infected" : self.selected_sprite.infected_count}
-        elif (self.selected_label == "agent"):
+        l = []
+
+        if (self.selected_label == "agent"):
             states = ["Healthy","Infected","Immune","Dead"]
-            d = {'Status' : states[self.selected_sprite.health_state.value], 'Birthday' : self.selected_sprite.birthday}
+            l = [self.selected_sprite.name, states[self.selected_sprite.health_state.value], f'Birthday: {self.selected_sprite.birthday}']
+        elif (self.selected_label == 'building' or self.selected_label == 'home'):
+            l = ['Class: ' + self.selected_sprite.building_class, f'Visitors: {len(self.selected_sprite.agents)}', f"Infected {self.selected_sprite.infected_count}"]
         details = ""
-        for key, val in d.items():
-            details += f"{key}: {val}<br>"
+        for item in l:
+            details += f"{item}<br>"
         self.sprite_description.html_text = f"<body>{details}</body>"
         self.sprite_description.rebuild()
 
@@ -298,11 +312,19 @@ class Simulation:
         self.day_duration = 0
         self.daily_stats.append(Agent.health_counts.copy())
         while self.playing:
-            self.dt = (self.clock.tick(FPS) / 1000) * self.multiplier
-            self.time += self.dt
-            self.day_duration += self.dt
+            self.true_dt = (self.clock.tick(FPS) / 1000) * self.multiplier
+            if (self.paused == False):
+                self.dt = self.true_dt * self.multiplier
+                self.time += self.dt
+                self.day_duration += self.dt
+                self.update()
+            self.camera_sprite.update()
+            self.camera.update(self.player)
             self.events()
-            self.update()
+            if self.show_popup:
+                self.update_status()
+            if self.show_sprite_popup:
+                self.update_sprite_status()
             self.draw()
             self.gui.update(self.dt)
             self.gui.draw_ui(self.screen)
@@ -312,7 +334,6 @@ class Simulation:
     def update(self):
         # update portion of the game loop
         self.all_sprites.update()
-        self.camera.update(self.player)
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
             if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
@@ -328,14 +349,95 @@ class Simulation:
                 for agent in self.agents:
                     agent.daily_update()
                 self.daily_stats.append(Agent.health_counts.copy())
+                self.agents = [agent for agent in self.agents if agent.health_state != HealthState.DEAD]
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
                 # possibly teleport agents back
-        if self.show_popup:
-            self.update_status()
-        if self.show_sprite_popup:
-            self.update_sprite_status()
+
+                for fam in range(0, len(self.families)):  # reproduction start at night when they come home
+                    num_healthy = 0
+                    sum_work = 0
+                    sum_food = 0
+                    sum_social = 0
+                    # if it been enough days since theyve had a kid
+                    for member in range(0, len(self.families[fam].agents)):
+                        if self.families[fam].agents[member].health_state == HealthState.HEALTHY or self.families[fam].agents[member].health_state == HealthState.IMMUNE:
+                            # sum all the traits of healthy and immune
+                            sum_work += self.families[fam].agents[member].preferences[0]
+                            sum_food += self.families[fam].agents[member].preferences[1]
+                            sum_social += self.families[fam].agents[member].preferences[2]
+                            num_healthy += 1
+                            # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
+
+                    if self.families[fam].reproduction_days >= (self.simulation_settings.lifespan // 4):  # can reproduce 4x in a lifespan, could be a slider
+                        if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(num_healthy):
+                            # slider reproduction rate multiplied by number of healthy agents
+                            # child genes averaged from healthy members in parent family
+                            child_preferences = np.array([sum_work / float(num_healthy), sum_food / float(num_healthy), sum_social / float(num_healthy)])
+                            # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
+                            self.families[fam].reproduction_days = 0  # family is reproducing so their days counter gets reset to 0
+                            if len(self.families[fam].agents) < self.simulation_settings.family_size:
+                                # if family is not full, make new member of same family
+                                child = Agent(
+                                    self,
+                                    self.families[fam],
+                                    self.families[fam].home.pos[0],
+                                    self.families[fam].home.pos[1],
+                                    self.families[fam].home.id,
+                                    id=self.cumulative_stats[3] + 1,
+                                    health_state=HealthState.HEALTHY,
+                                    preferences=child_preferences
+                                )
+
+                                self.families[fam].add_agent(child)
+                                self.agents.append(child)
+                                self.spawn_agent()
+                            else:
+                                roomy_fam_found = False
+                                for fam_checking in range(0, len(self.families)):
+                                    if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
+                                        child = Agent(
+                                            self,
+                                            self.families[fam_checking],
+                                            self.families[fam_checking].home.pos[0],
+                                            self.families[fam_checking].home.pos[1],
+                                            self.families[fam_checking].home.id,
+                                            id=self.cumulative_stats[3] + 1,
+                                            health_state=HealthState.HEALTHY,
+                                            preferences=child_preferences
+                                        )
+                                        self.families[fam_checking].add_agent(child)
+                                        self.agents.append(child)
+                                        self.spawn_agent()
+                                        roomy_fam_found = True
+                                        break
+
+                                if not roomy_fam_found:
+                                    # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
+                                    new_home = self.homes[random.randint(0, len(self.homes)) - 1]
+                                    self.families.append(Family(self, new_home))
+                                    self.families[-1].add_agent(self.families[fam].agents.pop(
+                                        0))  # removes first agent from old fam and adds to new
+
+                                    child = Agent(
+                                        self,
+                                        self.families[-1],
+                                        self.families[-1].home.pos[0],
+                                        self.families[-1].home.pos[1],
+                                        self.families[-1].home.id,
+                                        id=self.cumulative_stats[3] + 1,
+                                        health_state=HealthState.HEALTHY,
+                                        preferences=child_preferences
+                                    )
+                                    self.families[-1].add_agent(child)
+                                    self.families[-1].reproduction_days == 0
+                                    self.agents.append(child)
+                                    self.spawn_agent()
+
+                    else:  # if it hasn't been long enough since they last reproduced
+                        self.families[fam].reproduction_days += 1
+
 
     def events(self):
         # catch all events here
@@ -366,6 +468,8 @@ class Simulation:
                         self.normal_speed_button.set_text("1x")
                         self.double_speed_button.set_text("*2x*")
                         self.multiplier = 2
+                    elif event.ui_element == self.pause_button:
+                        self.toggle_pause()
                     elif event.ui_element == self.end_button:
                         self.end_game()
             if event.type == pg.QUIT:
@@ -380,28 +484,37 @@ class Simulation:
             if event.type == pg.MOUSEBUTTONUP:
                 pos = pg.mouse.get_pos()
                 # get a list of all sprites that are under the mouse cursor
-                clicked_agents = [s for s in self.agents if s.rect.collidepoint(pos)]
-                if len(clicked_agents) > 0:
+                clicked_agents = [s for s in self.agents if self.camera.apply_rect(s.rect).collidepoint(pos)]
+                if len(clicked_agents) > 0 and clicked_agents[0].inside == False:
                     agent = clicked_agents[0]
                     self.selected_label = "agent"
                     self.selected_sprite = agent
                     self.toggle_sprite_status(True)
                 else:
-                    clicked_buildings = [s for s in self.buildings if s.rect.collidepoint(pos)]
+                    clicked_buildings = [s for s in self.buildings if self.camera.apply_rect(s.rect).collidepoint(pos)]
                     if len(clicked_buildings) > 0:
+                        print(pos)
                         building = clicked_buildings[0]
                         self.selected_label = "building"
                         self.selected_sprite = building
                         self.toggle_sprite_status(True)
                     else:
-                        clicked_homes = [s for s in self.homes if s.rect.collidepoint(pos)]
+                        clicked_homes = [s for s in self.homes if self.camera.apply_rect(s.rect).collidepoint(pos)]
                         if len(clicked_homes) > 0:
+                            print(pos)
                             home = clicked_homes[0]
                             self.selected_label = "home"
                             self.selected_sprite = home
                             self.toggle_sprite_status(True)
-
         return events
+
+    def toggle_pause(self):
+        if self.paused:
+            self.paused = False
+            self.pause_button.set_text("Pause")
+        else:
+            self.paused = True
+            self.pause_button.set_text("Play")
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):

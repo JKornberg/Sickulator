@@ -79,26 +79,31 @@ home_addresses = [
     (25, 40),
 ]
 
+# Work buildings = building_addresses[0-6]
+# Food Buildings = building_addresses[7-8]
+# Social Buildings = building_addresses[9-11]
+# Outside Areas = building_addresses[12-16]
 building_addresses = [
-    (49, 6),
-    (44, 19),
     (36, 23),
+    (44, 19),
     (54, 23),
+    (49, 6),
     (54, 30),
-    (38, 35),  # changed from (38,36) to (38,35) --> see map
-    (34, 43),  # added the left door of the bottom-most silver building.. should we also add right door?
-    (70, 24),  # new buildings inside
+    (70, 24),
     (66, 42),
+    (38, 35),
+    (34, 43),
     (84, 38),
     (88, 24),
     (85, 6),
-    (35, 3),  # old buildings outside # changed from (37, 8) --> (35, 3)
+    (35, 3),
     (61, 6),
     (51, 42),
-    (70, 3),  # new buildings outside
+    (70, 3),
     (86, 14)
-
 ]
+
+
 
 # Rect((left, top), (w, h))
 home_rectangles = [pg.Rect((32, 16), (80, 96)), pg.Rect((144, 16), (80, 96)), pg.Rect((256, 16), (80, 96)),
@@ -118,3 +123,9 @@ building_rectangles = [pg.Rect((752, 0), (112, 128)), pg.Rect((672, 208), (112, 
                        pg.Rect((1024, 576), (192, 128)), pg.Rect((1296, 512), (112, 128)),
                        pg.Rect((1328, 288), (128, 128)), pg.Rect((1296, 160), (208, 96)), pg.Rect((1328, 0), (128, 128))
                        ]
+
+work_building_ids = [5, 2, 1, 0, 4, 12]
+food_building_ids = [7, 8, 14, 6, 9, 16, 10, 3]
+social_building_ids = [11, 13, 15]
+
+MAX_OCCUPANCY_RATIOS = {"Work" : .2, "Shop": .2, "Social": .4, "Home" : float('inf')}

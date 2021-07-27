@@ -5,7 +5,7 @@ from sickulator.settings import *
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
+        self.groups = game.camera_sprite
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -53,8 +53,8 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        x = self.x + self.vx * self.game.dt
-        y = self.y + self.vy * self.game.dt
+        x = self.x + self.vx * self.game.true_dt
+        y = self.y + self.vy * self.game.true_dt
         x = min(992, x)  # right
         y = min(430, y)  # bottom
         x = max(512, x)  # left
