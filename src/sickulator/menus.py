@@ -61,6 +61,9 @@ def optionsMenu(game, onBack):
     rr_slider = options.add.range_slider("Reproduction Rate", default=reproduction_rate,
                                          increment=1, range_text_value_tick_number=2, range_values=(1, 20),
                                          value_format=(lambda x: str(int(x))))
+    rc_slider = options.add.range_slider("Reproduction Downtime (in days)", default=simulation_duration, increment=1,
+                                         range_text_value_tick_number=2, range_values=(1, 100),
+                                         value_format=(lambda x: str(int(x))))
     ag_slider = options.add.range_slider("Starting Agent Count", default=simulation_duration, increment=1,
                                          range_text_value_tick_number=2,
                                          range_values=(1, 100), value_format=(lambda x: str(int(x))))
@@ -72,7 +75,7 @@ def optionsMenu(game, onBack):
                                          value_format=(lambda x: str(int(x))))
     options.add.button('Run Simulation', lambda: game.play_simulation(SimulationSettings(
         int(ir_slider.get_value()), int(mr_slider.get_value()), int(l_slider.get_value()), int(ip_slider.get_value()),
-        int(rr_slider.get_value()), int(ag_slider.get_value()), int(fs_slider.get_value()), int(sd_slider.get_value()),
+        int(rr_slider.get_value()), int(rc_slider.get_value()), int(ag_slider.get_value()), int(fs_slider.get_value()), int(sd_slider.get_value()),
     )))  # Add buttons to menu
 
     options.add.button("Back", onBack)
