@@ -370,7 +370,7 @@ class Simulation:
                             num_healthy += 1
                             # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
 
-                    if self.families[fam].reproduction_days >= (self.simulation_settings.lifespan // 4):  # can reproduce 4x in a lifespan, could be a slider
+                    if self.families[fam].reproduction_days >= self.simulation_settings.reproduction_cooldown:  # can reproduce 4x in a lifespan, could be a slider
                         if random.random() <= (float(self.simulation_settings.reproduction_rate) / 100) * float(num_healthy):
                             # slider reproduction rate multiplied by number of healthy agents
                             # child genes averaged from healthy members in parent family
@@ -378,7 +378,7 @@ class Simulation:
                             # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
                             self.families[fam].reproduction_days = 0  # family is reproducing so their days counter gets reset to 0
                             if len(self.families[fam].agents) < self.simulation_settings.family_size:
-                                # if family is not full, make new member of same family
+                                # if family is not full, make new member of same familys
                                 child = Agent(
                                     self,
                                     self.families[fam],
@@ -431,7 +431,7 @@ class Simulation:
                                         preferences=child_preferences
                                     )
                                     self.families[-1].add_agent(child)
-                                    self.families[-1].reproduction_days == 0
+                                    self.families[-1].reproduction_days = self.simulation_settings.reproduction_cooldown
                                     self.agents.append(child)
                                     self.spawn_agent()
 

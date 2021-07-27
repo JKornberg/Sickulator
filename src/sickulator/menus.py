@@ -62,8 +62,8 @@ def optionsMenu(game, onBack):
     rr_slider = options.add.range_slider("Reproduction Rate", default=reproduction_rate,
                                          increment=1, range_text_value_tick_number=2, range_values=(1, 20),
                                          value_format=(lambda x: str(int(x))))
-    rc_slider = options.add.range_slider("Reproduction Downtime (in days)", default=simulation_duration, increment=1,
-                                         range_text_value_tick_number=2, range_values=(1, 100),
+    rc_slider = options.add.range_slider("Reproduction Downtime (in days)", default=2, increment=1,
+                                         range_text_value_tick_number=2, range_values=(1, 10),
                                          value_format=(lambda x: str(int(x))))
     ag_slider = options.add.range_slider("Starting Agent Count", default=simulation_duration, increment=1,
                                          range_text_value_tick_number=2,
