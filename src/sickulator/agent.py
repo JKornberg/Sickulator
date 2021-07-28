@@ -125,7 +125,6 @@ class Agent(pg.sprite.Sprite):
     @selected.setter
     def selected(self, value):
         self._selected = value
-        print(self.selected)
         self.set_image()
         
 

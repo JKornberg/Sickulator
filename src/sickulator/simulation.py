@@ -598,6 +598,8 @@ class Simulation:
                     agent = clicked_agents[0]
                     self.selected_label = "agent"
                     self.selected_sprite = agent
+                    if (self.camera_point != None):
+                        self.camera_point.selected = False
                     self.camera_point = agent
                     agent.selected = True
                     self.toggle_sprite_status(True)
