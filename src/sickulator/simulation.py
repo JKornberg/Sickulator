@@ -363,6 +363,7 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+
         self.all_sprites.update()
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
@@ -384,11 +385,13 @@ class Simulation:
                     for agent in self.agents
                     if agent.health_state != HealthState.DEAD
                 ]
+                return
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
                 for agent in self.agents:
                     agent.go_home()
+
                 # possibly teleport agents back
                 for fam in range(
                     0, len(self.families)

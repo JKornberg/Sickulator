@@ -4,6 +4,7 @@ from sickulator.settings import (
     BLACK,
     BLUE,
     GREEN,
+    NIGHT_LENGTH,
     PLAYER_SPEED,
     RED,
     SimulationSettings,
@@ -171,16 +172,19 @@ class Agent(pg.sprite.Sprite):
         self.setup_path()
 
     def go_home(self):
-        self.schedule = [([self.home], 999)]
-        self.visit_index = 0
+        self.visit_index = len(self.schedule) - 1
         self.time_on_current_visit = 0
+        self.current_shopping_index = 0
         self.setup_path()
 
     def setup_path(self):
-        if self.visit_index > len(self.schedule):
+        if self.visit_index > len(self.schedule) - 1:
             return
         else:
-            if self.visit_index == 0 or self.visit_index == len(self.schedule):
+            if (
+                self.visit_index == 0
+                or self.visit_index == len(self.schedule) - 1
+            ):
                 destination = home_addresses[self.home]
             else:
                 location_list = self.schedule[self.visit_index][0]
@@ -204,7 +208,8 @@ class Agent(pg.sprite.Sprite):
         if current_visit and self.time_on_current_visit >= current_visit[1]:
             current_visit = self.get_next_visit(current_visit)
 
-        self.update_position(current_visit)
+        if self.schedule:
+            self.update_position(current_visit)
 
     def update_schedule(self):
         """
@@ -407,6 +412,7 @@ def generate_schedules(agents):
         np.random.shuffle(sched)
         agent.schedule = sched
         agent.schedule.insert(0, ([-1], wakeup[index]))
+        agent.schedule.append(([-1], NIGHT_LENGTH))
         index += max(work_visits, social_visits)
 
 
