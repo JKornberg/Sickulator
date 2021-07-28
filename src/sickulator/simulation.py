@@ -386,6 +386,8 @@ class Simulation:
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
+                for agent in self.agents:
+                    agent.go_home()
                 # possibly teleport agents back
                 for fam in range(
                     0, len(self.families)
@@ -417,7 +419,6 @@ class Simulation:
                                 self.families[fam].agents[member].preferences[2]
                             )
                             num_healthy += 1
-                            # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
 
                     if random.random() <= (
                         float(self.simulation_settings.reproduction_rate) / 100
@@ -431,7 +432,6 @@ class Simulation:
                                 sum_social / float(num_healthy),
                             ]
                         )
-                        # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
                         if (
                             len(self.families[fam].agents)
                             < self.simulation_settings.family_size
@@ -563,7 +563,6 @@ class Simulation:
                         if self.camera.apply_rect(s.rect).collidepoint(pos)
                     ]
                     if len(clicked_buildings) > 0:
-                        print(pos)
                         building = clicked_buildings[0]
                         self.selected_label = "building"
                         self.selected_sprite = building
@@ -575,7 +574,6 @@ class Simulation:
                             if self.camera.apply_rect(s.rect).collidepoint(pos)
                         ]
                         if len(clicked_homes) > 0:
-                            print(pos)
                             home = clicked_homes[0]
                             self.selected_label = "home"
                             self.selected_sprite = home

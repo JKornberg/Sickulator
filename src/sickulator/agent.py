@@ -91,6 +91,7 @@ class Agent(pg.sprite.Sprite):
         self.preferences = preferences
         self.active_building = None
         self.name = names.get_full_name()
+        self.path = []
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -168,7 +169,12 @@ class Agent(pg.sprite.Sprite):
             home_addresses[self.home][1],
         )
         self.setup_path()
-        print("first path", self.path)
+
+    def go_home(self):
+        self.schedule = [([self.home], 999)]
+        self.visit_index = 0
+        self.time_on_current_visit = 0
+        self.setup_path()
 
     def setup_path(self):
         if self.visit_index > len(self.schedule):
@@ -242,7 +248,6 @@ class Agent(pg.sprite.Sprite):
             self.visit_index += 1
             self.time_on_current_visit = 0
             self.setup_path()
-            print("second path", self.path)
         return current_visit
 
     def update_position(self, current_visit):
@@ -289,8 +294,7 @@ class Agent(pg.sprite.Sprite):
                             current_visit[0][0]
                         ].add_agent(self)
                 except Exception as e:
-                    print(e)
-                    exit()
+                    pass
 
             return
 
@@ -403,7 +407,6 @@ def generate_schedules(agents):
         np.random.shuffle(sched)
         agent.schedule = sched
         agent.schedule.insert(0, ([-1], wakeup[index]))
-        print(agent.schedule)
         index += max(work_visits, social_visits)
 
 

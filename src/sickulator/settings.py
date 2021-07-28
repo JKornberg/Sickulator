@@ -28,7 +28,7 @@ CAMERA_SPEED = 300
 PLAYER_SPEED = 256  # pixels per second
 DAILY_MORTALITY_CHANCE = 0.2
 
-DAY_LENGTH = 60  # Day duration in seconds
+DAY_LENGTH = 20  # Day duration in seconds
 NIGHT_LENGTH = 5
 
 
