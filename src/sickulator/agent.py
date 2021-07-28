@@ -85,6 +85,7 @@ class Agent(pg.sprite.Sprite):
         self.visit_index = 0
         self.current_shopping_index = 0
         self.time_on_current_visit = 0
+        self.time_on_path = 0
         self.arrived = False
         self.infected_duration = 0
         self.preferences = preferences
@@ -136,7 +137,7 @@ class Agent(pg.sprite.Sprite):
     def inside(self, val):
         self._inside = val
         if val:
-            self.image.set_alpha(0)
+            self.image.set_alpha(255)
         else:
             self.image.set_alpha(255)
 
@@ -167,33 +168,36 @@ class Agent(pg.sprite.Sprite):
             home_addresses[self.home][1],
         )
         self.setup_path()
+        print("first path", self.path)
 
     def setup_path(self):
-        if self.visit_index > len(self.schedule) - 1:
+        if self.visit_index > len(self.schedule):
             return
         else:
-            location_list = self.schedule[self.visit_index]
-            if (
-                self.visit_index == 0
-                or self.visit_index == len(self.schedule) - 1
-            ):
+            if self.visit_index == 0 or self.visit_index == len(self.schedule):
                 destination = home_addresses[self.home]
             else:
-                destination = building_addresses[
-                    location_list[self.current_shopping_index]
-                ]
+                location_list = self.schedule[self.visit_index][0]
+                current_location = location_list[self.current_shopping_index]
+                destination = building_addresses[current_location]
 
         self.path = self.simulation.path_finder.find_path(
             (int(self.pos.x), int(self.pos.y)), destination
         )
         if not self.path:
             self.path = [(int(self.pos.x), int(self.pos.y), "Goal")]
+
         self.current_step = 0
         self.distance_traveled_along_path = 0
+        self.time_on_path = 0
 
     def update(self):
         self.rect.center = self.pos * TILESIZE
         current_visit = self.update_schedule()
+        # If the agent has completed the current visit, start the next one
+        if current_visit and self.time_on_current_visit >= current_visit[1]:
+            current_visit = self.get_next_visit(current_visit)
+
         self.update_position(current_visit)
 
     def update_schedule(self):
@@ -206,27 +210,21 @@ class Agent(pg.sprite.Sprite):
         5. Agent is going home -> Night time starts, agent changes path to go home, waits until morning.
         """
         # If the agent has a schedule and hasn't finished it yet
-        print(self.schedule)
-        exit()
         if self.schedule and self.visit_index < len(self.schedule):
             current_visit = self.schedule[self.visit_index]
-            # print(
-            #     "Current visit",
-            #     self.visit_index,
-            #     current_visit,
-            #     self.time_on_current_visit,
-            # )
-            # Only increase the time at the visit if they arrived (work, social) at home (-1) or shopping (len(schedule) > 1)
-            if self.arrived or len(current_visit) > 1 or current_visit[0] == -1:
-                self.time_on_current_visit += self.simulation.dt
+
+            # Only increase the time at the visit if they arrived (work, social) at home (-1) or shopping (len(current_visit) > 1)
+            # if (
+            # self.arrived
+            # or len(current_visit[0]) > 1
+            # or current_visit[0][0] == -1
+            # ):
+            self.time_on_current_visit += self.simulation.dt
+            self.time_on_path += self.simulation.dt
+
+            return current_visit
         else:
             return
-
-        # If the agent has completed the current visit, start the next one
-        if self.time_on_current_visit >= current_visit[1]:
-            current_visit = self.get_next_visit(current_visit)
-
-        return current_visit
 
     def get_next_visit(self, current_visit):
         self.current_shopping_index = 0
@@ -235,8 +233,8 @@ class Agent(pg.sprite.Sprite):
         visit_list = current_visit[0]
         current_visit_location = visit_list[self.current_shopping_index]
         # Starting from home or on the last vist ( not sure why this is removing an agent from home on the last visit )
-        if self.visit_index == 0 or self.visit_index == len(self.schedule) - 1:
-            self.simulation.homes[current_visit_location].remove_agent(self)
+        if self.visit_index == 0:
+            self.simulation.homes[self.home].remove_agent(self)
         else:
             self.simulation.buildings[current_visit_location].remove_agent(self)
         # if were not on the last visit, go to the next one.
@@ -244,6 +242,8 @@ class Agent(pg.sprite.Sprite):
             self.visit_index += 1
             self.time_on_current_visit = 0
             self.setup_path()
+            print("second path", self.path)
+        return current_visit
 
     def update_position(self, current_visit):
         """
@@ -254,15 +254,23 @@ class Agent(pg.sprite.Sprite):
         """
 
         distance_traveled = (
-            self.time_on_current_visit * PLAYER_SPEED
+            self.time_on_path * PLAYER_SPEED
         )  # pixels = seconds * (pixels / second)
         current_tile_index = math.floor(
             distance_traveled / TILESIZE
         )  # constant = pixels / pixels
 
+        # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
-            visit_list = self.schedule[self.visit_index]
+            visit_list = self.schedule[self.visit_index][0]
             if len(visit_list) > 1:
+                self.simulation.buildings[
+                    current_visit[0][self.current_shopping_index]
+                ].add_agent(self)
+                self.simulation.buildings[
+                    current_visit[0][self.current_shopping_index]
+                ].remove_agent(self)
+
                 if self.current_shopping_index == len(visit_list) - 1:
                     self.current_shopping_index = 0
                 else:
@@ -275,13 +283,14 @@ class Agent(pg.sprite.Sprite):
                         self.visit_index == 0
                         or self.visit_index == len(self.schedule) - 1
                     ):
-                        self.simulation.homes[current_visit[0]].add_agent(self)
+                        self.simulation.homes[self.home].add_agent(self)
                     else:
-                        self.simulation.buildings[current_visit[0]].add_agent(
-                            self
-                        )
+                        self.simulation.buildings[
+                            current_visit[0][0]
+                        ].add_agent(self)
                 except Exception as e:
-                    print(distance_traveled, current_tile_index)
+                    print(e)
+                    exit()
 
             return
 
@@ -308,7 +317,7 @@ class Agent(pg.sprite.Sprite):
             self.pos.y += remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "East":
             self.pos.x += remaining_distance_traveled / TILESIZE
-        else:
+        elif current_tile[2] == "West":
             self.pos.x -= remaining_distance_traveled / TILESIZE
 
 
@@ -343,13 +352,8 @@ class Family:
 
 def generate_schedules(agents):
     """New scheduling algorithm"""
-    count = len(agents)
     rng = np.random.default_rng()
-    # Work food social
-    # [[2,10], [1, 7], [[2,3,4,5], 10], [4 , 3], [6 , 2.5]]
-    # [(2,10), (1,7), (2,0), (3,0), (4,0)
-    # 20
-    # 5 3
+
     wb = rng.choice(range(len(building_addresses)), 1000)
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
@@ -360,37 +364,46 @@ def generate_schedules(agents):
     social_threshold = 2
     for agent in agents:
         # generate work_buildings
-        work_visits = 0
-        if agent.preferences[0] >= work_threshold:
-            if (
-                work_visits := int(agent.preferences[0] / (work_threshold))
-            ) > 1:
-                work_visits = rng.integers(
-                    1, int(agent.preferences[0] / (work_threshold))
-                )
-        work_duration = [agent.preferences[0] / work_visits]
-        work_ids = wb[index : index + work_visits]
-        food_ids = fb[index : index + fv[index]]
+        w, f, s = agent.preferences
         social_visits = 0
-        if agent.preferences[2] > social_threshold:
-            if (
-                social_visits := int(agent.preferences[2] / (social_threshold))
-            ) > 1:
-                social_visits = rng.integers(
-                    1, int(agent.preferences[2] / (social_threshold))
-                )
-        social_duration = [agent.preferences[2] / social_visits]
-        social_ids = sb[index : index + social_visits]
-        social_ids = [[social_id] for social_id in social_ids]
+        if (
+            s >= social_threshold
+            and (social_visits := int(s / (social_threshold))) > 1
+        ):
+            social_visits = rng.integers(
+                1, int(agent.preferences[2] / (social_threshold))
+            )
+            social_duration = agent.preferences[2] / social_visits
+            social_ids = sb[index : index + social_visits]
+            social_ids = [[social_id] for social_id in social_ids]
+        else:
+            social_duration = 0
+            social_ids = []
+            w += s / 2
+            f += s / 2
+        work_visits = 0
+        if (
+            w >= work_threshold
+            and (work_visits := int(w / (work_threshold))) > 1
+        ):
+            work_visits = rng.integers(1, int(w / (work_threshold)))
+            work_duration = w / work_visits
+            work_ids = wb[index : index + work_visits]
+        else:
+            f = f + w
+            work_duration = 0
+            work_ids = []
+        food_ids = fb[index : index + fv[index]]
         work_ids = [[work_id] for work_id in work_ids]
         sched = (
             [(work_id, work_duration) for work_id in work_ids]
-            + [(food_ids, agent.preferences[1])]
+            + [(food_ids, f)]
             + [(social_id, social_duration) for social_id in social_ids]
         )
         np.random.shuffle(sched)
-        sched_with_wakeup = [(-1, wakeup[index])] + sched
-        agent.schedule = sched_with_wakeup
+        agent.schedule = sched
+        agent.schedule.insert(0, ([-1], wakeup[index]))
+        print(agent.schedule)
         index += max(work_visits, social_visits)
 
 
