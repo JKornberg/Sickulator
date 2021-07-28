@@ -43,6 +43,7 @@ class Simulation:
         self.path_finder = PathFinder(self.grid)
         self.isDaytime = True
         self.infected_today = 0
+        self.camera_point = None
         self.new()
 
     def enable_popup(self):
@@ -555,6 +556,7 @@ class Simulation:
                     agent = clicked_agents[0]
                     self.selected_label = "agent"
                     self.selected_sprite = agent
+                    self.camera_point = agent
                     self.toggle_sprite_status(True)
                 else:
                     clicked_buildings = [
