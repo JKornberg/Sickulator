@@ -169,6 +169,8 @@ class Agent(pg.sprite.Sprite):
         self.is_going_home = False
         self.is_home = False
         self.visit_index = 0
+        self.time_on_current_visit = 0
+        self.current_shopping_index = 0
         self.pos.x, self.pos.y = (
             home_addresses[self.home][0],
             home_addresses[self.home][1],

@@ -367,11 +367,13 @@ class Simulation:
         self.all_sprites.update()
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
+            print("waiting for agents to be home...")
             all_agents_home = False
             for agent in self.agents:
                 if not agent.is_home:
                     break
             else:
+                print("all agents home!")
                 all_agents_home = True
 
             if all_agents_home:
