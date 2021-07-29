@@ -1,5 +1,6 @@
 import math
-from os import curdir
+import os
+from os import curdir, path
 from sickulator.settings import (
     BLACK,
     BLUE,
@@ -74,18 +75,19 @@ class Agent(pg.sprite.Sprite):
         self.groups = simulation.all_sprites
         self.family = family
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.glob_healthy = pg.image.load("sickulator/agent_sprites/healthyglob.png")
+        location = path.dirname(path.realpath(__file__))
+        self.glob_healthy = pg.image.load(os.path.join(location,"agent_sprites","healthyglob.png"))
         self.glob_healthy = pg.transform.scale(self.glob_healthy, (TILESIZE * 2, TILESIZE * 2))
-        self.glob_infected = pg.image.load("sickulator/agent_sprites/sickglob.png")
+        self.glob_infected = pg.image.load(os.path.join(location,"agent_sprites","sickglob.png"))
         self.glob_infected = pg.transform.scale(self.glob_infected, (TILESIZE * 2, TILESIZE * 2))
-        self.glob_immune = pg.image.load("sickulator/agent_sprites/immuneglob.png")
+        self.glob_immune = pg.image.load(os.path.join(location,"agent_sprites","immuneglob.png"))
         self.glob_immune = pg.transform.scale(self.glob_immune, (TILESIZE * 2, TILESIZE * 2))
 
-        self.glob_healthy_selected = pg.image.load("sickulator/agent_sprites/healthyglob_selected.png")
+        self.glob_healthy_selected = pg.image.load(os.path.join(location,"agent_sprites","healthyglob_selected.png"))
         self.glob_healthy_selected = pg.transform.scale(self.glob_healthy_selected, (TILESIZE * 2, TILESIZE * 2))
-        self.glob_infected_selected = pg.image.load("sickulator/agent_sprites/sickglob_selected.png")
+        self.glob_infected_selected = pg.image.load(os.path.join(location,"agent_sprites","sickglob_selected.png"))
         self.glob_infected_selected = pg.transform.scale(self.glob_infected_selected, (TILESIZE * 2, TILESIZE * 2))
-        self.glob_immune_selected = pg.image.load("sickulator/agent_sprites/immuneglob_selected.png")
+        self.glob_immune_selected = pg.image.load(os.path.join(location,"agent_sprites","immuneglob_selected.png"))
         self.glob_immune_selected = pg.transform.scale(self.glob_immune_selected, (TILESIZE * 2, TILESIZE * 2))
         self.image = self.glob_healthy.convert_alpha()
         self.rect = self.glob_healthy.get_rect()

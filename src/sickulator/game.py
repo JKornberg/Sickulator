@@ -2,7 +2,7 @@ from sickulator.simulation import Simulation
 from sickulator.settings import HEIGHT, WIDTH, UISCALE, SimulationSettings
 import sys
 import pygame as pg
-from menus import *
+from sickulator.menus import *
 import pygame_menu
 import pickle
 import os
