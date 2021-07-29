@@ -25,7 +25,7 @@ UISCALE = 0.15
 
 # Agent Settings
 CAMERA_SPEED = 300
-PLAYER_SPEED = 256  # pixels per second
+PLAYER_SPEED = 300  # pixels per second
 DAILY_MORTALITY_CHANCE = 0.2
 
 

@@ -392,6 +392,8 @@ class Simulation:
 
                 for agent in self.agents:
                     agent.daily_update()
+                for building in self.buildings:
+                    building.reset_building()
                 print("After Daily Upate")
                 self.daily_stats.append(Agent.health_counts.copy())
                 self.agents = [
