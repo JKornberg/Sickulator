@@ -20,12 +20,25 @@ class Player(pg.sprite.Sprite):
         self.vx, self.vy = 0, 0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
+            if (self.game.camera_point != None):
+                self.game.camera_point.selected = False
+                self.game.camera_point = None
             self.vx = -CAMERA_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
+            if (self.game.camera_point != None):
+                self.game.camera_point.selected = False
+                self.game.camera_point = None
             self.vx = CAMERA_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:
+            if (self.game.camera_point != None):
+                self.game.camera_point.selected = False
+                self.game.camera_point = None
             self.vy = -CAMERA_SPEED
         if keys[pg.K_DOWN] or keys[pg.K_s]:
+            if (self.game.camera_point != None):
+                self.game.camera_point.selected = False
+                self.game.camera_point = None
+
             self.vy = CAMERA_SPEED
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
@@ -53,8 +66,12 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        x = self.x + self.vx * self.game.true_dt
-        y = self.y + self.vy * self.game.true_dt
+        if self.game.camera_point != None:
+            x = self.game.camera_point.rect.x
+            y = self.game.camera_point.rect.y
+        else:
+            x = self.x + self.vx * self.game.true_dt
+            y = self.y + self.vy * self.game.true_dt
         x = min(992, x)  # right
         y = min(430, y)  # bottom
         x = max(512, x)  # left

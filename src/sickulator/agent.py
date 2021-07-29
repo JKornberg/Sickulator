@@ -4,6 +4,7 @@ from sickulator.settings import (
     BLACK,
     BLUE,
     GREEN,
+    NIGHT_LENGTH,
     PLAYER_SPEED,
     RED,
     SimulationSettings,
@@ -12,7 +13,7 @@ from sickulator.settings import (
     DAY_LENGTH,
     work_building_ids,
     food_building_ids,
-    social_building_ids
+    social_building_ids,
 )
 import pygame as pg
 from enum import Enum
@@ -56,15 +57,15 @@ class Agent(pg.sprite.Sprite):
     health_counts = [0, 0, 0, 0]
 
     def __init__(
-            self,
-            simulation,
-            family,
-            x,
-            y,
-            home_id,
-            id,
-            health_state=HealthState.HEALTHY,
-            preferences=np.array([1 / 3, 1 / 3, 1 / 3]) * DAY_LENGTH
+        self,
+        simulation,
+        family,
+        x,
+        y,
+        home_id,
+        id,
+        health_state=HealthState.HEALTHY,
+        preferences=np.array([1 / 3, 1 / 3, 1 / 3]) * DAY_LENGTH,
     ):
         self.id = id
         self.pos = vec(x, y)
@@ -79,6 +80,13 @@ class Agent(pg.sprite.Sprite):
         self.glob_infected = pg.transform.scale(self.glob_infected, (TILESIZE * 2, TILESIZE * 2))
         self.glob_immune = pg.image.load("sickulator/agent_sprites/immuneglob.png")
         self.glob_immune = pg.transform.scale(self.glob_immune, (TILESIZE * 2, TILESIZE * 2))
+
+        self.glob_healthy_selected = pg.image.load("sickulator/agent_sprites/healthyglob_selected.png")
+        self.glob_healthy_selected = pg.transform.scale(self.glob_healthy_selected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_infected_selected = pg.image.load("sickulator/agent_sprites/sickglob_selected.png")
+        self.glob_infected_selected = pg.transform.scale(self.glob_infected_selected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_immune_selected = pg.image.load("sickulator/agent_sprites/immuneglob_selected.png")
+        self.glob_immune_selected = pg.transform.scale(self.glob_immune_selected, (TILESIZE * 2, TILESIZE * 2))
         self.image = self.glob_healthy.convert_alpha()
         self.rect = self.glob_healthy.get_rect()
         self._birthday = simulation.day
@@ -88,15 +96,41 @@ class Agent(pg.sprite.Sprite):
         self._inside = False
         self.schedule = []
         self.visit_index = 0
+        self.current_shopping_index = 0
         self.time_on_current_visit = 0
+        self.time_on_path = 0
         self.arrived = False
         self.infected_duration = 0
         self.preferences = preferences
         self.active_building = None
         self.name = names.get_full_name()
+        self._selected = False
+        self.path = []
+        self.is_going_home = False
+        self.is_home = True
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
+
+    def health_state_but_works(self):
+        if self._health_state == HealthState.HEALTHY:
+            return 0
+        elif self._health_state == HealthState.INFECTED:
+            return 1
+        elif self._health_state == HealthState.IMMUNE:
+            return 2
+        elif self._health_state == HealthState.DEAD:
+            return 3
+
+    @property
+    def selected(self):
+        return self._selected
+    
+    @selected.setter
+    def selected(self, value):
+        self._selected = value
+        self.set_image()
+        
 
     @property
     def birthday(self):
@@ -111,12 +145,7 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
-        if self._health_state == hs.INFECTED:
-            self.image = self.glob_infected
-        elif self._health_state == hs.IMMUNE:
-            self.image = self.glob_immune
-        elif self._health_state == hs.HEALTHY:
-            self.image = self.glob_healthy
+        self.set_image()
         if hs == HealthState.INFECTED:
             self.simulation.infected_today += 1
         elif hs == HealthState.DEAD:
@@ -126,6 +155,24 @@ class Agent(pg.sprite.Sprite):
                 self.active_building.remove_agent(self)
         elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
+
+
+    def set_image(self):
+        if self._health_state == HealthState.INFECTED:
+            if self.selected:
+                self.image = self.glob_infected_selected.convert_alpha()
+            else:
+                self.image = self.glob_infected.convert_alpha()
+        elif self._health_state == HealthState.HEALTHY:
+            if self.selected:
+                self.image = self.glob_healthy_selected.convert_alpha()
+            else:
+                self.image = self.glob_healthy.convert_alpha()
+        elif self._health_state == HealthState.IMMUNE:
+            if self.selected:
+                self.image = self.glob_immune_selected.convert_alpha()
+            else:
+                self.image = self.glob_immune.convert_alpha()
 
     @property
     def inside(self):
@@ -140,69 +187,133 @@ class Agent(pg.sprite.Sprite):
             self.image.set_alpha(255)
 
     def daily_update(self, firstDay=False):
-        if (self.simulation.simulation_settings.lifespan - (self.simulation.day - self._birthday)) <= 0:
+        if (
+            self.simulation.simulation_settings.lifespan
+            - (self.simulation.day - self._birthday)
+        ) <= 0:
             self.health_state = HealthState.DEAD
         elif firstDay == False:
             if self.health_state == HealthState.INFECTED:
-                if np.random.rand() < self.simulation.simulation_settings.mortality / 100:
+                if (
+                    np.random.rand()
+                    < self.simulation.simulation_settings.mortality / 100
+                ):
                     self.health_state = HealthState.DEAD
                 if (
-                        self.infected_duration
-                        >= self.simulation.simulation_settings.illness_period
+                    self.infected_duration
+                    >= self.simulation.simulation_settings.illness_period
                 ):
                     self.health_state = HealthState.IMMUNE
                 else:
                     self.infected_duration += 1
 
+        self.is_going_home = False
+        self.is_home = False
         self.visit_index = 0
+        self.time_on_current_visit = 0
+        self.current_shopping_index = 0
         self.pos.x, self.pos.y = (
             home_addresses[self.home][0],
             home_addresses[self.home][1],
         )
         self.setup_path()
+        print("first path", self.path)
 
     def setup_path(self):
-        if self.visit_index > len(self.schedule) - 1:
+        if self.visit_index > len(self.schedule):
             return
         else:
-            location_id = self.schedule[self.visit_index]
             if (
-                    self.visit_index == 0
-                    or self.visit_index == len(self.schedule) - 1
+                self.visit_index == 0
+                or self.visit_index == len(self.schedule) - 1
             ):
                 destination = home_addresses[self.home]
             else:
-                destination = building_addresses[location_id[0]]
+                location_list = self.schedule[self.visit_index][0]
+                current_location = location_list[self.current_shopping_index]
+                destination = building_addresses[current_location]
 
-            self.time_on_current_visit = 0
         self.path = self.simulation.path_finder.find_path(
             (int(self.pos.x), int(self.pos.y)), destination
         )
         if not self.path:
             self.path = [(int(self.pos.x), int(self.pos.y), "Goal")]
+
         self.current_step = 0
         self.distance_traveled_along_path = 0
+        self.time_on_path = 0
 
     def update(self):
+        if not self.schedule:
+            return
         self.rect.center = self.pos * TILESIZE
+        if (
+            self.simulation.day_duration >= DAY_LENGTH - self.schedule[0][1]
+            and not self.is_going_home
+        ):
+            self.visit_index = len(self.schedule) - 1
+            self.time_on_current_visit = 0
+            self.current_shopping_index = 0
+            self.is_going_home = True
+            self.setup_path()
 
+        current_visit = self.update_schedule()
+        # If the agent has completed the current visit, start the next one
+        if (
+            current_visit
+            and self.time_on_current_visit >= current_visit[1]
+            and not self.is_going_home
+        ):
+            current_visit = self.get_next_visit(current_visit)
+
+        if self.schedule:
+            self.update_position(current_visit)
+
+    def update_schedule(self):
+        """
+        Manage the current behavior of the agent.
+
+        1. Agent is home -> Wait for small duration until starting their day
+        2. Agent is working / socializing -> Set up path to building, stay for a period of time, wait until time is up
+        3. Agent is shopping -> Get path to shop building, travel to shop location, repeat until alotted shopping time is up
+        5. Agent is going home -> Night time starts, agent changes path to go home, waits until morning.
+        """
+        # If the agent has a schedule and hasn't finished it yet
         if self.schedule and self.visit_index < len(self.schedule):
             current_visit = self.schedule[self.visit_index]
+
+            # Only increase the time at the visit if they arrived (work, social) at home (-1) or shopping (len(current_visit) > 1)
+            # if (
+            # self.arrived
+            # or len(current_visit[0]) > 1
+            # or current_visit[0][0] == -1
+            # ):
             self.time_on_current_visit += self.simulation.dt
+            self.time_on_path += self.simulation.dt
+
+            return current_visit
         else:
             return
 
-        if self.time_on_current_visit >= current_visit[1] * DAY_LENGTH:
-            self.arrived = False
-            if self.visit_index == 0 or self.visit_index == len(self.schedule) - 1:
-                self.simulation.homes[current_visit[0]].remove_agent(self)
-            else:
-                self.simulation.buildings[current_visit[0]].remove_agent(self)
-            if self.visit_index < len(self.schedule) - 1:
-                self.visit_index += 1
-                self.time_on_current_visit = 0
-                self.setup_path()
+    def get_next_visit(self, current_visit):
+        self.current_shopping_index = 0
+        self.arrived = False
 
+        visit_list = current_visit[0]
+        current_visit_location = visit_list[self.current_shopping_index]
+        # Starting from home or on the last vist ( not sure why this is removing an agent from home on the last visit )
+        if self.visit_index == 0:
+            self.simulation.homes[self.home].remove_agent(self)
+        else:
+            self.simulation.buildings[current_visit_location].remove_agent(self)
+        # if were not on the last visit, go to the next one.
+        if self.visit_index < len(self.schedule) - 1:
+            self.visit_index += 1
+            self.time_on_current_visit = 0
+            self.setup_path()
+        return current_visit
+
+    def update_position(self, current_visit):
         """
         1. Get current distance traveled on path
         2. Get the current tile the agent should be on given the distance traveled
@@ -210,20 +321,46 @@ class Agent(pg.sprite.Sprite):
            a. could also be, current distance traveled / 16 = 16 / 16 = 1
         """
 
-        distance_traveled = self.time_on_current_visit * PLAYER_SPEED  # pixels = seconds * (pixels / second)
-        current_tile_index = math.floor(distance_traveled / TILESIZE)  # constant = pixels / pixels
+        distance_traveled = (
+            self.time_on_path * PLAYER_SPEED
+        )  # pixels = seconds * (pixels / second)
+        current_tile_index = math.floor(
+            distance_traveled / TILESIZE
+        )  # constant = pixels / pixels
 
+        # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
-            if not self.arrived:
+            if self.is_going_home:
+                self.is_home = True
+            visit_list = self.schedule[self.visit_index][0]
+            if len(visit_list) > 1:
+                self.simulation.buildings[
+                    current_visit[0][self.current_shopping_index]
+                ].add_agent(self)
+                self.simulation.buildings[
+                    current_visit[0][self.current_shopping_index]
+                ].remove_agent(self)
+
+                if self.current_shopping_index == len(visit_list) - 1:
+                    self.current_shopping_index = 0
+                else:
+                    self.current_shopping_index += 1
+                self.setup_path()
+            if not self.arrived and len(visit_list) == 1:
                 self.arrived = True
                 try:
-                    if self.visit_index == 0 or self.visit_index == len(self.schedule) - 1:
-                        self.simulation.homes[current_visit[0]].add_agent(self)
+                    if (
+                        self.visit_index == 0
+                        or self.visit_index == len(self.schedule) - 1
+                    ):
+                        self.simulation.homes[self.home].add_agent(self)
                     else:
-                        self.simulation.buildings[current_visit[0]].add_agent(self)
+                        self.simulation.buildings[
+                            current_visit[0][0]
+                        ].add_agent(self)
                 except Exception as e:
-                    print(distance_traveled, path_distance, current_tile_index)
-
+                    print(e)
+                    exit()
             return
 
             # current tile based on distance traveled
@@ -236,18 +373,21 @@ class Agent(pg.sprite.Sprite):
 
         # Since we're at the start of the tile, I need to figure out how far along the tile the agent has moved.
         # I take the distance traveld UP TO the current tile and then find the difference from the total distance
-        floored_distance_traveled = current_tile_index * TILESIZE  # pixels = n*pixels
-        remaining_distance_traveled = distance_traveled - floored_distance_traveled  # pixels = pixels - pixels
+        floored_distance_traveled = (
+            current_tile_index * TILESIZE
+        )  # pixels = n*pixels
+        remaining_distance_traveled = (
+            distance_traveled - floored_distance_traveled
+        )  # pixels = pixels - pixels
 
-        # Then I need to check which direction to move the agent along the tile to make sure he continues moving
-        # along the path.
+        # Then I need to check which direction to move the agent along the tile to make sure he continues moving along the path.
         if current_tile[2] == "North":
             self.pos.y -= remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "South":
             self.pos.y += remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "East":
             self.pos.x += remaining_distance_traveled / TILESIZE
-        else:
+        elif current_tile[2] == "West":
             self.pos.x -= remaining_distance_traveled / TILESIZE
 
 
@@ -281,88 +421,57 @@ class Family:
         self.agents.append(agent)
 
 
-def gen_schedules(agents):
-    '''New scheduling algorithm'''
-    count = len(agents)
+def generate_schedules(agents):
+    """New scheduling algorithm"""
     rng = np.random.default_rng()
-    # Work food social
-    # [[2,10], [1, 7], [[2,3,4,5], 10], [4 , 3], [6 , 2.5]]
-    # [(2,10), (1,7), (2,0), (3,0), (4,0)
-    # 20
-    # 5 3
     wb = rng.choice(range(len(building_addresses)), 1000)
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
     fv = rng.integers(5, 10, 1000)
-    wakeup = rng.random(1000) / 0.6
+    wakeup = rng.random(1000) * 4
     index = 0
     work_threshold = 4
     social_threshold = 2
     for agent in agents:
         # generate work_buildings
-        work_visits = 0
-        if agent.preferences[0] >= work_threshold:
-            if (work_visits := int(agent.preferences[0] / (work_threshold))) > 1:
-                work_visits = rng.integers(1, int(agent.preferences[0] / (work_threshold)))
-        work_duration = [agent.preferences[0] / work_visits]
-        work_ids = wb[index:index + work_visits]
-        food_ids = fb[index: index + fv[index]]
+        w, f, s = agent.preferences
         social_visits = 0
-        if agent.preferences[2] > social_threshold:
-            if (social_visits := int(agent.preferences[2] / (social_threshold))) > 1:
-                social_visits = rng.integers(1, int(agent.preferences[2] / (social_threshold)))
-        social_duration = [agent.preferences[2] / social_visits]
-        social_ids = sb[index:index + social_visits]
-        social_ids = [[social_id] for social_id in social_ids]
+        if (
+            s >= social_threshold
+            and (social_visits := int(s / (social_threshold))) > 1
+        ):
+            social_visits = rng.integers(
+                1, int(agent.preferences[2] / (social_threshold))
+            )
+            social_duration = agent.preferences[2] / social_visits
+            social_ids = sb[index : index + social_visits]
+            social_ids = [[social_id] for social_id in social_ids]
+        else:
+            social_duration = 0
+            social_ids = []
+            w += s / 2
+            f += s / 2
+        work_visits = 0
+        if (
+            w >= work_threshold
+            and (work_visits := int(w / (work_threshold))) > 1
+        ):
+            work_visits = rng.integers(1, int(w / (work_threshold)))
+            work_duration = w / work_visits
+            work_ids = wb[index : index + work_visits]
+        else:
+            f = f + w
+            work_duration = 0
+            work_ids = []
+        food_ids = fb[index : index + fv[index]]
         work_ids = [[work_id] for work_id in work_ids]
-        sched = [(-1, wakeup[index])] + [(work_id, work_duration) for work_id in work_ids] + [
-            (food_ids, agent.preferences[1])] + [(social_id, social_duration) for social_id in social_ids]
+        sched = (
+            [(work_id, work_duration) for work_id in work_ids]
+            + [(food_ids, f)]
+            + [(social_id, social_duration) for social_id in social_ids]
+        )
         np.random.shuffle(sched)
         agent.schedule = sched
+        agent.schedule.insert(0, ([-1], wakeup[index]))
+        agent.schedule.append(([-1], NIGHT_LENGTH))
         index += max(work_visits, social_visits)
-
-
-def generate_schedules(agents):
-    """
-    Set Agent.schedule for all agents in agents list
-
-    Args:
-    agents - list of all agents to generate schedules for
-
-    Sets schedule to a list of tuples where the first entry is a building number
-    and the second entry is a proportion of the agent's day.
-
-    Adding the proportions for an agent's day will always sum to 1
-    """
-    count = len(agents)
-    building_ids = len(building_addresses)
-    rng = np.random.default_rng()
-    number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
-    number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
-    number_of_visits = np.round(number_of_visits).astype("int16")
-
-    # [ random(0-8) repeated for the total number of visits * 9]
-    buildings = rng.integers(
-        low=0, high=building_ids, size=np.sum(number_of_visits)
-    )  # get list of buildings for visits
-    j = 0
-    # loop can be optimized, assigns buildings to visits
-    for agent, i in zip(agents, number_of_visits):
-        #  first and last entry are how long they spend in home at start and end of each day
-        #  times[1:-2] are the proportion of the day devoted to each building
-        #  Sometimes travel time will exceed the proportion they should spend
-        #  in this case, agent redirects path mid-travel to next target
-        times = (y := rng.random(i + 2)) / np.sum(
-            y
-        )  # this line just generates proportions from a uniform distribution
-        visits = np.concatenate(
-            (
-                agent.home,
-                buildings[j: j + i],
-                agent.home,
-            ),
-            axis=None,
-        )
-        agent.schedule = list(zip(visits, times))
-        j += i
-    return
