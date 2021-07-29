@@ -110,13 +110,14 @@ class Simulation:
                         self,
                     )
                 )
-
+        num_of_families = math.ceil(
+            self.simulation_settings.agent_count
+            / self.simulation_settings.family_size
+        )
+        print(num_of_families)
         for x in range(
             0,
-            math.ceil(
-                self.simulation_settings.agent_count
-                / self.simulation_settings.family_size
-            ),
+            num_of_families,
         ):  # creates families = number of agents / family_size setting, rounded up (so no agents are left out)
             new_home = self.homes[random.randint(0, len(self.homes)) - 1]
             self.families.append(Family(self, new_home))
@@ -363,10 +364,20 @@ class Simulation:
 
     def update(self):
         # update portion of the game loop
+
         self.all_sprites.update()
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
-            if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
+            print("waiting for agents to be home...")
+            all_agents_home = False
+            for agent in self.agents:
+                if not agent.is_home:
+                    break
+            else:
+                print("all agents home!")
+                all_agents_home = True
+
+            if all_agents_home:
                 self.cumulative_stats[2] += self.infected_today
                 self.infected_today = 0
                 self.isDaytime = True
@@ -375,18 +386,24 @@ class Simulation:
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
                 self.timer.set_text("Day: " + str(self.day))
+                print("Before generate schedules")
                 generate_schedules(self.agents)
+                print("After generate schedules")
+
                 for agent in self.agents:
                     agent.daily_update()
+                print("After Daily Upate")
                 self.daily_stats.append(Agent.health_counts.copy())
                 self.agents = [
                     agent
                     for agent in self.agents
                     if agent.health_state != HealthState.DEAD
                 ]
+                return
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
+
                 # possibly teleport agents back
                 for fam in range(
                     0, len(self.families)
@@ -418,7 +435,6 @@ class Simulation:
                                 self.families[fam].agents[member].preferences[2]
                             )
                             num_healthy += 1
-                            # print("\nParent #" + str(num_healthy), ": ", "\nWork Preference: " + str(round(self.families[fam].agents[member].preferences[0] * 100, 2)) + "%", "\nFood Preference: " + str(round(self.families[fam].agents[member].preferences[1]*100, 2)) + "%", "\nSocial Preference: " + str(round(self.families[fam].agents[member].preferences[2]*100, 2)) + "%")
 
                     if random.random() <= (
                         float(self.simulation_settings.reproduction_rate) / 100
@@ -484,7 +500,6 @@ class Simulation:
                                 self.families[-1].add_agent(
                                     self.families[fam].agents.pop(0)
                                 )  # removes first agent from old fam and adds to new
-
                                 child = Agent(
                                     self,
                                     self.families[fam],
@@ -501,19 +516,30 @@ class Simulation:
                                 self.spawn_agent()
                             else:
                                 roomy_fam_found = False
-                                for fam_checking in range(0, len(self.families)):
-                                    if len(self.families[fam_checking].agents) < self.simulation_settings.family_size:
+                                for fam_checking in range(
+                                    0, len(self.families)
+                                ):
+                                    if (
+                                        len(self.families[fam_checking].agents)
+                                        < self.simulation_settings.family_size
+                                    ):
                                         child = Agent(
                                             self,
                                             self.families[fam_checking],
-                                            self.families[fam_checking].home.pos[0],
-                                            self.families[fam_checking].home.pos[1],
+                                            self.families[
+                                                fam_checking
+                                            ].home.pos[0],
+                                            self.families[
+                                                fam_checking
+                                            ].home.pos[1],
                                             self.families[fam_checking].home.id,
                                             id=self.cumulative_stats[3] + 1,
                                             health_state=HealthState.HEALTHY,
-                                            preferences=child_preferences
+                                            preferences=child_preferences,
                                         )
-                                        self.families[fam_checking].add_agent(child)
+                                        self.families[fam_checking].add_agent(
+                                            child
+                                        )
                                         self.agents.append(child)
                                         self.spawn_agent()
                                         roomy_fam_found = True
@@ -521,10 +547,13 @@ class Simulation:
 
                                 if not roomy_fam_found:
                                     # if family is full, make new family and take 1 member from old family to put into new family as a caretaker
-                                    new_home = self.homes[random.randint(0, len(self.homes)) - 1]
+                                    new_home = self.homes[
+                                        random.randint(0, len(self.homes)) - 1
+                                    ]
                                     self.families.append(Family(self, new_home))
-                                    self.families[-1].add_agent(self.families[fam].agents.pop(
-                                        0))  # removes first agent from old fam and adds to new
+                                    self.families[-1].add_agent(
+                                        self.families[fam].agents.pop(0)
+                                    )  # removes first agent from old fam and adds to new
 
                                     child = Agent(
                                         self,
@@ -534,13 +563,16 @@ class Simulation:
                                         self.families[-1].home.id,
                                         id=self.cumulative_stats[3] + 1,
                                         health_state=HealthState.HEALTHY,
-                                        preferences=child_preferences
+                                        preferences=child_preferences,
                                     )
                                     self.families[-1].add_agent(child)
-                                    self.families[-1].reproduction_days = self.simulation_settings.reproduction_cooldown
+                                    self.families[
+                                        -1
+                                    ].reproduction_days = (
+                                        self.simulation_settings.reproduction_cooldown
+                                    )
                                     self.agents.append(child)
                                     self.spawn_agent()
-
     def events(self):
         # catch all events here
         events = pg.event.get()
@@ -598,6 +630,7 @@ class Simulation:
                     agent = clicked_agents[0]
                     self.selected_label = "agent"
                     self.selected_sprite = agent
+
                     if (self.camera_point != None):
                         self.camera_point.selected = False
                     self.camera_point = agent
@@ -610,7 +643,6 @@ class Simulation:
                         if self.camera.apply_rect(s.rect).collidepoint(pos)
                     ]
                     if len(clicked_buildings) > 0:
-                        print(pos)
                         building = clicked_buildings[0]
                         self.selected_label = "building"
                         self.selected_sprite = building
@@ -622,7 +654,6 @@ class Simulation:
                             if self.camera.apply_rect(s.rect).collidepoint(pos)
                         ]
                         if len(clicked_homes) > 0:
-                            print(pos)
                             home = clicked_homes[0]
                             self.selected_label = "home"
                             self.selected_sprite = home

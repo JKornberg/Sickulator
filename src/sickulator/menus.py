@@ -47,37 +47,86 @@ def optionsMenu(game, onBack):
     reproduction_rate = game.simulation_settings.reproduction_rate
     family_size = game.simulation_settings.family_size
     simulation_duration = game.simulation_settings.simulation_duration
-    ir_slider = options.add.range_slider("Infection Rate (%)", default=infection_rate,
-                                         increment=1, range_text_value_tick_number=2, range_values=(1, 100),
-                                         value_format=(lambda x: str(int(x))))
-    mr_slider = options.add.range_slider("Mortality Rate (%)", default=family_size, increment=1,
-                                         range_text_value_tick_number=2, range_values=(1, 100),
-                                         value_format=(lambda x: str(int(x))))
-    l_slider = options.add.range_slider("Lifespan (in days)", default=lifespan,
-                                        increment=1, range_text_value_tick_number=2, range_values=(1, 10),
-                                        value_format=(lambda x: str(int(x))))
-    ip_slider = options.add.range_slider("Illness Duration (in days)", default=illness_period,
-                                         increment=1, range_text_value_tick_number=2, range_values=(1, 20),
-                                         value_format=(lambda x: str(int(x))))
-    rr_slider = options.add.range_slider("Reproduction Rate", default=reproduction_rate,
-                                         increment=1, range_text_value_tick_number=2, range_values=(1, 20),
-                                         value_format=(lambda x: str(int(x))))
-    rc_slider = options.add.range_slider("Reproduction Downtime (in days)", default=2, increment=1,
-                                         range_text_value_tick_number=2, range_values=(1, 10),
-                                         value_format=(lambda x: str(int(x))))
-    ag_slider = options.add.range_slider("Starting Agent Count", default=simulation_duration, increment=1,
-                                         range_text_value_tick_number=2,
-                                         range_values=(1, 100), value_format=(lambda x: str(int(x))))
-    fs_slider = options.add.range_slider("Family Size", default=family_size, increment=1,
-                                         range_text_value_tick_number=2, range_values=(2, 10),
-                                         value_format=(lambda x: str(int(x))))
-    sd_slider = options.add.range_slider("Simulation Duration (in days)", default=simulation_duration, increment=1,
-                                         range_text_value_tick_number=2, range_values=(1, 100),
-                                         value_format=(lambda x: str(int(x))))
-    options.add.button('Run Simulation', lambda: game.play_simulation(SimulationSettings(
-        int(ir_slider.get_value()), int(mr_slider.get_value()), int(l_slider.get_value()), int(ip_slider.get_value()),
-        int(rr_slider.get_value()), int(rc_slider.get_value()), int(ag_slider.get_value()), int(fs_slider.get_value()), int(sd_slider.get_value()),
-    )))  # Add buttons to menu
+    ir_slider = options.add.range_slider(
+        "Infection Rate (%)",
+        default=infection_rate,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 100),
+        value_format=(lambda x: str(int(x))),
+    )
+    mr_slider = options.add.range_slider(
+        "Mortality Rate (%)",
+        default=family_size,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 100),
+        value_format=(lambda x: str(int(x))),
+    )
+    l_slider = options.add.range_slider(
+        "Lifespan (in days)",
+        default=lifespan,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 10),
+        value_format=(lambda x: str(int(x))),
+    )
+    ip_slider = options.add.range_slider(
+        "Illness Duration (in days)",
+        default=illness_period,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 20),
+        value_format=(lambda x: str(int(x))),
+    )
+    rr_slider = options.add.range_slider(
+        "Reproduction Rate",
+        default=reproduction_rate,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 20),
+        value_format=(lambda x: str(int(x))),
+    )
+    ag_slider = options.add.range_slider(
+        "Starting Agent Count",
+        default=50,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 100),
+        value_format=(lambda x: str(int(x))),
+    )
+    fs_slider = options.add.range_slider(
+        "Family Size",
+        default=family_size,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(2, 10),
+        value_format=(lambda x: str(int(x))),
+    )
+    sd_slider = options.add.range_slider(
+        "Simulation Duration (in days)",
+        default=simulation_duration,
+        increment=1,
+        range_text_value_tick_number=2,
+        range_values=(1, 100),
+        value_format=(lambda x: str(int(x))),
+    )
+    options.add.button(
+        "Run Simulation",
+        lambda: game.play_simulation(
+            SimulationSettings(
+                int(ir_slider.get_value()),
+                int(mr_slider.get_value()),
+                int(l_slider.get_value()),
+                int(ip_slider.get_value()),
+                int(rr_slider.get_value()),
+                2,
+                int(ag_slider.get_value()),
+                int(fs_slider.get_value()),
+                int(sd_slider.get_value()),
+            )
+        ),
+    )  # Add buttons to menu
 
     options.add.button("Back", onBack)
 

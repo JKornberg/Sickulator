@@ -4,6 +4,7 @@ from sickulator.settings import (
     BLACK,
     BLUE,
     GREEN,
+    NIGHT_LENGTH,
     PLAYER_SPEED,
     RED,
     SimulationSettings,
@@ -104,6 +105,9 @@ class Agent(pg.sprite.Sprite):
         self.active_building = None
         self.name = names.get_full_name()
         self._selected = False
+        self.path = []
+        self.is_going_home = False
+        self.is_home = True
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -203,7 +207,11 @@ class Agent(pg.sprite.Sprite):
                 else:
                     self.infected_duration += 1
 
+        self.is_going_home = False
+        self.is_home = False
         self.visit_index = 0
+        self.time_on_current_visit = 0
+        self.current_shopping_index = 0
         self.pos.x, self.pos.y = (
             home_addresses[self.home][0],
             home_addresses[self.home][1],
@@ -215,7 +223,10 @@ class Agent(pg.sprite.Sprite):
         if self.visit_index > len(self.schedule):
             return
         else:
-            if self.visit_index == 0 or self.visit_index == len(self.schedule):
+            if (
+                self.visit_index == 0
+                or self.visit_index == len(self.schedule) - 1
+            ):
                 destination = home_addresses[self.home]
             else:
                 location_list = self.schedule[self.visit_index][0]
@@ -233,13 +244,30 @@ class Agent(pg.sprite.Sprite):
         self.time_on_path = 0
 
     def update(self):
+        if not self.schedule:
+            return
         self.rect.center = self.pos * TILESIZE
+        if (
+            self.simulation.day_duration >= DAY_LENGTH - self.schedule[0][1]
+            and not self.is_going_home
+        ):
+            self.visit_index = len(self.schedule) - 1
+            self.time_on_current_visit = 0
+            self.current_shopping_index = 0
+            self.is_going_home = True
+            self.setup_path()
+
         current_visit = self.update_schedule()
         # If the agent has completed the current visit, start the next one
-        if current_visit and self.time_on_current_visit >= current_visit[1]:
+        if (
+            current_visit
+            and self.time_on_current_visit >= current_visit[1]
+            and not self.is_going_home
+        ):
             current_visit = self.get_next_visit(current_visit)
 
-        self.update_position(current_visit)
+        if self.schedule:
+            self.update_position(current_visit)
 
     def update_schedule(self):
         """
@@ -283,7 +311,6 @@ class Agent(pg.sprite.Sprite):
             self.visit_index += 1
             self.time_on_current_visit = 0
             self.setup_path()
-            print("second path", self.path)
         return current_visit
 
     def update_position(self, current_visit):
@@ -303,6 +330,8 @@ class Agent(pg.sprite.Sprite):
 
         # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
+            if self.is_going_home:
+                self.is_home = True
             visit_list = self.schedule[self.visit_index][0]
             if len(visit_list) > 1:
                 self.simulation.buildings[
@@ -332,7 +361,6 @@ class Agent(pg.sprite.Sprite):
                 except Exception as e:
                     print(e)
                     exit()
-
             return
 
             # current tile based on distance traveled
@@ -400,7 +428,7 @@ def generate_schedules(agents):
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
     fv = rng.integers(5, 10, 1000)
-    wakeup = rng.random(1000) / 0.6
+    wakeup = rng.random(1000) * 4
     index = 0
     work_threshold = 4
     social_threshold = 2
@@ -445,51 +473,5 @@ def generate_schedules(agents):
         np.random.shuffle(sched)
         agent.schedule = sched
         agent.schedule.insert(0, ([-1], wakeup[index]))
-        print(agent.schedule)
+        agent.schedule.append(([-1], NIGHT_LENGTH))
         index += max(work_visits, social_visits)
-
-
-# def generate_schedules(agents):
-#     """
-#     Set Agent.schedule for all agents in agents list
-
-#     Args:
-#     agents - list of all agents to generate schedules for
-
-#     Sets schedule to a list of tuples where the first entry is a building number
-#     and the second entry is a proportion of the agent's day.
-
-#     Adding the proportions for an agent's day will always sum to 1
-#     """
-#     count = len(agents)
-#     building_ids = len(building_addresses)
-#     rng = np.random.default_rng()
-#     number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
-#     number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
-#     number_of_visits = np.round(number_of_visits).astype("int16")
-
-#     # [ random(0-8) repeated for the total number of visits * 9]
-#     buildings = rng.integers(
-#         low=0, high=building_ids, size=np.sum(number_of_visits)
-#     )  # get list of buildings for visits
-#     j = 0
-#     # loop can be optimized, assigns buildings to visits
-#     for agent, i in zip(agents, number_of_visits):
-#         #  first and last entry are how long they spend in home at start and end of each day
-#         #  times[1:-2] are the proportion of the day devoted to each building
-#         #  Sometimes travel time will exceed the proportion they should spend
-#         #  in this case, agent redirects path mid-travel to next target
-#         times = (y := rng.random(i + 2)) / np.sum(
-#             y
-#         )  # this line just generates proportions from a uniform distribution
-#         visits = np.concatenate(
-#             (
-#                 agent.home,
-#                 buildings[j: j + i],
-#                 agent.home,
-#             ),
-#             axis=None,
-#         )
-#         agent.schedule = list(zip(visits, times))
-#         j += i
-#     return

@@ -38,6 +38,7 @@ class Player(pg.sprite.Sprite):
             if (self.game.camera_point != None):
                 self.game.camera_point.selected = False
                 self.game.camera_point = None
+
             self.vy = CAMERA_SPEED
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
