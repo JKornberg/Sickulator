@@ -34,21 +34,23 @@ NIGHT_LENGTH = 10
 
 class SimulationSettings:
     def __init__(
-        self,
-        infection_rate=10,
-        mortality_rate=10,
-        lifespan=10,
-        illness_period=3,
-        reproduction_rate=4,
-        agent_count=20,
-        family_size=4,
-        simulation_duration=50,
+            self,
+            infection_rate=10,
+            mortality_rate=10,
+            lifespan=10,
+            illness_period=3,
+            reproduction_rate=4,
+            reproduction_cooldown=2,
+            agent_count=20,
+            family_size=4,
+            simulation_duration=50,
     ):
         self.infection_rate = infection_rate
         self.mortality = mortality_rate
         self.lifespan = lifespan
         self.illness_period = illness_period
         self.reproduction_rate = reproduction_rate
+        self.reproduction_cooldown = reproduction_cooldown
         self.agent_count = agent_count
         self.family_size = family_size
         self.simulation_duration = simulation_duration

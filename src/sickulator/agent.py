@@ -74,9 +74,14 @@ class Agent(pg.sprite.Sprite):
         self.groups = simulation.all_sprites
         self.family = family
         pg.sprite.Sprite.__init__(self, self.groups)
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(health_colors[health_state.value])
-        self.rect = self.image.get_rect()
+        self.glob_healthy = pg.image.load("sickulator/agent_sprites/healthyglob.png")
+        self.glob_healthy = pg.transform.scale(self.glob_healthy, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_infected = pg.image.load("sickulator/agent_sprites/sickglob.png")
+        self.glob_infected = pg.transform.scale(self.glob_infected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_immune = pg.image.load("sickulator/agent_sprites/immuneglob.png")
+        self.glob_immune = pg.transform.scale(self.glob_immune, (TILESIZE * 2, TILESIZE * 2))
+        self.image = self.glob_healthy.convert_alpha()
+        self.rect = self.glob_healthy.get_rect()
         self._birthday = simulation.day
         self._health_state = health_state
         # Update counts of
@@ -109,6 +114,7 @@ class Agent(pg.sprite.Sprite):
         elif self._health_state == HealthState.DEAD:
             return 3
 
+
     @property
     def birthday(self):
         return self._birthday
@@ -122,7 +128,12 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
-        self.image.fill(health_colors[hs.value])
+        if self._health_state == hs.INFECTED:
+            self.image = self.glob_infected
+        elif self._health_state == hs.IMMUNE:
+            self.image = self.glob_immune
+        elif self._health_state == hs.HEALTHY:
+            self.image = self.glob_healthy
         if hs == HealthState.INFECTED:
             self.simulation.infected_today += 1
         elif hs == HealthState.DEAD:
@@ -157,6 +168,7 @@ class Agent(pg.sprite.Sprite):
                     np.random.rand()
                     < self.simulation.simulation_settings.mortality / 100
                 ):
+
                     self.health_state = HealthState.DEAD
                 if (
                     self.infected_duration
@@ -321,10 +333,11 @@ class Agent(pg.sprite.Sprite):
 
             return
 
-        # current tile based on distance traveled
+            # current tile based on distance traveled
         current_tile = self.path[current_tile_index]
 
-        # reset position, could be improved since this causes slight glitches when the agent was almost at the end of the tile
+        # reset position, could be improved since this causes slight glitches when the agent was almost at the end of
+        # the tile
         self.pos.x = current_tile[0]
         self.pos.y = current_tile[1]
 
@@ -338,6 +351,7 @@ class Agent(pg.sprite.Sprite):
         )  # pixels = pixels - pixels
 
         # Then I need to check which direction to move the agent along the tile to make sure he continues moving along the path.
+
         if current_tile[2] == "North":
             self.pos.y -= remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "South":
@@ -345,6 +359,7 @@ class Agent(pg.sprite.Sprite):
         elif current_tile[2] == "East":
             self.pos.x += remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "West":
+
             self.pos.x -= remaining_distance_traveled / TILESIZE
 
 
@@ -370,6 +385,7 @@ class Family:
         self.agents = []
         self.work = 0
         self.home = home
+        self.reproduction_days = simulation.simulation_settings.reproduction_cooldown  # days since last reproduction (can reproduce first night)
         Family.count += 1
 
     def add_agent(self, agent: Agent):
@@ -380,7 +396,6 @@ class Family:
 def generate_schedules(agents):
     """New scheduling algorithm"""
     rng = np.random.default_rng()
-
     wb = rng.choice(range(len(building_addresses)), 1000)
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
@@ -433,48 +448,3 @@ def generate_schedules(agents):
         agent.schedule.append(([-1], NIGHT_LENGTH))
         index += max(work_visits, social_visits)
 
-
-# def generate_schedules(agents):
-#     """
-#     Set Agent.schedule for all agents in agents list
-
-#     Args:
-#     agents - list of all agents to generate schedules for
-
-#     Sets schedule to a list of tuples where the first entry is a building number
-#     and the second entry is a proportion of the agent's day.
-
-#     Adding the proportions for an agent's day will always sum to 1
-#     """
-#     count = len(agents)
-#     building_ids = len(building_addresses)
-#     rng = np.random.default_rng()
-#     number_of_visits = rng.lognormal(1, 0.444, (count))  # has mean of 2
-#     number_of_visits[number_of_visits < 1] = 1  # minimum visits is 1
-#     number_of_visits = np.round(number_of_visits).astype("int16")
-
-#     # [ random(0-8) repeated for the total number of visits * 9]
-#     buildings = rng.integers(
-#         low=0, high=building_ids, size=np.sum(number_of_visits)
-#     )  # get list of buildings for visits
-#     j = 0
-#     # loop can be optimized, assigns buildings to visits
-#     for agent, i in zip(agents, number_of_visits):
-#         #  first and last entry are how long they spend in home at start and end of each day
-#         #  times[1:-2] are the proportion of the day devoted to each building
-#         #  Sometimes travel time will exceed the proportion they should spend
-#         #  in this case, agent redirects path mid-travel to next target
-#         times = (y := rng.random(i + 2)) / np.sum(
-#             y
-#         )  # this line just generates proportions from a uniform distribution
-#         visits = np.concatenate(
-#             (
-#                 agent.home,
-#                 buildings[j: j + i],
-#                 agent.home,
-#             ),
-#             axis=None,
-#         )
-#         agent.schedule = list(zip(visits, times))
-#         j += i
-#     return
