@@ -367,7 +367,14 @@ class Simulation:
         self.all_sprites.update()
         if self.day_duration >= DAY_LENGTH:
             # Change to new day
-            if self.day_duration >= DAY_LENGTH + NIGHT_LENGTH:
+            all_agents_home = False
+            for agent in self.agents:
+                if not agent.is_home:
+                    break
+            else:
+                all_agents_home = True
+
+            if all_agents_home:
                 self.cumulative_stats[2] += self.infected_today
                 self.infected_today = 0
                 self.isDaytime = True
@@ -376,9 +383,13 @@ class Simulation:
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
                 self.timer.set_text("Day: " + str(self.day))
+                print("Before generate schedules")
                 generate_schedules(self.agents)
+                print("After generate schedules")
+
                 for agent in self.agents:
                     agent.daily_update()
+                print("After Daily Upate")
                 self.daily_stats.append(Agent.health_counts.copy())
                 self.agents = [
                     agent
@@ -389,8 +400,6 @@ class Simulation:
             # Day changes to night
             if self.isDaytime:
                 self.isDaytime = False
-                for agent in self.agents:
-                    agent.go_home()
 
                 # possibly teleport agents back
                 for fam in range(

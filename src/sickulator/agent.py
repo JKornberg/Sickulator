@@ -93,6 +93,8 @@ class Agent(pg.sprite.Sprite):
         self.active_building = None
         self.name = names.get_full_name()
         self.path = []
+        self.is_going_home = False
+        self.is_home = True
 
     def _find_path(self, start, end):
         return self.simulation.path_finder.find_path(start, end)
@@ -164,17 +166,13 @@ class Agent(pg.sprite.Sprite):
                 else:
                     self.infected_duration += 1
 
+        self.is_going_home = False
+        self.is_home = False
         self.visit_index = 0
         self.pos.x, self.pos.y = (
             home_addresses[self.home][0],
             home_addresses[self.home][1],
         )
-        self.setup_path()
-
-    def go_home(self):
-        self.visit_index = len(self.schedule) - 1
-        self.time_on_current_visit = 0
-        self.current_shopping_index = 0
         self.setup_path()
 
     def setup_path(self):
@@ -202,10 +200,26 @@ class Agent(pg.sprite.Sprite):
         self.time_on_path = 0
 
     def update(self):
+        if not self.schedule:
+            return
         self.rect.center = self.pos * TILESIZE
+        if (
+            self.simulation.day_duration >= DAY_LENGTH - self.schedule[0][1]
+            and not self.is_going_home
+        ):
+            self.visit_index = len(self.schedule) - 1
+            self.time_on_current_visit = 0
+            self.current_shopping_index = 0
+            self.is_going_home = True
+            self.setup_path()
+
         current_visit = self.update_schedule()
         # If the agent has completed the current visit, start the next one
-        if current_visit and self.time_on_current_visit >= current_visit[1]:
+        if (
+            current_visit
+            and self.time_on_current_visit >= current_visit[1]
+            and not self.is_going_home
+        ):
             current_visit = self.get_next_visit(current_visit)
 
         if self.schedule:
@@ -272,6 +286,8 @@ class Agent(pg.sprite.Sprite):
 
         # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
+            if self.is_going_home:
+                self.is_home = True
             visit_list = self.schedule[self.visit_index][0]
             if len(visit_list) > 1:
                 self.simulation.buildings[
@@ -367,7 +383,7 @@ def generate_schedules(agents):
     sb = rng.choice(social_building_ids, 1000)
     fb = rng.choice(food_building_ids, 1000)
     fv = rng.integers(5, 10, 1000)
-    wakeup = rng.random(1000) / 0.6
+    wakeup = rng.random(1000) * 4
     index = 0
     work_threshold = 4
     social_threshold = 2
