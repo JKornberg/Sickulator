@@ -251,6 +251,8 @@ class Agent(pg.sprite.Sprite):
             self.simulation.day_duration >= DAY_LENGTH - self.schedule[0][1]
             and not self.is_going_home
         ):
+            if self.active_building != None:
+                self.active_building.remove_agent(self)
             self.visit_index = len(self.schedule) - 1
             self.time_on_current_visit = 0
             self.current_shopping_index = 0
@@ -430,8 +432,8 @@ def generate_schedules(agents):
     fv = rng.integers(5, 10, 1000)
     wakeup = rng.random(1000) * 4
     index = 0
-    work_threshold = 4
-    social_threshold = 2
+    work_threshold = 6
+    social_threshold = 4
     for agent in agents:
         # generate work_buildings
         w, f, s = agent.preferences

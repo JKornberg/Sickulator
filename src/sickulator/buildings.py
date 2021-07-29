@@ -107,6 +107,9 @@ class Building:
                 infected += 1
         self.infected_count = infected
 
+    def reset_building(self):
+        self.infected_count = 0
+        self.agents = []
 
 # home x-coord < 30
 # building x-coord > 30
