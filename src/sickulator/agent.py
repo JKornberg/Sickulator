@@ -182,7 +182,7 @@ class Agent(pg.sprite.Sprite):
     def inside(self, val):
         self._inside = val
         if val:
-            self.image.set_alpha(255)
+            self.image.set_alpha(0)
         else:
             self.image.set_alpha(255)
 
