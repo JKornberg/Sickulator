@@ -89,7 +89,7 @@ def optionsMenu(game, onBack):
     )
     ag_slider = options.add.range_slider(
         "Starting Agent Count",
-        default=simulation_duration,
+        default=50,
         increment=1,
         range_text_value_tick_number=2,
         range_values=(1, 100),
@@ -120,13 +120,13 @@ def optionsMenu(game, onBack):
                 int(l_slider.get_value()),
                 int(ip_slider.get_value()),
                 int(rr_slider.get_value()),
+                2,
                 int(ag_slider.get_value()),
                 int(fs_slider.get_value()),
                 int(sd_slider.get_value()),
             )
         ),
     )  # Add buttons to menu
-
 
     options.add.button("Back", onBack)
 
