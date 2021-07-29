@@ -80,6 +80,13 @@ class Agent(pg.sprite.Sprite):
         self.glob_infected = pg.transform.scale(self.glob_infected, (TILESIZE * 2, TILESIZE * 2))
         self.glob_immune = pg.image.load("sickulator/agent_sprites/immuneglob.png")
         self.glob_immune = pg.transform.scale(self.glob_immune, (TILESIZE * 2, TILESIZE * 2))
+
+        self.glob_healthy_selected = pg.image.load("sickulator/agent_sprites/healthyglob_selected.png")
+        self.glob_healthy_selected = pg.transform.scale(self.glob_healthy_selected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_infected_selected = pg.image.load("sickulator/agent_sprites/sickglob_selected.png")
+        self.glob_infected_selected = pg.transform.scale(self.glob_infected_selected, (TILESIZE * 2, TILESIZE * 2))
+        self.glob_immune_selected = pg.image.load("sickulator/agent_sprites/immuneglob_selected.png")
+        self.glob_immune_selected = pg.transform.scale(self.glob_immune_selected, (TILESIZE * 2, TILESIZE * 2))
         self.image = self.glob_healthy.convert_alpha()
         self.rect = self.glob_healthy.get_rect()
         self._birthday = simulation.day
@@ -97,6 +104,7 @@ class Agent(pg.sprite.Sprite):
         self.preferences = preferences
         self.active_building = None
         self.name = names.get_full_name()
+        self._selected = False
         self.path = []
         self.is_going_home = False
         self.is_home = True
@@ -114,6 +122,15 @@ class Agent(pg.sprite.Sprite):
         elif self._health_state == HealthState.DEAD:
             return 3
 
+    @property
+    def selected(self):
+        return self._selected
+    
+    @selected.setter
+    def selected(self, value):
+        self._selected = value
+        self.set_image()
+        
 
     @property
     def birthday(self):
@@ -128,12 +145,7 @@ class Agent(pg.sprite.Sprite):
         Agent.health_counts[self.health_state.value] -= 1
         Agent.health_counts[hs.value] += 1
         self._health_state = hs
-        if self._health_state == hs.INFECTED:
-            self.image = self.glob_infected
-        elif self._health_state == hs.IMMUNE:
-            self.image = self.glob_immune
-        elif self._health_state == hs.HEALTHY:
-            self.image = self.glob_healthy
+        self.set_image()
         if hs == HealthState.INFECTED:
             self.simulation.infected_today += 1
         elif hs == HealthState.DEAD:
@@ -143,6 +155,24 @@ class Agent(pg.sprite.Sprite):
                 self.active_building.remove_agent(self)
         elif hs == HealthState.IMMUNE:
             self.simulation.immunize_agent()
+
+
+    def set_image(self):
+        if self._health_state == HealthState.INFECTED:
+            if self.selected:
+                self.image = self.glob_infected_selected.convert_alpha()
+            else:
+                self.image = self.glob_infected.convert_alpha()
+        elif self._health_state == HealthState.HEALTHY:
+            if self.selected:
+                self.image = self.glob_healthy_selected.convert_alpha()
+            else:
+                self.image = self.glob_healthy.convert_alpha()
+        elif self._health_state == HealthState.IMMUNE:
+            if self.selected:
+                self.image = self.glob_immune_selected.convert_alpha()
+            else:
+                self.image = self.glob_immune.convert_alpha()
 
     @property
     def inside(self):
@@ -168,7 +198,6 @@ class Agent(pg.sprite.Sprite):
                     np.random.rand()
                     < self.simulation.simulation_settings.mortality / 100
                 ):
-
                     self.health_state = HealthState.DEAD
                 if (
                     self.infected_duration
@@ -188,9 +217,10 @@ class Agent(pg.sprite.Sprite):
             home_addresses[self.home][1],
         )
         self.setup_path()
+        print("first path", self.path)
 
     def setup_path(self):
-        if self.visit_index > len(self.schedule) - 1:
+        if self.visit_index > len(self.schedule):
             return
         else:
             if (
@@ -329,8 +359,8 @@ class Agent(pg.sprite.Sprite):
                             current_visit[0][0]
                         ].add_agent(self)
                 except Exception as e:
-                    pass
-
+                    print(e)
+                    exit()
             return
 
             # current tile based on distance traveled
@@ -351,7 +381,6 @@ class Agent(pg.sprite.Sprite):
         )  # pixels = pixels - pixels
 
         # Then I need to check which direction to move the agent along the tile to make sure he continues moving along the path.
-
         if current_tile[2] == "North":
             self.pos.y -= remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "South":
@@ -359,7 +388,6 @@ class Agent(pg.sprite.Sprite):
         elif current_tile[2] == "East":
             self.pos.x += remaining_distance_traveled / TILESIZE
         elif current_tile[2] == "West":
-
             self.pos.x -= remaining_distance_traveled / TILESIZE
 
 
@@ -447,4 +475,3 @@ def generate_schedules(agents):
         agent.schedule.insert(0, ([-1], wakeup[index]))
         agent.schedule.append(([-1], NIGHT_LENGTH))
         index += max(work_visits, social_visits)
-
