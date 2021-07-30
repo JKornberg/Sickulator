@@ -334,7 +334,7 @@ class Agent(pg.sprite.Sprite):
 
         # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
-            if self.is_going_home:
+            if self.is_going_home and not self.is_home:
                 self.simulation.homes[self.home].add_agent(self)
                 self.is_home = True
             visit_list = self.schedule[self.visit_index][0]

@@ -58,6 +58,9 @@ class Building:
         )
 
     def add_agent(self, agent):
+        for a in self.agents:
+            if agent.id == a.id:
+                return
         self.agents.append(agent)
         agent.active_building = self
         if self.type != "outside":
