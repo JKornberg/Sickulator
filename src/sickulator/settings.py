@@ -36,7 +36,7 @@ NIGHT_LENGTH = 10
 class SimulationSettings:
     def __init__(
             self,
-            infection_rate=10,
+            infection_rate=30,
             mortality_rate=10,
             lifespan=10,
             illness_period=3,

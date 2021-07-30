@@ -1,6 +1,8 @@
 import math
 import os
 from os import path
+
+import pygame
 from sickulator.agent import *
 from sickulator.tiles import *
 from sickulator.sprites import *
@@ -114,7 +116,6 @@ class Simulation:
             self.simulation_settings.agent_count
             / self.simulation_settings.family_size
         )
-        print(num_of_families)
         for x in range(
             0,
             num_of_families,
@@ -174,6 +175,7 @@ class Simulation:
         location = path.dirname(os.path.realpath(__file__))
         file = path.join(location, "theme.json")
         self.gui = pygame_gui.UIManager((WIDTH, HEIGHT), theme_path=file)
+        self.gui.preload_fonts([{'name': 'fira_code', 'point_size': 14, 'style': 'bold'}])
         self.make_gui()
 
     def make_gui(self):
@@ -241,12 +243,7 @@ class Simulation:
         )
 
         self.description = pygame_gui.elements.UITextBox(
-            html_text="""<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the 
-            spread of disease in a small city. Agents begin every day at home with their family where they select a 
-            schedule for the day. They then venture out to the city and visit all the buildings their schedule 
-            includes. A small subset of agents begin the simulation infected, and we can watch the disease spread 
-            over time. The health status of an agent is represented by their color. Green is healthy, 
-            red is infected, blue is immune, and dark grey is deceased.</body>""",
+            html_text="""<body>THE SICKULATOR<br>The Sickulator is an agent-based simulator which visualizes the spread of disease in a small city. <br> <b>Controls: </b> <br> Arrow keys to move camera <br> Click sprite for additional info and to follow. <br><br> Agents begin every day at home with their family and create a schedule for the day. Each agent has prefernces for what they like to do (Work, Shop, Socialize). Initially, one agent is infected. The health status of an agent is represented by their color. Green is healthy, red is infected, blue is immune, and dark grey is deceased.</body>""",
             relative_rect=pg.Rect((0, 0), (300, 400)),
             container=self.info,
             manager=self.gui,
@@ -269,7 +266,7 @@ class Simulation:
         )
 
         self.sprite_status = pygame_gui.elements.UIPanel(
-            relative_rect=pg.Rect((WIDTH - 220, 30), (200, 150)),
+            relative_rect=pg.Rect((WIDTH - 260, 30), (240, 130)),
             starting_layer_height=0,
             manager=self.gui,
             visible=False,
@@ -277,14 +274,14 @@ class Simulation:
 
         self.sprite_description = pygame_gui.elements.UITextBox(
             html_text=f"""<body>Healthy:  {Agent.health_counts[0]}<br>Infected: {Agent.health_counts[1]}</body>""",
-            relative_rect=pg.Rect((2, 2), (190, 140)),
+            relative_rect=pg.Rect((2, 2), (230, 120)),
             container=self.sprite_status,
             manager=self.gui,
             layer_starting_height=2,
         )
 
         self.sprite_close_button = pygame_gui.elements.UIButton(
-            relative_rect=pg.Rect((200 - 30, 0), (30, 30)),
+            relative_rect=pg.Rect((240 - 30, 0), (30, 30)),
             text="X",
             manager=self.gui,
             container=self.sprite_status,
@@ -310,14 +307,18 @@ class Simulation:
 
         if self.selected_label == "agent":
             states = ["Healthy", "Infected", "Immune", "Dead"]
+            preferences = list(map( lambda x: round(x/DAY_LENGTH, 2), self.selected_sprite.preferences))
             l = [
                 self.selected_sprite.name,
                 states[self.selected_sprite.health_state.value],
                 f"Birthday: {self.selected_sprite.birthday}",
+                f"Prefs: {preferences}",
+                f"Inside: {self.selected_sprite.inside}"
             ]
         elif self.selected_label == "building" or self.selected_label == "home":
             l = [
                 "Class: " + self.selected_sprite.building_class,
+                f"Type: {self.selected_sprite.type}",
                 f"Visitors: {len(self.selected_sprite.agents)}",
                 f"Infected {self.selected_sprite.infected_count}",
             ]
@@ -374,7 +375,7 @@ class Simulation:
                 if not agent.is_home:
                     break
             else:
-                print("all agents home!")
+                #print("all agents home!")
                 all_agents_home = True
 
             if all_agents_home:
@@ -386,15 +387,12 @@ class Simulation:
                 if self.day > self.simulation_settings.simulation_duration:
                     self.end_game()
                 self.timer.set_text("Day: " + str(self.day))
-                print("Before generate schedules")
                 generate_schedules(self.agents)
-                print("After generate schedules")
 
                 for agent in self.agents:
                     agent.daily_update()
                 for building in self.buildings:
                     building.reset_building()
-                print("After Daily Upate")
                 self.daily_stats.append(Agent.health_counts.copy())
                 self.agents = [
                     agent

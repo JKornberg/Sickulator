@@ -219,7 +219,7 @@ class Agent(pg.sprite.Sprite):
             home_addresses[self.home][1],
         )
         self.setup_path()
-        print("first path", self.path)
+        #print("first path", self.path)
 
     def setup_path(self):
         if self.visit_index > len(self.schedule):
@@ -335,6 +335,7 @@ class Agent(pg.sprite.Sprite):
         # If the agent has reached the end of the path, go to the next one
         if current_tile_index > len(self.path) - 1:  # reached end of path
             if self.is_going_home:
+                self.simulation.homes[self.home].add_agent(self)
                 self.is_home = True
             visit_list = self.schedule[self.visit_index][0]
             if len(visit_list) > 1:
@@ -364,7 +365,6 @@ class Agent(pg.sprite.Sprite):
                         ].add_agent(self)
                 except Exception as e:
                     print(e)
-                    exit()
             return
 
             # current tile based on distance traveled
