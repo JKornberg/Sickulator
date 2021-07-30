@@ -451,7 +451,7 @@ class Simulation:
                         # print("\nChild: ", "\nWork Preference: " + str(round(child_preferences[0] * 100, 2)) + "%", "\nFood Peference: " + str(round(child_preferences[1] * 100, 2)) + "%", "\nSocial Preference: " + str(round(child_preferences[2] * 100, 2)) + "%")
                         if (
                             len(self.families[fam].agents)
-                            < self.simulation_settings.family_size
+                            < self.simulation_settings.family_size and len(self.agents) < 70
                         ):
                             # if family is not full, make new member of same family
                             child = Agent(

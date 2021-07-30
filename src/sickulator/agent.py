@@ -428,11 +428,11 @@ class Family:
 def generate_schedules(agents):
     """New scheduling algorithm"""
     rng = np.random.default_rng()
-    wb = rng.choice(range(len(building_addresses)), 1000)
-    sb = rng.choice(social_building_ids, 1000)
-    fb = rng.choice(food_building_ids, 1000)
-    fv = rng.integers(5, 10, 1000)
-    wakeup = rng.random(1000) * 4
+    wb = rng.choice(range(len(building_addresses)), 2000)
+    sb = rng.choice(social_building_ids, 2000)
+    fb = rng.choice(food_building_ids, 5000)
+    fv = rng.integers(5, 10, 2000)
+    wakeup = rng.random(2000) * 4
     index = 0
     work_threshold = 6
     social_threshold = 4

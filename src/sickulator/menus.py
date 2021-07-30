@@ -89,10 +89,10 @@ def optionsMenu(game, onBack):
     )
     ag_slider = options.add.range_slider(
         "Starting Agent Count",
-        default=50,
+        default=15,
         increment=1,
         range_text_value_tick_number=2,
-        range_values=(1, 100),
+        range_values=(1, 30),
         value_format=(lambda x: str(int(x))),
     )
     fs_slider = options.add.range_slider(
