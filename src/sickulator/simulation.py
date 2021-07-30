@@ -89,7 +89,7 @@ class Simulation:
         self.buildings = (
             []
         )  # create_buildings from buildings; better suited here
-        for x in range(0, len(building_addresses)):
+        for x in range(len(building_addresses)):
             if x < 12:  # index of park addresses start on 6
                 self.buildings.append(
                     Building(
