@@ -230,8 +230,8 @@ def dataMenu(onBack, onDownload):
                     if cumulative_stats:
                         f.pack(
                             dataMenu.add.label(
-                                "Percentage Infected: "
-                                + str(round(cumulative_stats[0], 2))
+                                "Pct Infected: "
+                                + str(round(cumulative_stats[2]/cumulative_stats[3], 2))
                             )
                         )
 
