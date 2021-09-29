@@ -11,6 +11,8 @@ Link to repository: https://github.com/JKornberg/Sickulator
 
 Run with `sickulator`
 
+Note: XLaunch must be installed and running to create the window for the Sickulator.
+
 # Description
 The Sickulator is an agent-based simulator made to visually represent the spread of disease in a small city. The user is provided several configurable options to affect the outcome of the "sickulation". 
 
